@@ -1,6 +1,226 @@
 // frontend/src/main.js
+
+// CSS 강제 로드
 import './styles/main.css';
+
+// 컴포넌트 초기화 함수 import
 import { initializeComponents } from './components/init.js';
+
+console.log('🚀 NEO Regex 메인 스크립트 로드됨');
+
+// 전역 유틸리티 함수들
+window.utils = {
+  // 요소 선택
+  $: (selector) => document.querySelector(selector),
+  $: (selector) => document.querySelectorAll(selector),
+
+  // API 호출
+  api: async (url, options = {}) => {
+    const defaultOptions = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    try {
+      const response = await fetch(url, { ...defaultOptions, ...options });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API call failed:', error);
+      throw error;
+    }
+  },
+
+  // 알림 표시
+  notify: (message, type = 'info') => {
+    console.log(`📢 알림 [${type}]: ${message}`);
+    
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+      <div class="flex items-center">
+        <div class="flex-1">
+          <p class="text-sm font-medium">${message}</p>
+        </div>
+        <button class="ml-4 text-gray-400 hover:text-gray-600" onclick="this.parentElement.parentElement.remove()">
+          ✕
+        </button>
+      </div>
+    `;
+    
+    // 알림 컨테이너 생성 또는 가져오기
+    let container = document.querySelector('#notification-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'notification-container';
+      container.className = 'fixed top-4 right-4 z-50 space-y-2';
+      document.body.appendChild(container);
+    }
+    
+    container.appendChild(notification);
+    
+    // 5초 후 자동 제거
+    setTimeout(() => {
+      if (notification.parentElement) {
+        notification.remove();
+      }
+    }, 5000);
+  },
+
+  // 로딩 스피너 표시/숨기기
+  loading: {
+    show: (element) => {
+      if (typeof element === 'string') {
+        element = document.querySelector(element);
+      }
+      if (element) {
+        element.classList.add('loading');
+        element.disabled = true;
+      }
+    },
+    hide: (element) => {
+      if (typeof element === 'string') {
+        element = document.querySelector(element);
+      }
+      if (element) {
+        element.classList.remove('loading');
+        element.disabled = false;
+      }
+    }
+  },
+
+  // 폼 검증
+  validate: {
+    email: (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+    phone: (phone) => /^[\d\s\-\+\(\)]+$/.test(phone),
+    required: (value) => value && value.trim() !== ''
+  },
+
+  // 로컬 스토리지 헬퍼
+  storage: {
+    set: (key, value) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {
+        console.error('Storage set error:', error);
+      }
+    },
+    get: (key) => {
+      try {
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : null;
+      } catch (error) {
+        console.error('Storage get error:', error);
+        return null;
+      }
+    },
+    remove: (key) => {
+      try {
+        localStorage.removeItem(key);
+      } catch (error) {
+        console.error('Storage remove error:', error);
+      }
+    }
+  }
+};
+
+// CSS 로드 확인 함수
+function checkCSSLoaded() {
+  const testElement = document.createElement('div');
+  testElement.className = 'btn btn-primary';
+  testElement.style.position = 'absolute';
+  testElement.style.visibility = 'hidden';
+  document.body.appendChild(testElement);
+  
+  const computedStyle = window.getComputedStyle(testElement);
+  const isLoaded = computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)' && 
+                   computedStyle.backgroundColor !== 'transparent';
+  
+  document.body.removeChild(testElement);
+  
+  if (isLoaded) {
+    console.log('✅ CSS가 성공적으로 로드되었습니다.');
+  } else {
+    console.warn('⚠️ CSS가 아직 로드되지 않았습니다.');
+    // CSS 수동 주입
+    injectCSS();
+  }
+  
+  return isLoaded;
+}
+
+// CSS 수동 주입 함수
+function injectCSS() {
+  console.log('🎨 CSS 수동 주입 시작...');
+  
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = './styles/main.css';
+  link.onload = () => console.log('✅ CSS 수동 로드 완료');
+  link.onerror = () => console.error('❌ CSS 로드 실패');
+  
+  document.head.appendChild(link);
+}
+
+// DOM이 로드된 후 초기화
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🚀 DOM 로드 완료, NEO Regex 애플리케이션 시작');
+  
+  // CSS 로드 확인
+  setTimeout(() => {
+    checkCSSLoaded();
+  }, 100);
+  
+  // 컴포넌트 초기화
+  try {
+    initializeComponents();
+  } catch (error) {
+    console.error('컴포넌트 초기화 실패:', error);
+  }
+  
+  // 다크모드 토글 기능
+  setTimeout(() => {
+    const darkModeToggle = document.querySelector('#dark-mode-toggle');
+    if (darkModeToggle) {
+      darkModeToggle.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        const isDark = document.documentElement.classList.contains('dark');
+        utils.storage.set('darkMode', isDark);
+        console.log('🌙 다크모드:', isDark ? '활성화' : '비활성화');
+      });
+    }
+  }, 1000);
+
+  // 저장된 다크모드 설정 로드
+  const savedDarkMode = utils.storage.get('darkMode');
+  if (savedDarkMode) {
+    document.documentElement.classList.add('dark');
+  }
+
+  // 모바일 메뉴 토글
+  setTimeout(() => {
+    const mobileMenuButton = document.querySelector('.mobile-menu-button');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    
+    if (mobileMenuButton && mobileMenu) {
+      mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+    }
+  }, 1000);
+
+  // 환영 메시지 표시
+  setTimeout(() => {
+    utils.notify('NEO Regex에 오신 것을 환영합니다! 🎉', 'success');
+  }, 2000);
+
+  console.log('✅ 모든 초기화 완료');
+});
 
 // 전역 유틸리티 함수들
 window.utils = {
