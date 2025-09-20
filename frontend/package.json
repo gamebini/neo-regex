@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "NEO Regex Frontend Application",
   "main": "src/main.js",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -20,14 +21,13 @@
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.10",
     "@vitejs/plugin-legacy": "^5.3.2",
-    "autoprefixer": "^10.4.19",
+    "autoprefixer": "^10.4.21",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "postcss": "^8.4.38",
+    "postcss": "^8.5.6",
     "prettier": "^3.2.5",
-    "tailwindcss": "^3.4.3",
+    "tailwindcss": "^4.1.13",
     "vite": "^5.2.0",
     "vitest": "^1.6.0"
-  },
-  "type": "module"
+  }
 }

@@ -1,254 +1,423 @@
-// NEO Regex Frontend - Main Entry Point
-import { RegexTester } from './components/tester/regex-tester.js';
-import { Navigation } from './components/common/navigation.js';
-import { Footer } from './components/common/footer.js';
-import { PatternLibrary } from './components/library/pattern-search.js';
-import { showNotification, hideLoading, showLoading } from './utils/helpers.js';
+// frontend/src/main.js
+import './styles/main.css';
+import { initializeComponents } from './components/init.js';
 
-// 앱 상태 관리
-class App {
-    constructor() {
-        this.currentPage = 'home';
-        this.components = {};
-        this.init();
+// 전역 유틸리티 함수들
+window.utils = {
+  // 요소 선택
+  $: (selector) => document.querySelector(selector),
+  $$: (selector) => document.querySelectorAll(selector),
+
+  // 이벤트 리스너 추가
+  on: (element, event, handler) => {
+    if (typeof element === 'string') {
+      element = document.querySelector(element);
     }
-
-    async init() {
-        try {
-            showLoading();
-            
-            // 컴포넌트 초기화
-            await this.initializeComponents();
-            
-            // 이벤트 리스너 설정
-            this.setupEventListeners();
-            
-            // 라우팅 설정
-            this.setupRouting();
-            
-            // 초기 페이지 로드
-            this.handleRoute();
-            
-            hideLoading();
-            showNotification('NEO Regex에 오신 것을 환영합니다!', 'success');
-            
-        } catch (error) {
-            console.error('앱 초기화 실패:', error);
-            hideLoading();
-            showNotification('앱을 로드하는 중 오류가 발생했습니다.', 'error');
-        }
+    if (element) {
+      element.addEventListener(event, handler);
     }
+  },
 
-    async initializeComponents() {
-        // 네비게이션 컴포넌트 초기화
-        this.components.navigation = new Navigation();
-        const navContainer = document.getElementById('navigation');
-        if (navContainer) {
-            navContainer.innerHTML = this.components.navigation.render();
-        }
-
-        // 푸터 컴포넌트 초기화
-        this.components.footer = new Footer();
-        const footerContainer = document.getElementById('footer');
-        if (footerContainer) {
-            footerContainer.innerHTML = this.components.footer.render();
-        }
-
-        // 정규식 테스터 컴포넌트 초기화
-        this.components.regexTester = new RegexTester();
-        const testerContainer = document.getElementById('regex-tester-container');
-        if (testerContainer) {
-            testerContainer.innerHTML = this.components.regexTester.render();
-            this.components.regexTester.attachEventListeners();
-        }
-
-        // 패턴 라이브러리 미리보기 초기화
-        this.components.patternLibrary = new PatternLibrary();
-        const patternPreview = document.getElementById('pattern-library-preview');
-        if (patternPreview) {
-            patternPreview.innerHTML = this.components.patternLibrary.renderPreview();
-        }
-
-        console.log('✅ 모든 컴포넌트가 초기화되었습니다.');
+  // 클래스 토글
+  toggle: (element, className) => {
+    if (typeof element === 'string') {
+      element = document.querySelector(element);
     }
-
-    setupEventListeners() {
-        // 히어로 섹션 버튼들
-        const startTestingBtn = document.getElementById('start-testing-btn');
-        const learnMoreBtn = document.getElementById('learn-more-btn');
-
-        if (startTestingBtn) {
-            startTestingBtn.addEventListener('click', () => {
-                this.scrollToElement('quick-tester');
-            });
-        }
-
-        if (learnMoreBtn) {
-            learnMoreBtn.addEventListener('click', () => {
-                this.scrollToElement('features');
-            });
-        }
-
-        // 키보드 단축키
-        document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + K: 빠른 테스터로 포커스
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                this.focusRegexTester();
-            }
-            
-            // ESC: 모달 닫기
-            if (e.key === 'Escape') {
-                this.closeModals();
-            }
-        });
-
-        // 테마 토글 (다크모드)
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                this.toggleTheme();
-            });
-        }
-
-        console.log('✅ 이벤트 리스너가 설정되었습니다.');
+    if (element) {
+      element.classList.toggle(className);
     }
+  },
 
-    setupRouting() {
-        // 간단한 해시 기반 라우팅
-        window.addEventListener('hashchange', () => {
-            this.handleRoute();
-        });
+  // API 호출
+  api: async (url, options = {}) => {
+    const defaultOptions = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
 
-        window.addEventListener('popstate', () => {
-            this.handleRoute();
-        });
+    try {
+      const response = await fetch(url, { ...defaultOptions, ...options });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API call failed:', error);
+      throw error;
     }
+  },
 
-    handleRoute() {
-        const hash = window.location.hash.slice(1) || 'home';
-        const [page, ...params] = hash.split('/');
-
-        switch (page) {
-            case 'home':
-                this.showHomePage();
-                break;
-            case 'tester':
-                this.showTesterPage();
-                break;
-            case 'library':
-                this.showLibraryPage();
-                break;
-            case 'builder':
-                this.showBuilderPage();
-                break;
-            default:
-                this.showHomePage();
-        }
-
-        this.currentPage = page;
-        console.log(`📍 페이지 이동: ${page}`);
+  // 알림 표시
+  notify: (message, type = 'info') => {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+      <div class="flex items-center">
+        <div class="flex-1">
+          <p class="text-sm font-medium">${message}</p>
+        </div>
+        <button class="ml-4 text-gray-400 hover:text-gray-600" onclick="this.parentElement.parentElement.remove()">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          </svg>
+        </button>
+      </div>
+    `;
+    
+    // 알림 컨테이너 생성 또는 가져오기
+    let container = document.querySelector('#notification-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'notification-container';
+      container.className = 'fixed top-4 right-4 z-50 space-y-2';
+      document.body.appendChild(container);
     }
+    
+    container.appendChild(notification);
+    
+    // 3초 후 자동 제거
+    setTimeout(() => {
+      if (notification.parentElement) {
+        notification.remove();
+      }
+    }, 3000);
+  },
 
-    showHomePage() {
-        // 홈페이지는 이미 로드되어 있으므로 특별한 처리 불필요
-        document.title = 'NEO Regex - 차세대 정규식 도구';
+  // 로딩 스피너 표시/숨기기
+  loading: {
+    show: (element) => {
+      if (typeof element === 'string') {
+        element = document.querySelector(element);
+      }
+      if (element) {
+        element.classList.add('loading');
+        element.disabled = true;
+      }
+    },
+    hide: (element) => {
+      if (typeof element === 'string') {
+        element = document.querySelector(element);
+      }
+      if (element) {
+        element.classList.remove('loading');
+        element.disabled = false;
+      }
     }
+  },
 
-    showTesterPage() {
-        // 테스터 페이지로 스크롤하거나 전용 페이지 로드
-        this.scrollToElement('quick-tester');
-        document.title = 'NEO Regex - 정규식 테스터';
-    }
+  // 폼 검증
+  validate: {
+    email: (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+    phone: (phone) => /^[\d\s\-\+\(\)]+$/.test(phone),
+    required: (value) => value && value.trim() !== ''
+  },
 
-    showLibraryPage() {
-        // 패턴 라이브러리 페이지 로드 (추후 구현)
-        showNotification('패턴 라이브러리 페이지는 곧 출시됩니다!', 'info');
-        document.title = 'NEO Regex - 패턴 라이브러리';
+  // 로컬 스토리지 헬퍼
+  storage: {
+    set: (key, value) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {
+        console.error('Storage set error:', error);
+      }
+    },
+    get: (key) => {
+      try {
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : null;
+      } catch (error) {
+        console.error('Storage get error:', error);
+        return null;
+      }
+    },
+    remove: (key) => {
+      try {
+        localStorage.removeItem(key);
+      } catch (error) {
+        console.error('Storage remove error:', error);
+      }
     }
+  },
 
-    showBuilderPage() {
-        // 시각적 빌더 페이지 로드 (추후 구현)
-        showNotification('시각적 빌더 기능은 곧 출시됩니다!', 'info');
-        document.title = 'NEO Regex - 시각적 빌더';
-    }
+  // 디바운스 유틸리티
+  debounce: (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  },
 
-    // 유틸리티 메서드들
-    scrollToElement(elementId) {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    }
+  // 스로틀 유틸리티
+  throttle: (func, limit) => {
+    let inThrottle;
+    return function(...args) {
+      if (!inThrottle) {
+        func.apply(this, args);
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
+      }
+    };
+  }
+};
 
-    focusRegexTester() {
-        const regexInput = document.querySelector('.regex-input');
-        if (regexInput) {
-            regexInput.focus();
-            this.scrollToElement('quick-tester');
-        }
-    }
-
-    closeModals() {
-        // 모든 모달 닫기
-        const modals = document.querySelectorAll('.modal.active');
-        modals.forEach(modal => {
-            modal.classList.remove('active');
-        });
-    }
-
-    toggleTheme() {
-        const body = document.body;
-        const isDark = body.classList.contains('dark');
-        
-        if (isDark) {
-            body.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-            showNotification('라이트 모드로 변경되었습니다', 'success');
-        } else {
-            body.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-            showNotification('다크 모드로 변경되었습니다', 'success');
-        }
-    }
-
-    // 컴포넌트 외부에서 접근 가능한 메서드들
-    getComponent(name) {
-        return this.components[name];
-    }
-
-    updateComponent(name, data) {
-        if (this.components[name] && this.components[name].update) {
-            this.components[name].update(data);
-        }
-    }
+// 툴팁 기능
+function showTooltip(e) {
+  const tooltip = document.createElement('div');
+  tooltip.className = 'absolute z-50 px-2 py-1 text-sm text-white bg-gray-900 rounded shadow-lg tooltip';
+  tooltip.textContent = e.target.dataset.tooltip;
+  
+  document.body.appendChild(tooltip);
+  
+  const rect = e.target.getBoundingClientRect();
+  tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+  tooltip.style.top = rect.bottom + 5 + 'px';
 }
 
-// 앱 초기화 및 전역 접근
-let app;
+function hideTooltip() {
+  const tooltip = document.querySelector('.tooltip');
+  if (tooltip) {
+    tooltip.remove();
+  }
+}
 
+// 전역으로 사용할 수 있도록 window 객체에 추가
+window.showTooltip = showTooltip;
+window.hideTooltip = hideTooltip;
+
+// 키보드 단축키 처리
+function setupKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    // Ctrl+Enter: 정규식 테스트 실행
+    if (e.ctrlKey && e.key === 'Enter') {
+      const testButton = document.querySelector('#test-regex');
+      if (testButton) {
+        testButton.click();
+      }
+    }
+    
+    // Ctrl+K: 패턴 입력 필드에 포커스
+    if (e.ctrlKey && e.key === 'k') {
+      e.preventDefault();
+      const patternInput = document.querySelector('#regex-pattern');
+      if (patternInput) {
+        patternInput.focus();
+      }
+    }
+    
+    // Escape: 모든 모달/알림 닫기
+    if (e.key === 'Escape') {
+      const modals = document.querySelectorAll('.modal-overlay');
+      const notifications = document.querySelectorAll('.notification');
+      
+      modals.forEach(modal => modal.remove());
+      notifications.forEach(notification => notification.remove());
+    }
+  });
+}
+
+// 성능 모니터링
+function setupPerformanceMonitoring() {
+  // 페이지 로드 시간 측정
+  window.addEventListener('load', () => {
+    const loadTime = performance.now();
+    console.log(`📊 페이지 로드 시간: ${loadTime.toFixed(2)}ms`);
+    
+    // 리소스 로딩 시간 분석
+    const resources = performance.getEntriesByType('resource');
+    const slowResources = resources.filter(resource => resource.duration > 100);
+    
+    if (slowResources.length > 0) {
+      console.warn('⚠️ 느린 리소스들:', slowResources);
+    }
+  });
+}
+
+// 에러 처리
+function setupGlobalErrorHandling() {
+  window.addEventListener('error', (e) => {
+    console.error('💥 전역 에러:', e.error);
+    utils.notify('예상치 못한 오류가 발생했습니다.', 'error');
+  });
+
+  window.addEventListener('unhandledrejection', (e) => {
+    console.error('💥 처리되지 않은 Promise 거부:', e.reason);
+    utils.notify('네트워크 오류가 발생했습니다.', 'error');
+  });
+}
+
+// 서비스 워커 등록 (PWA 준비)
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+    navigator.serviceWorker.register('/sw.js')
+      .then(registration => {
+        console.log('🔧 Service Worker 등록 성공:', registration);
+      })
+      .catch(error => {
+        console.log('❌ Service Worker 등록 실패:', error);
+      });
+  }
+}
+
+// 다크모드 시스템 감지
+function setupDarkModeDetection() {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  
+  function handleSystemThemeChange(e) {
+    const savedTheme = utils.storage.get('darkMode');
+    if (savedTheme === null) { // 사용자가 수동으로 설정하지 않은 경우만
+      if (e.matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }
+  
+  mediaQuery.addEventListener('change', handleSystemThemeChange);
+  handleSystemThemeChange(mediaQuery); // 초기 설정
+}
+
+// 접근성 개선
+function setupAccessibility() {
+  // 키보드 네비게이션 표시
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      document.body.classList.add('keyboard-navigation');
+    }
+  });
+  
+  document.addEventListener('mousedown', () => {
+    document.body.classList.remove('keyboard-navigation');
+  });
+  
+  // 스크린 리더를 위한 live region 설정
+  const liveRegion = document.createElement('div');
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.setAttribute('aria-atomic', 'true');
+  liveRegion.className = 'sr-only';
+  liveRegion.id = 'live-region';
+  document.body.appendChild(liveRegion);
+}
+
+// DOM이 로드된 후 초기화
 document.addEventListener('DOMContentLoaded', () => {
-    app = new App();
+  console.log('🚀 NEO Regex 애플리케이션이 시작되었습니다.');
+  
+  // 핵심 기능 초기화
+  initializeComponents();
+  
+  // 유틸리티 기능 초기화
+  setupKeyboardShortcuts();
+  setupPerformanceMonitoring();
+  setupGlobalErrorHandling();
+  setupDarkModeDetection();
+  setupAccessibility();
+  
+  // PWA 기능 (HTTPS에서만)
+  if (window.location.protocol === 'https:') {
+    registerServiceWorker();
+  }
+  
+  // 다크모드 토글 기능
+  const darkModeToggle = document.querySelector('#dark-mode-toggle');
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      utils.storage.set('darkMode', isDark);
+      
+      // 접근성을 위한 알림
+      const message = isDark ? '다크 모드가 활성화되었습니다.' : '라이트 모드가 활성화되었습니다.';
+      const liveRegion = document.querySelector('#live-region');
+      if (liveRegion) {
+        liveRegion.textContent = message;
+      }
+    });
+  }
+
+  // 저장된 다크모드 설정 로드
+  const savedDarkMode = utils.storage.get('darkMode');
+  if (savedDarkMode) {
+    document.documentElement.classList.add('dark');
+  }
+
+  // 네비게이션 모바일 토글
+  const mobileMenuButton = document.querySelector('.mobile-menu-button');
+  const mobileMenu = document.querySelector('.mobile-menu');
+  
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', () => {
+      const isHidden = mobileMenu.classList.contains('hidden');
+      mobileMenu.classList.toggle('hidden');
+      
+      // 접근성 개선
+      mobileMenuButton.setAttribute('aria-expanded', !isHidden);
+      mobileMenu.setAttribute('aria-hidden', isHidden);
+    });
+  }
+
+  // 모든 폼에 기본 검증 추가
+  const forms = document.querySelectorAll('form');
+  forms.forEach(form => {
+    form.addEventListener('submit', (e) => {
+      const requiredFields = form.querySelectorAll('[required]');
+      let isValid = true;
+
+      requiredFields.forEach(field => {
+        if (!utils.validate.required(field.value)) {
+          isValid = false;
+          field.classList.add('input-error');
+          field.setAttribute('aria-invalid', 'true');
+        } else {
+          field.classList.remove('input-error');
+          field.setAttribute('aria-invalid', 'false');
+        }
+      });
+
+      if (!isValid) {
+        e.preventDefault();
+        utils.notify('필수 항목을 모두 입력해주세요.', 'error');
+        
+        // 첫 번째 오류 필드에 포커스
+        const firstErrorField = form.querySelector('.input-error');
+        if (firstErrorField) {
+          firstErrorField.focus();
+        }
+      }
+    });
+  });
+
+  // 툴팁 초기화
+  const tooltips = document.querySelectorAll('[data-tooltip]');
+  tooltips.forEach(element => {
+    element.addEventListener('mouseenter', showTooltip);
+    element.addEventListener('mouseleave', hideTooltip);
+    element.addEventListener('focus', showTooltip);
+    element.addEventListener('blur', hideTooltip);
+  });
+
+  // 환영 메시지 표시 (딜레이 후)
+  setTimeout(() => {
+    utils.notify('NEO Regex에 오신 것을 환영합니다! 🎉', 'success');
+    
+    // 키보드 단축키 안내
+    setTimeout(() => {
+      utils.notify('💡 팁: Ctrl+Enter로 정규식 테스트, Ctrl+K로 패턴 입력에 포커스', 'info');
+    }, 2000);
+  }, 1000);
+
+  // 앱 상태 표시
+  console.log('✅ 모든 시스템이 초기화되었습니다.');
+  console.log('🎯 사용 가능한 단축키:');
+  console.log('   - Ctrl+Enter: 정규식 테스트 실행');
+  console.log('   - Ctrl+K: 패턴 입력 포커스');
+  console.log('   - Escape: 모달/알림 닫기');
 });
-
-// 개발 환경에서 디버깅용
-if (import.meta.env?.DEV) {
-    window.app = app;
-    console.log('🔧 개발 모드: window.app으로 앱 인스턴스에 접근 가능합니다.');
-}
-
-// 에러 핸들링
-window.addEventListener('error', (event) => {
-    console.error('전역 에러:', event.error);
-    showNotification('예상치 못한 오류가 발생했습니다.', 'error');
-});
-
-window.addEventListener('unhandledrejection', (event) => {
-    console.error('처리되지 않은 Promise 거부:', event.reason);
-    showNotification('네트워크 오류가 발생했습니다.', 'error');
-});
-
-export { app };
