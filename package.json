@@ -1,0 +1,45 @@
+{
+  "name": "neo-regex",
+  "version": "1.0.0",
+  "description": "차세대 정규식 도구 - 개발자를 위한 직관적이고 강력한 정규식 웹 서비스",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && npm test",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "setup": "npm run install:all && npm run setup:db",
+    "setup:db": "cd backend && npm run migrate",
+    "lint": "eslint . --ext .js,.html",
+    "lint:fix": "eslint . --ext .js,.html --fix"
+  },
+  "keywords": [
+    "regex",
+    "정규식",
+    "정규표현식",
+    "developer-tools",
+    "웹개발",
+    "pattern-matching"
+  ],
+  "author": "NEO Regex Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "prettier": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/neo-regex.git"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

@@ -1,0 +1,414 @@
+/* frontend/src/styles/visual-builder.css */
+
+/* Visual Builder Specific Styles */
+.visual-builder {
+  @apply space-y-6;
+}
+
+/* Component Palette */
+.palette-item {
+  @apply p-3 rounded-lg border border-gray-200 dark:border-slate-600;
+  @apply cursor-grab active:cursor-grabbing;
+  @apply hover:border-primary-300 dark:hover:border-primary-600;
+  @apply hover:bg-primary-50 dark:hover:bg-primary-900/10;
+  @apply transition-all duration-200;
+  @apply select-none;
+}
+
+.palette-item:hover {
+  @apply transform translate-x-1;
+}
+
+.palette-item.dragging {
+  @apply opacity-50 transform rotate-2;
+}
+
+.component-icon {
+  @apply w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500;
+  @apply rounded-lg flex items-center justify-center;
+  @apply text-white font-mono text-sm font-bold;
+}
+
+/* Builder Canvas */
+.builder-canvas {
+  @apply min-h-32 relative;
+  @apply transition-all duration-300;
+}
+
+.builder-canvas.drag-over {
+  @apply border-primary-400 bg-primary-50 dark:bg-primary-900/10;
+}
+
+/* Drop Zones */
+.builder-drop-zone {
+  @apply relative py-2 px-1;
+  @apply border-2 border-transparent border-dashed;
+  @apply transition-all duration-200;
+  @apply flex items-center justify-center;
+  @apply min-h-8;
+}
+
+.builder-drop-zone.active {
+  @apply min-h-20;
+}
+
+.builder-drop-zone.highlight {
+  @apply border-primary-400 bg-primary-50 dark:bg-primary-900/20;
+  @apply scale-105;
+}
+
+.drop-hint {
+  @apply text-gray-400 dark:text-gray-500 text-sm;
+  @apply pointer-events-none select-none;
+  @apply opacity-0 transition-opacity duration-200;
+}
+
+.builder-drop-zone.active .drop-hint,
+.builder-drop-zone.highlight .drop-hint {
+  @apply opacity-100;
+}
+
+/* Builder Components */
+.builder-component {
+  @apply relative flex items-center space-x-3;
+  @apply bg-white dark:bg-slate-800 rounded-lg p-3;
+  @apply border border-gray-200 dark:border-slate-600;
+  @apply hover:border-primary-300 dark:hover:border-primary-600;
+  @apply transition-all duration-200;
+  @apply group;
+}
+
+.builder-component::before {
+  content: '';
+  @apply absolute top-0 left-0 w-full h-1;
+  @apply bg-gradient-to-r from-primary-500 to-secondary-500;
+  @apply transform scale-x-0 transition-transform duration-300;
+  @apply origin-left rounded-t-lg;
+}
+
+.builder-component:hover::before {
+  @apply scale-x-100;
+}
+
+.component-content {
+  @apply flex items-center space-x-3 flex-1;
+}
+
+.component-label {
+  @apply text-sm font-medium text-gray-700 dark:text-gray-300;
+}
+
+.component-pattern {
+  @apply text-xs font-mono bg-gray-100 dark:bg-slate-700;
+  @apply px-2 py-1 rounded text-gray-600 dark:text-gray-400;
+}
+
+.component-actions {
+  @apply flex items-center space-x-1;
+  @apply opacity-0 group-hover:opacity-100;
+  @apply transition-opacity duration-200;
+}
+
+.edit-component,
+.remove-component {
+  @apply p-1 rounded text-gray-400 hover:text-gray-600;
+  @apply hover:bg-gray-100 dark:hover:bg-slate-700;
+  @apply transition-all duration-200;
+}
+
+.edit-component:hover {
+  @apply text-blue-600;
+}
+
+.remove-component:hover {
+  @apply text-red-600;
+}
+
+/* Connection Lines (Visual Enhancement) */
+.builder-component + .builder-drop-zone::before {
+  content: '';
+  @apply absolute left-1/2 top-0 w-px h-full;
+  @apply bg-gray-300 dark:bg-slate-600;
+  @apply transform -translate-x-1/2;
+  @apply opacity-50;
+}
+
+.builder-drop-zone.highlight::before {
+  @apply bg-primary-400 opacity-100;
+}
+
+/* Pattern Flow Visualization */
+.pattern-flow {
+  @apply flex items-center space-x-2 overflow-x-auto;
+  @apply p-4 bg-gray-50 dark:bg-slate-800 rounded-lg;
+}
+
+.flow-component {
+  @apply flex-shrink-0 px-3 py-2;
+  @apply bg-white dark:bg-slate-700 rounded-lg;
+  @apply border border-gray-200 dark:border-slate-600;
+  @apply text-sm font-mono;
+}
+
+.flow-connector {
+  @apply flex-shrink-0 w-4 h-px bg-gray-300 dark:bg-slate-600;
+}
+
+/* Component Type Specific Styles */
+.component-character {
+  @apply border-l-4 border-l-blue-500;
+}
+
+.component-quantifier {
+  @apply border-l-4 border-l-green-500;
+}
+
+.component-anchor {
+  @apply border-l-4 border-l-purple-500;
+}
+
+.component-group {
+  @apply border-l-4 border-l-orange-500;
+}
+
+.component-custom {
+  @apply border-l-4 border-l-pink-500;
+}
+
+/* Animation for Adding Components */
+@keyframes componentAdd {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.9);
+  }
+  50% {
+    transform: translateY(0) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.builder-component.new {
+  animation: componentAdd 0.4s ease-out;
+}
+
+/* Preview Panel */
+.preview-panel {
+  @apply sticky top-4;
+}
+
+.preview-results {
+  @apply max-h-40 overflow-y-auto;
+  @apply space-y-2;
+}
+
+.preview-match {
+  @apply p-2 bg-yellow-50 dark:bg-yellow-900/20;
+  @apply border border-yellow-200 dark:border-yellow-800;
+  @apply rounded text-sm;
+}
+
+.preview-match-text {
+  @apply font-mono font-semibold;
+  @apply text-yellow-800 dark:text-yellow-200;
+}
+
+.preview-match-info {
+  @apply text-xs text-yellow-600 dark:text-yellow-400;
+  @apply mt-1;
+}
+
+/* Pattern Complexity Indicator */
+.complexity-indicator {
+  @apply flex items-center space-x-2;
+}
+
+.complexity-dots {
+  @apply flex space-x-1;
+}
+
+.complexity-dot {
+  @apply w-2 h-2 rounded-full;
+  @apply transition-colors duration-200;
+}
+
+.complexity-dot.active {
+  @apply bg-current;
+}
+
+.complexity-dot.inactive {
+  @apply bg-gray-300 dark:bg-slate-600;
+}
+
+.complexity-low {
+  @apply text-green-500;
+}
+
+.complexity-medium {
+  @apply text-yellow-500;
+}
+
+.complexity-high {
+  @apply text-red-500;
+}
+
+/* Edit Modal Enhancements */
+.component-edit-modal .modal-content {
+  @apply transform transition-all duration-300;
+}
+
+.component-edit-modal:not(.hidden) .modal-content {
+  @apply scale-100 opacity-100;
+}
+
+.component-edit-modal.hidden .modal-content {
+  @apply scale-95 opacity-0;
+}
+
+/* Drag Preview Ghost */
+.drag-ghost {
+  @apply fixed pointer-events-none z-50;
+  @apply bg-white dark:bg-slate-800 rounded-lg shadow-xl;
+  @apply border border-primary-300 dark:border-primary-600;
+  @apply p-2 text-sm;
+  @apply transform -translate-x-1/2 -translate-y-1/2;
+  @apply opacity-80;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .visual-builder {
+    @apply space-y-4;
+  }
+  
+  .palette-item {
+    @apply p-2;
+  }
+  
+  .builder-component {
+    @apply p-2;
+  }
+  
+  .component-icon {
+    @apply w-6 h-6 text-xs;
+  }
+}
+
+@media (max-width: 768px) {
+  .builder-canvas {
+    @apply min-h-24;
+  }
+  
+  .builder-drop-zone.active {
+    @apply min-h-16;
+  }
+  
+  .component-content {
+    @apply space-x-2;
+  }
+  
+  .component-actions {
+    @apply opacity-100; /* Always visible on mobile */
+  }
+}
+
+/* Touch Device Enhancements */
+@media (hover: none) and (pointer: coarse) {
+  .palette-item {
+    @apply active:scale-95;
+  }
+  
+  .builder-component {
+    @apply active:scale-98;
+  }
+  
+  .component-actions {
+    @apply opacity-100;
+  }
+}
+
+/* Dark Mode Specific Adjustments */
+.dark .builder-canvas {
+  @apply border-slate-600;
+}
+
+.dark .builder-canvas.drag-over {
+  @apply border-primary-400 bg-primary-900/20;
+}
+
+.dark .palette-item {
+  @apply hover:bg-primary-900/20;
+}
+
+.dark .builder-component {
+  @apply bg-slate-800;
+}
+
+.dark .component-pattern {
+  @apply bg-slate-700 text-slate-300;
+}
+
+/* Accessibility Improvements */
+.palette-item:focus,
+.builder-component:focus {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+  @apply ring-offset-white dark:ring-offset-slate-900;
+}
+
+.edit-component:focus,
+.remove-component:focus {
+  @apply outline-none ring-1 ring-current;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .builder-component {
+    @apply border-2 border-gray-800 dark:border-white;
+  }
+  
+  .palette-item {
+    @apply border-2 border-gray-800 dark:border-white;
+  }
+  
+  .builder-drop-zone.highlight {
+    @apply border-4 border-blue-600;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .builder-component,
+  .palette-item,
+  .builder-drop-zone {
+    @apply transition-none;
+  }
+  
+  .component-icon {
+    @apply transition-none;
+  }
+  
+  .builder-component.new {
+    animation: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .visual-builder {
+    @apply text-black;
+  }
+  
+  .component-actions {
+    @apply hidden;
+  }
+  
+  .builder-drop-zone {
+    @apply hidden;
+  }
+  
+  .palette-item {
+    @apply border border-gray-400;
+  }
+}

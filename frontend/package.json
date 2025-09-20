@@ -1,0 +1,33 @@
+{
+  "name": "neo-regex-frontend",
+  "version": "1.0.0",
+  "description": "NEO Regex Frontend Application",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "lint": "eslint src --ext .js,.html --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint src --ext .js,.html --fix"
+  },
+  "dependencies": {
+    "clipboard": "^2.0.11",
+    "lucide": "^0.400.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "@vitejs/plugin-legacy": "^5.3.2",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "postcss": "^8.4.38",
+    "prettier": "^3.2.5",
+    "tailwindcss": "^3.4.3",
+    "vite": "^5.2.0",
+    "vitest": "^1.6.0"
+  },
+  "type": "module"
+}

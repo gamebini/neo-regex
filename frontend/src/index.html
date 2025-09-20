@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEO Regex - 차세대 정규식 도구</title>
+    <meta name="description" content="개발자를 위한 가장 직관적이고 강력한 정규식 도구. 정규식 테스트, 생성, 학습을 한 번에!">
+    <meta name="keywords" content="regex, 정규식, 정규표현식, 개발도구, 웹개발, 패턴매칭">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="NEO Regex - 차세대 정규식 도구">
+    <meta property="og:description" content="개발자를 위한 가장 직관적이고 강력한 정규식 도구">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://neoregex.com">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/src/styles/main.css">
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- 네비게이션 -->
+    <nav id="navigation" class="bg-white shadow-sm border-b border-gray-200">
+        <!-- Navigation component will be inserted here -->
+    </nav>
+
+    <!-- 메인 컨테이너 -->
+    <main class="min-h-screen">
+        <!-- 히어로 섹션 -->
+        <section id="hero" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+            <div class="container mx-auto px-4 text-center">
+                <h1 class="text-5xl font-bold mb-6">
+                    NEO Regex
+                    <span class="block text-2xl font-normal mt-2">차세대 정규식 도구</span>
+                </h1>
+                <p class="text-xl mb-8 max-w-2xl mx-auto">
+                    개발자를 위한 가장 직관적이고 강력한 정규식 도구로<br>
+                    복잡한 패턴을 쉽게 테스트하고 생성하세요
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <button id="start-testing-btn" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                        지금 시작하기
+                    </button>
+                    <button id="learn-more-btn" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+                        더 알아보기
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 빠른 테스터 섹션 -->
+        <section id="quick-tester" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">빠른 정규식 테스트</h2>
+                    <p class="text-lg text-gray-600">지금 바로 정규식을 테스트해보세요</p>
+                </div>
+                
+                <div id="regex-tester-container" class="max-w-4xl mx-auto">
+                    <!-- Regex tester component will be inserted here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 기능 소개 섹션 -->
+        <section id="features" class="py-16 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">강력한 기능들</h2>
+                    <p class="text-lg text-gray-600">NEO Regex가 제공하는 모든 기능을 만나보세요</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- 기능 카드들이 여기에 삽입됩니다 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 패턴 라이브러리 미리보기 -->
+        <section id="pattern-preview" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">검증된 패턴 라이브러리</h2>
+                    <p class="text-lg text-gray-600">자주 사용되는 정규식 패턴들을 바로 사용하세요</p>
+                </div>
+                
+                <div id="pattern-library-preview" class="max-w-6xl mx-auto">
+                    <!-- Pattern library preview will be inserted here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 푸터 -->
+    <footer id="footer" class="bg-gray-900 text-white py-12">
+        <!-- Footer component will be inserted here -->
+    </footer>
+
+    <!-- 로딩 스피너 -->
+    <div id="loading-spinner" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg flex items-center space-x-3">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <span>로딩중...</span>
+        </div>
+    </div>
+
+    <!-- 알림 컨테이너 -->
+    <div id="notification-container" class="fixed top-4 right-4 z-50">
+        <!-- Notifications will be inserted here -->
+    </div>
+
+    <!-- 스크립트 -->
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
