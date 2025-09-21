@@ -1,643 +1,539 @@
-// frontend/src/main.js
-
-// CSS 강제 로드
+// frontend/src/main.js - 모듈 오류 수정
 import './styles/main.css';
+import { RegexTester } from './core/regex.js';
 
-// 컴포넌트 초기화 함수 import
-import { initializeComponents } from './components/init.js';
+// 전역 변수
+let regexTester = new RegexTester();
+let activeFlags = new Set();
 
-console.log('🚀 NEO Regex 메인 스크립트 로드됨');
-
-// 전역 유틸리티 함수들
-window.utils = {
-  // 요소 선택
-  $: (selector) => document.querySelector(selector),
-  $: (selector) => document.querySelectorAll(selector),
-
-  // API 호출
-  api: async (url, options = {}) => {
-    const defaultOptions = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-
-    try {
-      const response = await fetch(url, { ...defaultOptions, ...options });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('API call failed:', error);
-      throw error;
-    }
-  },
-
-  // 알림 표시
-  notify: (message, type = 'info') => {
-    console.log(`📢 알림 [${type}]: ${message}`);
+// DOM 로드 완료 후 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 NEO Regex 초기화 시작...');
     
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-      <div class="flex items-center">
-        <div class="flex-1">
-          <p class="text-sm font-medium">${message}</p>
-        </div>
-        <button class="ml-4 text-gray-400 hover:text-gray-600" onclick="this.parentElement.parentElement.remove()">
-          ✕
-        </button>
-      </div>
-    `;
+    initializeNavigation();
+    initializeQuickTest();
+    initializeRegexTester();
+    initializePatternLibrary();
+    initializeScrollEffects();
     
-    // 알림 컨테이너 생성 또는 가져오기
-    let container = document.querySelector('#notification-container');
-    if (!container) {
-      container = document.createElement('div');
-      container.id = 'notification-container';
-      container.className = 'fixed top-4 right-4 z-50 space-y-2';
-      document.body.appendChild(container);
-    }
-    
-    container.appendChild(notification);
-    
-    // 5초 후 자동 제거
+    // 환영 메시지 표시
     setTimeout(() => {
-      if (notification.parentElement) {
-        notification.remove();
-      }
-    }, 5000);
-  },
-
-  // 로딩 스피너 표시/숨기기
-  loading: {
-    show: (element) => {
-      if (typeof element === 'string') {
-        element = document.querySelector(element);
-      }
-      if (element) {
-        element.classList.add('loading');
-        element.disabled = true;
-      }
-    },
-    hide: (element) => {
-      if (typeof element === 'string') {
-        element = document.querySelector(element);
-      }
-      if (element) {
-        element.classList.remove('loading');
-        element.disabled = false;
-      }
-    }
-  },
-
-  // 폼 검증
-  validate: {
-    email: (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
-    phone: (phone) => /^[\d\s\-\+\(\)]+$/.test(phone),
-    required: (value) => value && value.trim() !== ''
-  },
-
-  // 로컬 스토리지 헬퍼
-  storage: {
-    set: (key, value) => {
-      try {
-        localStorage.setItem(key, JSON.stringify(value));
-      } catch (error) {
-        console.error('Storage set error:', error);
-      }
-    },
-    get: (key) => {
-      try {
-        const value = localStorage.getItem(key);
-        return value ? JSON.parse(value) : null;
-      } catch (error) {
-        console.error('Storage get error:', error);
-        return null;
-      }
-    },
-    remove: (key) => {
-      try {
-        localStorage.removeItem(key);
-      } catch (error) {
-        console.error('Storage remove error:', error);
-      }
-    }
-  }
-};
-
-// CSS 로드 확인 함수
-function checkCSSLoaded() {
-  const testElement = document.createElement('div');
-  testElement.className = 'btn btn-primary';
-  testElement.style.position = 'absolute';
-  testElement.style.visibility = 'hidden';
-  document.body.appendChild(testElement);
-  
-  const computedStyle = window.getComputedStyle(testElement);
-  const isLoaded = computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)' && 
-                   computedStyle.backgroundColor !== 'transparent';
-  
-  document.body.removeChild(testElement);
-  
-  if (isLoaded) {
-    console.log('✅ CSS가 성공적으로 로드되었습니다.');
-  } else {
-    console.warn('⚠️ CSS가 아직 로드되지 않았습니다.');
-    // CSS 수동 주입
-    injectCSS();
-  }
-  
-  return isLoaded;
-}
-
-// CSS 수동 주입 함수
-function injectCSS() {
-  console.log('🎨 CSS 수동 주입 시작...');
-  
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = './styles/main.css';
-  link.onload = () => console.log('✅ CSS 수동 로드 완료');
-  link.onerror = () => console.error('❌ CSS 로드 실패');
-  
-  document.head.appendChild(link);
-}
-
-// DOM이 로드된 후 초기화
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('🚀 DOM 로드 완료, NEO Regex 애플리케이션 시작');
-  
-  // CSS 로드 확인
-  setTimeout(() => {
-    checkCSSLoaded();
-  }, 100);
-  
-  // 컴포넌트 초기화
-  try {
-    initializeComponents();
-  } catch (error) {
-    console.error('컴포넌트 초기화 실패:', error);
-  }
-  
-  // 다크모드 토글 기능
-  setTimeout(() => {
-    const darkModeToggle = document.querySelector('#dark-mode-toggle');
-    if (darkModeToggle) {
-      darkModeToggle.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
-        const isDark = document.documentElement.classList.contains('dark');
-        utils.storage.set('darkMode', isDark);
-        console.log('🌙 다크모드:', isDark ? '활성화' : '비활성화');
-      });
-    }
-  }, 1000);
-
-  // 저장된 다크모드 설정 로드
-  const savedDarkMode = utils.storage.get('darkMode');
-  if (savedDarkMode) {
-    document.documentElement.classList.add('dark');
-  }
-
-  // 모바일 메뉴 토글
-  setTimeout(() => {
-    const mobileMenuButton = document.querySelector('.mobile-menu-button');
-    const mobileMenu = document.querySelector('.mobile-menu');
+        showNotification('NEO Regex에 오신 것을 환영합니다! 🎉', 'success');
+    }, 1000);
     
-    if (mobileMenuButton && mobileMenu) {
-      mobileMenuButton.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-      });
-    }
-  }, 1000);
-
-  // 환영 메시지 표시
-  setTimeout(() => {
-    utils.notify('NEO Regex에 오신 것을 환영합니다! 🎉', 'success');
-  }, 2000);
-
-  console.log('✅ 모든 초기화 완료');
+    console.log('✅ 초기화 완료');
 });
 
-// 전역 유틸리티 함수들
-window.utils = {
-  // 요소 선택
-  $: (selector) => document.querySelector(selector),
-  $$: (selector) => document.querySelectorAll(selector),
+// =========================
+// 네비게이션 관련 함수들
+// =========================
+function initializeNavigation() {
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('.nav-menu');
+    const navLinks = document.querySelectorAll('.nav-link');
 
-  // 이벤트 리스너 추가
-  on: (element, event, handler) => {
-    if (typeof element === 'string') {
-      element = document.querySelector(element);
+    // 햄버거 메뉴 토글
+    if (hamburger && navMenu) {
+        hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
     }
-    if (element) {
-      element.addEventListener(event, handler);
-    }
-  },
 
-  // 클래스 토글
-  toggle: (element, className) => {
-    if (typeof element === 'string') {
-      element = document.querySelector(element);
+    // 네비게이션 링크 클릭 처리
+    if (navLinks.length > 0) {
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // 모든 링크에서 active 클래스 제거
+                navLinks.forEach(l => l.classList.remove('active'));
+                
+                // 클릭된 링크에 active 클래스 추가
+                link.classList.add('active');
+                
+                // 해당 섹션으로 스크롤
+                const targetId = link.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+                
+                // 모바일 메뉴 닫기
+                if (navMenu && navMenu.classList.contains('active')) {
+                    navMenu.classList.remove('active');
+                    if (hamburger) hamburger.classList.remove('active');
+                }
+            });
+        });
     }
-    if (element) {
-      element.classList.toggle(className);
-    }
-  },
 
-  // API 호출
-  api: async (url, options = {}) => {
-    const defaultOptions = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    // 스크롤에 따른 네비게이션 상태 업데이트
+    window.addEventListener('scroll', updateActiveNavLink);
+}
+
+function updateActiveNavLink() {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    let currentSection = '';
+    
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop - 100;
+        const sectionHeight = section.clientHeight;
+        
+        if (window.pageYOffset >= sectionTop && 
+            window.pageYOffset < sectionTop + sectionHeight) {
+            currentSection = section.getAttribute('id');
+        }
+    });
+    
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${currentSection}`) {
+            link.classList.add('active');
+        }
+    });
+}
+
+// =========================
+// 빠른 테스트 섹션
+// =========================
+function initializeQuickTest() {
+    const quickRegexInput = document.getElementById('quick-regex');
+    const quickTextInput = document.getElementById('quick-text');
+    const quickResultContent = document.getElementById('quick-result-content');
+
+    if (!quickRegexInput || !quickTextInput || !quickResultContent) {
+        console.log('빠른 테스트 요소를 찾을 수 없습니다.');
+        return;
+    }
+
+    // 입력 이벤트 리스너
+    quickRegexInput.addEventListener('input', debounce(performQuickTest, 300));
+    quickTextInput.addEventListener('input', debounce(performQuickTest, 300));
+
+    // 초기 테스트 실행
+    performQuickTest();
+
+    function performQuickTest() {
+        const pattern = quickRegexInput.value.trim();
+        const text = quickTextInput.value;
+
+        if (!pattern) {
+            quickResultContent.innerHTML = '정규식을 입력하면 실시간으로 결과가 표시됩니다.';
+            return;
+        }
+
+        try {
+            const regex = new RegExp(pattern, 'g');
+            const matches = [...text.matchAll(regex)];
+            
+            if (matches.length === 0) {
+                quickResultContent.innerHTML = '<span style="color: #ef4444;">매치되는 텍스트가 없습니다.</span>';
+            } else {
+                let highlightedText = text;
+                let offset = 0;
+                
+                matches.forEach(match => {
+                    const start = match.index + offset;
+                    const end = start + match[0].length;
+                    const highlighted = `<span style="background-color: #fef3c7; color: #92400e; padding: 2px 4px; border-radius: 4px; font-weight: 600;">${escapeHtml(match[0])}</span>`;
+                    
+                    highlightedText = highlightedText.substring(0, start) + 
+                                    highlighted + 
+                                    highlightedText.substring(end);
+                    
+                    offset += highlighted.length - match[0].length;
+                });
+                
+                quickResultContent.innerHTML = `<div style="color: #10b981; margin-bottom: 1rem;">${matches.length}개 매치</div><pre style="white-space: pre-wrap; margin: 0;">${highlightedText}</pre>`;
+            }
+        } catch (error) {
+            quickResultContent.innerHTML = `<span style="color: #ef4444;">오류: ${error.message}</span>`;
+        }
+    }
+}
+
+// =========================
+// 정규식 테스터 섹션
+// =========================
+function initializeRegexTester() {
+    const regexInput = document.getElementById('regex-pattern');
+    const testTextArea = document.getElementById('test-text');
+    const flagButtons = document.querySelectorAll('.flag-button');
+    const resultsContainer = document.getElementById('results-container');
+    const matchCount = document.getElementById('match-count');
+
+    if (!regexInput || !testTextArea || !resultsContainer) {
+        console.log('정규식 테스터 요소를 찾을 수 없습니다.');
+        return;
+    }
+
+    // 플래그 버튼 이벤트
+    flagButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const flag = button.getAttribute('data-flag');
+            
+            if (activeFlags.has(flag)) {
+                activeFlags.delete(flag);
+                button.classList.remove('active');
+            } else {
+                activeFlags.add(flag);
+                button.classList.add('active');
+            }
+            
+            performRegexTest();
+        });
+    });
+
+    // 입력 이벤트
+    regexInput.addEventListener('input', debounce(performRegexTest, 300));
+    testTextArea.addEventListener('input', debounce(performRegexTest, 300));
+
+    function performRegexTest() {
+        const pattern = regexInput.value.trim();
+        const text = testTextArea.value;
+        const flags = Array.from(activeFlags).join('');
+
+        if (!pattern) {
+            resultsContainer.innerHTML = '<div class="no-matches">정규식을 입력하면 매칭 결과가 여기에 표시됩니다.</div>';
+            if (matchCount) matchCount.textContent = '0개 매치';
+            return;
+        }
+
+        try {
+            regexTester.setPattern(pattern, flags).setText(text);
+            const result = regexTester.test();
+
+            if (result.success) {
+                displayTestResults(result);
+                if (matchCount) matchCount.textContent = `${result.totalMatches}개 매치`;
+            } else {
+                resultsContainer.innerHTML = `<div class="no-matches">오류: ${result.error}</div>`;
+                if (matchCount) matchCount.textContent = '오류';
+            }
+        } catch (error) {
+            resultsContainer.innerHTML = `<div class="no-matches">오류: ${error.message}</div>`;
+            if (matchCount) matchCount.textContent = '오류';
+        }
+    }
+
+    function displayTestResults(result) {
+        if (result.totalMatches === 0) {
+            resultsContainer.innerHTML = '<div class="no-matches">매치되는 텍스트가 없습니다.</div>';
+            return;
+        }
+
+        let html = '';
+        result.matches.forEach((match, index) => {
+            html += `
+                <div class="match-item">
+                    <div class="match-header">
+                        <strong>매치 ${index + 1}</strong>
+                        <span>위치: ${match.position}-${match.position + match.length}</span>
+                    </div>
+                    <div class="match-text">
+                        <span class="match-highlight">${escapeHtml(match.match)}</span>
+                    </div>
+                    ${match.groups.length > 0 ? `
+                        <div class="match-groups">
+                            <strong>그룹:</strong>
+                            ${match.groups.map((group, i) => `
+                                <span class="match-group">$${i + 1}: ${escapeHtml(group || '')}</span>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+
+        resultsContainer.innerHTML = html;
+    }
+}
+
+// =========================
+// 패턴 라이브러리 섹션
+// =========================
+function initializePatternLibrary() {
+    const searchInput = document.getElementById('pattern-search');
+    const categoryTabs = document.querySelectorAll('.category-tab');
+    const patternsGrid = document.getElementById('patterns-grid');
+
+    if (!patternsGrid) {
+        console.log('패턴 라이브러리 요소를 찾을 수 없습니다.');
+        return;
+    }
+
+    let currentCategory = 'all';
+
+    // 카테고리 탭 이벤트
+    categoryTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // 모든 탭에서 active 클래스 제거
+            categoryTabs.forEach(t => t.classList.remove('active'));
+            
+            // 클릭된 탭에 active 클래스 추가
+            tab.classList.add('active');
+            
+            // 현재 카테고리 업데이트
+            currentCategory = tab.getAttribute('data-category');
+            
+            // 패턴 필터링
+            filterPatterns();
+        });
+    });
+
+    // 검색 입력 이벤트
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(filterPatterns, 300));
+    }
+
+    function filterPatterns() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const patternCards = document.querySelectorAll('.pattern-card');
+
+        patternCards.forEach(card => {
+            const category = card.getAttribute('data-category');
+            const title = card.querySelector('.pattern-title')?.textContent.toLowerCase() || '';
+            const description = card.querySelector('.pattern-description')?.textContent.toLowerCase() || '';
+            
+            const matchesCategory = currentCategory === 'all' || category === currentCategory;
+            const matchesSearch = searchTerm === '' || 
+                                title.includes(searchTerm) || 
+                                description.includes(searchTerm);
+
+            if (matchesCategory && matchesSearch) {
+                card.style.display = 'block';
+                card.style.animation = 'fadeInUp 0.3s ease-out';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // 패턴 카드 클릭 이벤트
+    patternsGrid.addEventListener('click', (e) => {
+        const patternCard = e.target.closest('.pattern-card');
+        if (patternCard) {
+            const regexElement = patternCard.querySelector('.pattern-regex');
+            if (regexElement) {
+                const regex = regexElement.textContent.replace('복사', '').trim();
+                
+                // 정규식 테스터로 복사
+                const regexInput = document.getElementById('regex-pattern');
+                if (regexInput) {
+                    regexInput.value = regex;
+                    
+                    // 테스터 섹션으로 스크롤
+                    const testerSection = document.getElementById('tester');
+                    if (testerSection) {
+                        testerSection.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                    
+                    // 테스트 실행
+                    setTimeout(() => {
+                        regexInput.dispatchEvent(new Event('input'));
+                    }, 500);
+                    
+                    showNotification('패턴이 테스터로 복사되었습니다!', 'success');
+                }
+            }
+        }
+    });
+}
+
+// =========================
+// 스크롤 이벤트 및 애니메이션
+// =========================
+function initializeScrollEffects() {
+    // Intersection Observer로 요소가 뷰포트에 들어올 때 애니메이션
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
     };
 
-    try {
-      const response = await fetch(url, { ...defaultOptions, ...options });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('API call failed:', error);
-      throw error;
-    }
-  },
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'fadeInUp 0.6s ease-out forwards';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
 
-  // 알림 표시
-  notify: (message, type = 'info') => {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-      <div class="flex items-center">
-        <div class="flex-1">
-          <p class="text-sm font-medium">${message}</p>
-        </div>
-        <button class="ml-4 text-gray-400 hover:text-gray-600" onclick="this.parentElement.parentElement.remove()">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-          </svg>
-        </button>
-      </div>
-    `;
-    
-    // 알림 컨테이너 생성 또는 가져오기
-    let container = document.querySelector('#notification-container');
-    if (!container) {
-      container = document.createElement('div');
-      container.id = 'notification-container';
-      container.className = 'fixed top-4 right-4 z-50 space-y-2';
-      document.body.appendChild(container);
-    }
-    
-    container.appendChild(notification);
-    
-    // 3초 후 자동 제거
-    setTimeout(() => {
-      if (notification.parentElement) {
-        notification.remove();
-      }
-    }, 3000);
-  },
+    // 애니메이션할 요소들 관찰
+    const animateElements = document.querySelectorAll('.feature-card, .pattern-card');
+    animateElements.forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        observer.observe(el);
+    });
 
-  // 로딩 스피너 표시/숨기기
-  loading: {
-    show: (element) => {
-      if (typeof element === 'string') {
-        element = document.querySelector(element);
-      }
-      if (element) {
-        element.classList.add('loading');
-        element.disabled = true;
-      }
-    },
-    hide: (element) => {
-      if (typeof element === 'string') {
-        element = document.querySelector(element);
-      }
-      if (element) {
-        element.classList.remove('loading');
-        element.disabled = false;
-      }
-    }
-  },
+    // 네비게이션 배경 투명도 조절
+    window.addEventListener('scroll', () => {
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            }
+        }
+    });
+}
 
-  // 폼 검증
-  validate: {
-    email: (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
-    phone: (phone) => /^[\d\s\-\+\(\)]+$/.test(phone),
-    required: (value) => value && value.trim() !== ''
-  },
+// =========================
+// 유틸리티 함수들
+// =========================
 
-  // 로컬 스토리지 헬퍼
-  storage: {
-    set: (key, value) => {
-      try {
-        localStorage.setItem(key, JSON.stringify(value));
-      } catch (error) {
-        console.error('Storage set error:', error);
-      }
-    },
-    get: (key) => {
-      try {
-        const value = localStorage.getItem(key);
-        return value ? JSON.parse(value) : null;
-      } catch (error) {
-        console.error('Storage get error:', error);
-        return null;
-      }
-    },
-    remove: (key) => {
-      try {
-        localStorage.removeItem(key);
-      } catch (error) {
-        console.error('Storage remove error:', error);
-      }
-    }
-  },
-
-  // 디바운스 유틸리티
-  debounce: (func, wait) => {
+// 디바운스 함수
+function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
-      const later = () => {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
         clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
+        timeout = setTimeout(later, wait);
     };
-  },
+}
 
-  // 스로틀 유틸리티
-  throttle: (func, limit) => {
-    let inThrottle;
-    return function(...args) {
-      if (!inThrottle) {
-        func.apply(this, args);
-        inThrottle = true;
-        setTimeout(() => inThrottle = false, limit);
-      }
+// HTML 이스케이프
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// 클립보드에 복사
+function copyToClipboard(element) {
+    const text = element.textContent.replace('복사', '').trim();
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            showNotification('클립보드에 복사되었습니다!', 'success');
+        }).catch(() => {
+            fallbackCopyTextToClipboard(text);
+        });
+    } else {
+        fallbackCopyTextToClipboard(text);
+    }
+}
+
+// 클립보드 복사 폴백
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showNotification('클립보드에 복사되었습니다!', 'success');
+    } catch (err) {
+        showNotification('복사에 실패했습니다.', 'error');
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+// 알림 표시
+function showNotification(message, type = 'info') {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    const iconMap = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
     };
-  }
-};
 
-// 툴팁 기능
-function showTooltip(e) {
-  const tooltip = document.createElement('div');
-  tooltip.className = 'absolute z-50 px-2 py-1 text-sm text-white bg-gray-900 rounded shadow-lg tooltip';
-  tooltip.textContent = e.target.dataset.tooltip;
-  
-  document.body.appendChild(tooltip);
-  
-  const rect = e.target.getBoundingClientRect();
-  tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
-  tooltip.style.top = rect.bottom + 5 + 'px';
-}
+    notification.innerHTML = `
+        <i class="${iconMap[type] || iconMap.info}"></i>
+        <div class="notification-content">
+            <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
 
-function hideTooltip() {
-  const tooltip = document.querySelector('.tooltip');
-  if (tooltip) {
-    tooltip.remove();
-  }
-}
+    container.appendChild(notification);
 
-// 전역으로 사용할 수 있도록 window 객체에 추가
-window.showTooltip = showTooltip;
-window.hideTooltip = hideTooltip;
-
-// 키보드 단축키 처리
-function setupKeyboardShortcuts() {
-  document.addEventListener('keydown', (e) => {
-    // Ctrl+Enter: 정규식 테스트 실행
-    if (e.ctrlKey && e.key === 'Enter') {
-      const testButton = document.querySelector('#test-regex');
-      if (testButton) {
-        testButton.click();
-      }
-    }
-    
-    // Ctrl+K: 패턴 입력 필드에 포커스
-    if (e.ctrlKey && e.key === 'k') {
-      e.preventDefault();
-      const patternInput = document.querySelector('#regex-pattern');
-      if (patternInput) {
-        patternInput.focus();
-      }
-    }
-    
-    // Escape: 모든 모달/알림 닫기
-    if (e.key === 'Escape') {
-      const modals = document.querySelectorAll('.modal-overlay');
-      const notifications = document.querySelectorAll('.notification');
-      
-      modals.forEach(modal => modal.remove());
-      notifications.forEach(notification => notification.remove());
-    }
-  });
-}
-
-// 성능 모니터링
-function setupPerformanceMonitoring() {
-  // 페이지 로드 시간 측정
-  window.addEventListener('load', () => {
-    const loadTime = performance.now();
-    console.log(`📊 페이지 로드 시간: ${loadTime.toFixed(2)}ms`);
-    
-    // 리소스 로딩 시간 분석
-    const resources = performance.getEntriesByType('resource');
-    const slowResources = resources.filter(resource => resource.duration > 100);
-    
-    if (slowResources.length > 0) {
-      console.warn('⚠️ 느린 리소스들:', slowResources);
-    }
-  });
-}
-
-// 에러 처리
-function setupGlobalErrorHandling() {
-  window.addEventListener('error', (e) => {
-    console.error('💥 전역 에러:', e.error);
-    utils.notify('예상치 못한 오류가 발생했습니다.', 'error');
-  });
-
-  window.addEventListener('unhandledrejection', (e) => {
-    console.error('💥 처리되지 않은 Promise 거부:', e.reason);
-    utils.notify('네트워크 오류가 발생했습니다.', 'error');
-  });
-}
-
-// 서비스 워커 등록 (PWA 준비)
-function registerServiceWorker() {
-  if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
-    navigator.serviceWorker.register('/sw.js')
-      .then(registration => {
-        console.log('🔧 Service Worker 등록 성공:', registration);
-      })
-      .catch(error => {
-        console.log('❌ Service Worker 등록 실패:', error);
-      });
-  }
-}
-
-// 다크모드 시스템 감지
-function setupDarkModeDetection() {
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  
-  function handleSystemThemeChange(e) {
-    const savedTheme = utils.storage.get('darkMode');
-    if (savedTheme === null) { // 사용자가 수동으로 설정하지 않은 경우만
-      if (e.matches) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-  }
-  
-  mediaQuery.addEventListener('change', handleSystemThemeChange);
-  handleSystemThemeChange(mediaQuery); // 초기 설정
-}
-
-// 접근성 개선
-function setupAccessibility() {
-  // 키보드 네비게이션 표시
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      document.body.classList.add('keyboard-navigation');
-    }
-  });
-  
-  document.addEventListener('mousedown', () => {
-    document.body.classList.remove('keyboard-navigation');
-  });
-  
-  // 스크린 리더를 위한 live region 설정
-  const liveRegion = document.createElement('div');
-  liveRegion.setAttribute('aria-live', 'polite');
-  liveRegion.setAttribute('aria-atomic', 'true');
-  liveRegion.className = 'sr-only';
-  liveRegion.id = 'live-region';
-  document.body.appendChild(liveRegion);
-}
-
-// DOM이 로드된 후 초기화
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('🚀 NEO Regex 애플리케이션이 시작되었습니다.');
-  
-  // 핵심 기능 초기화
-  initializeComponents();
-  
-  // 유틸리티 기능 초기화
-  setupKeyboardShortcuts();
-  setupPerformanceMonitoring();
-  setupGlobalErrorHandling();
-  setupDarkModeDetection();
-  setupAccessibility();
-  
-  // PWA 기능 (HTTPS에서만)
-  if (window.location.protocol === 'https:') {
-    registerServiceWorker();
-  }
-  
-  // 다크모드 토글 기능
-  const darkModeToggle = document.querySelector('#dark-mode-toggle');
-  if (darkModeToggle) {
-    darkModeToggle.addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark');
-      const isDark = document.documentElement.classList.contains('dark');
-      utils.storage.set('darkMode', isDark);
-      
-      // 접근성을 위한 알림
-      const message = isDark ? '다크 모드가 활성화되었습니다.' : '라이트 모드가 활성화되었습니다.';
-      const liveRegion = document.querySelector('#live-region');
-      if (liveRegion) {
-        liveRegion.textContent = message;
-      }
-    });
-  }
-
-  // 저장된 다크모드 설정 로드
-  const savedDarkMode = utils.storage.get('darkMode');
-  if (savedDarkMode) {
-    document.documentElement.classList.add('dark');
-  }
-
-  // 네비게이션 모바일 토글
-  const mobileMenuButton = document.querySelector('.mobile-menu-button');
-  const mobileMenu = document.querySelector('.mobile-menu');
-  
-  if (mobileMenuButton && mobileMenu) {
-    mobileMenuButton.addEventListener('click', () => {
-      const isHidden = mobileMenu.classList.contains('hidden');
-      mobileMenu.classList.toggle('hidden');
-      
-      // 접근성 개선
-      mobileMenuButton.setAttribute('aria-expanded', !isHidden);
-      mobileMenu.setAttribute('aria-hidden', isHidden);
-    });
-  }
-
-  // 모든 폼에 기본 검증 추가
-  const forms = document.querySelectorAll('form');
-  forms.forEach(form => {
-    form.addEventListener('submit', (e) => {
-      const requiredFields = form.querySelectorAll('[required]');
-      let isValid = true;
-
-      requiredFields.forEach(field => {
-        if (!utils.validate.required(field.value)) {
-          isValid = false;
-          field.classList.add('input-error');
-          field.setAttribute('aria-invalid', 'true');
-        } else {
-          field.classList.remove('input-error');
-          field.setAttribute('aria-invalid', 'false');
-        }
-      });
-
-      if (!isValid) {
-        e.preventDefault();
-        utils.notify('필수 항목을 모두 입력해주세요.', 'error');
-        
-        // 첫 번째 오류 필드에 포커스
-        const firstErrorField = form.querySelector('.input-error');
-        if (firstErrorField) {
-          firstErrorField.focus();
-        }
-      }
-    });
-  });
-
-  // 툴팁 초기화
-  const tooltips = document.querySelectorAll('[data-tooltip]');
-  tooltips.forEach(element => {
-    element.addEventListener('mouseenter', showTooltip);
-    element.addEventListener('mouseleave', hideTooltip);
-    element.addEventListener('focus', showTooltip);
-    element.addEventListener('blur', hideTooltip);
-  });
-
-  // 환영 메시지 표시 (딜레이 후)
-  setTimeout(() => {
-    utils.notify('NEO Regex에 오신 것을 환영합니다! 🎉', 'success');
-    
-    // 키보드 단축키 안내
+    // 5초 후 자동 제거
     setTimeout(() => {
-      utils.notify('💡 팁: Ctrl+Enter로 정규식 테스트, Ctrl+K로 패턴 입력에 포커스', 'info');
-    }, 2000);
-  }, 1000);
+        if (notification.parentElement) {
+            notification.style.animation = 'slideOut 0.3s ease-out forwards';
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 300);
+        }
+    }, 5000);
+}
 
-  // 앱 상태 표시
-  console.log('✅ 모든 시스템이 초기화되었습니다.');
-  console.log('🎯 사용 가능한 단축키:');
-  console.log('   - Ctrl+Enter: 정규식 테스트 실행');
-  console.log('   - Ctrl+K: 패턴 입력 포커스');
-  console.log('   - Escape: 모달/알림 닫기');
+// CSS 애니메이션 추가
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideOut {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// =========================
+// 전역 함수들 (HTML에서 호출됨)
+// =========================
+
+// 글로벌 스코프에 함수 노출
+window.copyToClipboard = copyToClipboard;
+window.showNotification = showNotification;
+
+// 에러 핸들링
+window.addEventListener('error', (e) => {
+    console.error('JavaScript 오류:', e.error);
 });
+
+// 언핸들드 프로미스 리젝션 처리
+window.addEventListener('unhandledrejection', (e) => {
+    console.error('처리되지 않은 Promise 거부:', e.reason);
+    e.preventDefault();
+});
+
+console.log('🎉 NEO Regex JavaScript 로드 완료!');
