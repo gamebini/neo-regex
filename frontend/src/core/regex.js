@@ -1,10 +1,13 @@
-// frontend/src/core/regex.js - 문법 오류 수정된 정규식 엔진
 /**
- * NEO Regex 핵심 정규식 처리 엔진
- * 참고 CSS 스타일에 맞춘 완전히 새로운 구현
+ * NEO Regex - Core Engine
+ * 정규식 처리를 위한 핵심 엔진
+ * 경로: src/core/regex.js
  */
 
-export class RegexTester {
+// =========================
+// 정규식 엔진 클래스
+// =========================
+class RegexEngine {
     constructor() {
         this.pattern = '';
         this.flags = '';
@@ -12,14 +15,15 @@ export class RegexTester {
         this.lastResult = null;
         this.performance = {
             executionTime: 0,
-            complexity: 0
+            complexity: 0,
+            backtrackingRisk: 'low'
         };
     }
 
     /**
-     * 정규식 패턴과 플래그 설정
+     * 정규식 패턴과 플래그를 설정
      * @param {string} pattern - 정규식 패턴
-     * @param {string} flags - 정규식 플래그 (g, i, m, s, u, y)
+     * @param {string} flags - 정규식 플래그
      */
     setPattern(pattern, flags = '') {
         this.pattern = pattern;
@@ -28,7 +32,7 @@ export class RegexTester {
     }
 
     /**
-     * 테스트할 텍스트 설정
+     * 테스트할 텍스트를 설정
      * @param {string} text - 테스트 텍스트
      */
     setText(text) {
@@ -38,267 +42,380 @@ export class RegexTester {
 
     /**
      * 정규식 테스트 실행
-     * @returns {Object} 테스트 결과 객체
+     * @returns {Object} 테스트 결과
      */
     test() {
-        const startTime = performance.now();
-        
-        try {
-            if (!this.pattern) {
-                throw new Error('정규식 패턴이 비어있습니다.');
-            }
+        if (!this.pattern || !this.testText) {
+            return {
+                success: false,
+                error: '패턴과 테스트 텍스트가 모두 필요합니다.',
+                matches: []
+            };
+        }
 
-            // 정규식 생성 및 검증
+        try {
+            const startTime = performance.now();
+            
+            // 정규식 생성
             const regex = new RegExp(this.pattern, this.flags);
             
-            // 복잡도 계산
-            this.performance.complexity = this.calculateComplexity(this.pattern);
-            
             // 매칭 실행
-            const matches = this.executeMatching(regex);
+            const matches = this._findMatches(regex, this.testText);
             
             const endTime = performance.now();
             this.performance.executionTime = endTime - startTime;
+            
+            // 복잡도 계산
+            this.performance.complexity = this._calculateComplexity(this.pattern);
+            
+            // 백트래킹 위험도 평가
+            this.performance.backtrackingRisk = this._assessBacktrackingRisk(this.pattern);
 
-            this.lastResult = {
+            const result = {
                 success: true,
                 pattern: this.pattern,
                 flags: this.flags,
-                text: this.testText,
-                matches: matches.map((match, index) => ({
-                    index: index,
-                    match: match[0],
-                    position: match.index,
-                    length: match[0].length,
-                    groups: match.slice(1),
-                    namedGroups: match.groups || {}
-                })),
-                totalMatches: matches.length,
-                executionTime: this.performance.executionTime,
-                complexity: this.performance.complexity,
-                timestamp: new Date().toISOString()
+                testText: this.testText,
+                matches: matches,
+                performance: { ...this.performance },
+                groups: this._extractGroups(matches),
+                statistics: this._generateStatistics(matches)
             };
 
-            return this.lastResult;
+            this.lastResult = result;
+            return result;
 
         } catch (error) {
-            const endTime = performance.now();
-            this.performance.executionTime = endTime - startTime;
-
-            this.lastResult = {
+            return {
                 success: false,
-                error: this.formatError(error.message),
-                pattern: this.pattern,
-                flags: this.flags,
-                text: this.testText,
-                executionTime: this.performance.executionTime,
-                timestamp: new Date().toISOString()
+                error: error.message,
+                matches: [],
+                suggestions: this._getErrorSuggestions(error.message)
             };
-            
-            return this.lastResult;
         }
     }
 
     /**
-     * 매칭 실행 (타임아웃 포함)
+     * 매치 찾기 (내부 메서드)
      * @param {RegExp} regex - 정규식 객체
-     * @returns {Array} 매칭 결과 배열
+     * @param {string} text - 테스트 텍스트
+     * @returns {Array} 매치 배열
      */
-    executeMatching(regex) {
+    _findMatches(regex, text) {
         const matches = [];
-        const maxMatches = 1000; // 무한 루프 방지
-        const timeout = 5000; // 5초 타임아웃
-        const startTime = Date.now();
-
+        
         if (this.flags.includes('g')) {
+            // 전역 검색
             let match;
-            let matchCount = 0;
-            
-            while ((match = regex.exec(this.testText)) !== null && matchCount < maxMatches) {
-                // 타임아웃 체크
-                if (Date.now() - startTime > timeout) {
-                    throw new Error('정규식 실행 시간이 너무 깁니다. 패턴을 간소화해주세요.');
-                }
+            while ((match = regex.exec(text)) !== null) {
+                matches.push({
+                    match: match[0],
+                    index: match.index,
+                    groups: match.slice(1),
+                    namedGroups: match.groups || {},
+                    input: match.input
+                });
                 
-                matches.push(match);
-                matchCount++;
-                
-                // 무한 루프 방지 (빈 문자열 매칭)
-                if (match[0] === '') {
+                // 무한 루프 방지
+                if (match[0].length === 0) {
                     regex.lastIndex++;
-                }
-                
-                // lastIndex가 재설정되지 않는 경우 방지
-                if (regex.lastIndex <= match.index) {
-                    break;
                 }
             }
         } else {
-            const match = this.testText.match(regex);
+            // 단일 검색
+            const match = regex.exec(text);
             if (match) {
-                matches.push(match);
+                matches.push({
+                    match: match[0],
+                    index: match.index,
+                    groups: match.slice(1),
+                    namedGroups: match.groups || {},
+                    input: match.input
+                });
             }
         }
-
+        
         return matches;
     }
 
     /**
-     * 정규식 복잡도 계산
+     * 복잡도 계산
      * @param {string} pattern - 정규식 패턴
      * @returns {number} 복잡도 점수 (1-10)
      */
-    calculateComplexity(pattern) {
-        let complexity = 1;
+    _calculateComplexity(pattern) {
+        let score = 1;
         
-        // 기본 패턴들
-        const complexPatterns = [
-            /\(\?\=/g,           // 전방 탐색
-            /\(\?\!/g,           // 부정 전방 탐색
-            /\(\?\<=/g,          // 후방 탐색
-            /\(\?\<!/g,          // 부정 후방 탐색
-            /\(\?\:/g,           // 비캡처 그룹
-            /\*\+|\+\*|\{\d+,\}/g, // 중첩된 수량자
-            /\[\^[^\]]*\]/g,     // 부정 문자 클래스
-            /\|/g,               // 선택 연산자
-            /\\\w/g              // 이스케이프 문자
+        // 기본 복잡도 요소들
+        const complexityFactors = {
+            quantifiers: /[*+?{]/g,
+            characterClasses: /\[[^\]]+\]/g,
+            groups: /\([^)]*\)/g,
+            alternatives: /\|/g,
+            anchors: /[\^$]/g,
+            lookaround: /\(\?[=!<]/g,
+            backref: /\\[1-9]/g,
+            escapes: /\\[dwsWDS]/g
+        };
+
+        for (const [factor, regex] of Object.entries(complexityFactors)) {
+            const matches = pattern.match(regex);
+            if (matches) {
+                switch (factor) {
+                    case 'quantifiers':
+                        score += matches.length * 0.5;
+                        break;
+                    case 'characterClasses':
+                        score += matches.length * 0.3;
+                        break;
+                    case 'groups':
+                        score += matches.length * 0.4;
+                        break;
+                    case 'alternatives':
+                        score += matches.length * 0.6;
+                        break;
+                    case 'lookaround':
+                        score += matches.length * 1.0;
+                        break;
+                    case 'backref':
+                        score += matches.length * 0.8;
+                        break;
+                    default:
+                        score += matches.length * 0.2;
+                }
+            }
+        }
+
+        // 중첩된 수량자 검사 (재앙적 백트래킹 위험)
+        if (pattern.match(/\([^)]*[*+]\)[*+?]|\([^)]*[*+]\{/)) {
+            score += 3;
+        }
+
+        return Math.min(Math.round(score), 10);
+    }
+
+    /**
+     * 백트래킹 위험도 평가
+     * @param {string} pattern - 정규식 패턴
+     * @returns {string} 위험도 ('low', 'medium', 'high', 'critical')
+     */
+    _assessBacktrackingRisk(pattern) {
+        // 재앙적 백트래킹 패턴들
+        const catastrophicPatterns = [
+            /\([^)]*\*\)[*+]/,  // (a*)*
+            /\([^)]*\+\)[*+]/,  // (a+)+
+            /\([^)]*[*+]\)[*+]\?/,  // (a+)+?
         ];
 
-        complexPatterns.forEach(cpx => {
-            const matches = pattern.match(cpx);
-            if (matches) {
-                complexity += matches.length * 0.5;
+        for (const dangerousPattern of catastrophicPatterns) {
+            if (pattern.match(dangerousPattern)) {
+                return 'critical';
+            }
+        }
+
+        // 높은 위험 패턴들
+        const highRiskPatterns = [
+            /\.\*\.\*/,  // .*.*
+            /\.\+\.\+/,  // .+.+
+            /\([^)]*\.\*[^)]*\)[*+]/,  // (.*)+ 같은 패턴
+        ];
+
+        for (const highRisk of highRiskPatterns) {
+            if (pattern.match(highRisk)) {
+                return 'high';
+            }
+        }
+
+        // 중간 위험 패턴들
+        const mediumRiskPatterns = [
+            /\.\*/,  // .*
+            /\.\+/,  // .+
+            /\([^)]*[*+][^)]*\)/,  // 그룹 내 수량자
+        ];
+
+        for (const mediumRisk of mediumRiskPatterns) {
+            if (pattern.match(mediumRisk)) {
+                return 'medium';
+            }
+        }
+
+        return 'low';
+    }
+
+    /**
+     * 그룹 정보 추출
+     * @param {Array} matches - 매치 배열
+     * @returns {Object} 그룹 정보
+     */
+    _extractGroups(matches) {
+        if (!matches.length) return {};
+
+        const groups = {};
+        const namedGroups = {};
+
+        // 각 매치에서 그룹 정보 수집
+        matches.forEach((match, matchIndex) => {
+            match.groups.forEach((group, groupIndex) => {
+                if (group !== undefined) {
+                    const groupKey = groupIndex + 1;
+                    if (!groups[groupKey]) {
+                        groups[groupKey] = [];
+                    }
+                    groups[groupKey].push({
+                        value: group,
+                        matchIndex: matchIndex,
+                        startIndex: match.input.indexOf(group, match.index)
+                    });
+                }
+            });
+
+            // 명명된 그룹 처리
+            Object.entries(match.namedGroups).forEach(([name, value]) => {
+                if (value !== undefined) {
+                    if (!namedGroups[name]) {
+                        namedGroups[name] = [];
+                    }
+                    namedGroups[name].push({
+                        value: value,
+                        matchIndex: matchIndex
+                    });
+                }
+            });
+        });
+
+        return { numbered: groups, named: namedGroups };
+    }
+
+    /**
+     * 통계 정보 생성
+     * @param {Array} matches - 매치 배열
+     * @returns {Object} 통계 정보
+     */
+    _generateStatistics(matches) {
+        if (!matches.length) {
+            return {
+                totalMatches: 0,
+                averageLength: 0,
+                coverage: 0,
+                positions: []
+            };
+        }
+
+        const totalLength = matches.reduce((sum, match) => sum + match.match.length, 0);
+        const positions = matches.map(match => ({
+            start: match.index,
+            end: match.index + match.match.length
+        }));
+
+        // 텍스트 커버리지 계산
+        const coveredChars = new Set();
+        matches.forEach(match => {
+            for (let i = match.index; i < match.index + match.match.length; i++) {
+                coveredChars.add(i);
             }
         });
 
-        // 백트래킹 가능성 체크
-        if (this.hasBacktrackingRisk(pattern)) {
-            complexity += 2;
-        }
+        const coverage = this.testText.length > 0 
+            ? (coveredChars.size / this.testText.length) * 100 
+            : 0;
 
-        // 길이에 따른 복잡도
-        complexity += Math.min(pattern.length / 20, 2);
-
-        return Math.min(Math.round(complexity), 10);
-    }
-
-    /**
-     * 백트래킹 위험성 체크 (ReDoS 방지)
-     * @param {string} pattern - 정규식 패턴
-     * @returns {boolean} 백트래킹 위험 여부
-     */
-    hasBacktrackingRisk(pattern) {
-        // 위험한 패턴들
-        const riskyPatterns = [
-            /\(\.\*\)\+/,        // (.*)+
-            /\(\.\+\)\*/,        // (.+)*
-            /\(\w\*\)\+/,        // (\w*)+
-            /\(\w\+\)\*/,        // (\w+)*
-            /\(\[\w\]\*\)\+/,    // ([\w]*)+
-            /\(\[\w\]\+\)\*/     // ([\w]+)*
-        ];
-
-        return riskyPatterns.some(pattern_risk => pattern_risk.test(pattern));
-    }
-
-    /**
-     * 에러 메시지 포맷팅
-     * @param {string} errorMessage - 원본 에러 메시지
-     * @returns {string} 포맷된 에러 메시지
-     */
-    formatError(errorMessage) {
-        const errorMap = {
-            'Unterminated character class': '문자 클래스가 닫히지 않았습니다. ]를 추가해주세요.',
-            'Unterminated group': '그룹이 닫히지 않았습니다. )를 추가해주세요.',
-            'Invalid escape sequence': '잘못된 이스케이프 시퀀스입니다.',
-            'Invalid regular expression': '유효하지 않은 정규식입니다.',
-            'Nothing to repeat': '반복할 대상이 없습니다. *, +, ? 앞에 문자나 그룹이 있어야 합니다.',
-            'Invalid quantifier': '유효하지 않은 수량자입니다.',
-            'Incomplete quantifier': '수량자가 완전하지 않습니다. {숫자} 형태로 작성해주세요.'
+        return {
+            totalMatches: matches.length,
+            averageLength: totalLength / matches.length,
+            coverage: Math.round(coverage * 100) / 100,
+            positions: positions,
+            totalCoveredChars: coveredChars.size
         };
-
-        for (const [key, value] of Object.entries(errorMap)) {
-            if (errorMessage.includes(key)) {
-                return value;
-            }
-        }
-
-        return errorMessage;
     }
 
     /**
-     * 정규식 문법 검증
-     * @returns {Object} 검증 결과
-     */
-    validate() {
-        try {
-            new RegExp(this.pattern, this.flags);
-            
-            const suggestions = [];
-            
-            // 성능 관련 제안
-            if (this.hasBacktrackingRisk(this.pattern)) {
-                suggestions.push('백트래킹 위험이 있습니다. 패턴을 최적화하는 것을 고려해보세요.');
-            }
-            
-            if (this.performance.complexity > 7) {
-                suggestions.push('패턴이 복잡합니다. 간소화를 고려해보세요.');
-            }
-            
-            // 효율성 관련 제안
-            if (this.pattern.includes('.*.*')) {
-                suggestions.push('중복된 .* 패턴을 단순화할 수 있습니다.');
-            }
-            
-            if (this.pattern.includes('|') && this.pattern.length > 50) {
-                suggestions.push('긴 선택 패턴은 여러 개의 정규식으로 분리하는 것을 고려해보세요.');
-            }
-
-            return { 
-                valid: true, 
-                suggestions: suggestions,
-                complexity: this.performance.complexity
-            };
-        } catch (error) {
-            return { 
-                valid: false, 
-                error: this.formatError(error.message),
-                suggestions: this.getSuggestions(error.message)
-            };
-        }
-    }
-
-    /**
-     * 에러에 대한 제안사항 제공
+     * 에러 제안 생성
      * @param {string} errorMessage - 에러 메시지
-     * @returns {Array} 제안사항 배열
+     * @returns {Array} 제안 배열
      */
-    getSuggestions(errorMessage) {
+    _getErrorSuggestions(errorMessage) {
         const suggestions = [];
         
         if (errorMessage.includes('Unterminated character class')) {
-            suggestions.push('문자 클래스 ]가 누락되었습니다. [abc] 형태로 닫아주세요.');
-            suggestions.push('예시: [a-zA-Z0-9] (영문자와 숫자)');
+            suggestions.push('문자 클래스 [...]를 올바르게 닫아주세요.');
+            suggestions.push('예시: [a-z]처럼 대괄호를 정확히 닫아야 합니다.');
         }
         
         if (errorMessage.includes('Unterminated group')) {
-            suggestions.push('그룹 )이 누락되었습니다. (abc) 형태로 닫아주세요.');
-            suggestions.push('예시: (hello|world) (hello 또는 world)');
+            suggestions.push('그룹 (...)을 올바르게 닫아주세요.');
+            suggestions.push('예시: (abc)처럼 괄호를 정확히 닫아야 합니다.');
         }
         
         if (errorMessage.includes('Invalid escape sequence')) {
-            suggestions.push('잘못된 이스케이프 시퀀스입니다. \\를 두 번 사용하거나 올바른 이스케이프를 사용하세요.');
+            suggestions.push('잘못된 이스케이프 시퀀스입니다.');
             suggestions.push('유효한 이스케이프: \\n, \\t, \\r, \\s, \\d, \\w 등');
         }
         
         if (errorMessage.includes('Nothing to repeat')) {
-            suggestions.push('*, +, ? 앞에 반복할 문자나 그룹이 있어야 합니다.');
-            suggestions.push('예시: a+ (a가 하나 이상), (abc)* (abc가 0개 이상)');
+            suggestions.push('수량자(*, +, ?) 앞에 반복할 요소가 있어야 합니다.');
+            suggestions.push('예시: a+ (a를 1번 이상), (abc)* (abc를 0번 이상)');
         }
         
         if (errorMessage.includes('Invalid quantifier')) {
             suggestions.push('수량자 형태를 확인해주세요.');
             suggestions.push('올바른 형태: {3}, {1,5}, {2,} 등');
+        }
+
+        return suggestions;
+    }
+
+    /**
+     * 패턴 최적화 제안
+     * @returns {Array} 최적화 제안 배열
+     */
+    getOptimizationSuggestions() {
+        const suggestions = [];
+        
+        if (!this.pattern) return suggestions;
+
+        // 재앙적 백트래킹 검사
+        if (this._assessBacktrackingRisk(this.pattern) === 'critical') {
+            suggestions.push({
+                type: 'critical',
+                issue: '재앙적 백트래킹 위험',
+                current: this.pattern,
+                suggestion: '원자 그룹이나 소유적 수량자를 사용하세요',
+                priority: 'high'
+            });
+        }
+
+        // 비효율적인 패턴 검사
+        if (this.pattern.includes('.*.*')) {
+            suggestions.push({
+                type: 'performance',
+                issue: '중복된 .* 패턴',
+                current: '.*.*',
+                suggestion: '.*',
+                priority: 'medium'
+            });
+        }
+
+        // 불필요한 캡처 그룹
+        const groups = this.pattern.match(/\([^?][^)]*\)/g);
+        if (groups && groups.length > 3) {
+            suggestions.push({
+                type: 'optimization',
+                issue: '많은 캡처 그룹이 성능에 영향을 줄 수 있습니다',
+                suggestion: '필요없는 그룹은 (?:...)로 변경하세요',
+                priority: 'low'
+            });
+        }
+
+        // 앵커 사용 권장
+        if (!this.pattern.startsWith('^') && !this.pattern.endsWith('$')) {
+            if (this.pattern.length > 10) {
+                suggestions.push({
+                    type: 'optimization',
+                    issue: '앵커(^, $) 사용으로 성능을 향상시킬 수 있습니다',
+                    suggestion: '문자열 전체 매칭시 ^패턴$을 사용하세요',
+                    priority: 'low'
+                });
+            }
         }
 
         return suggestions;
@@ -347,10 +464,214 @@ export class RegexTester {
         // 그룹 설명
         const groups = currentPattern.match(/\([^)]+\)/g);
         if (groups) {
-            explanations.push('(): 그룹 - 괄호 안의 패턴을 하나의 단위로 처리');
+            explanations.push('(): 그룹 - 괄호 안의 패턴을 하나의 단위로 처리하고 결과를 캡처');
         }
 
         return explanations.join('\n');
+    }
+
+    /**
+     * 코드 생성
+     * @param {string} language - 대상 언어
+     * @returns {string} 생성된 코드
+     */
+    generateCode(language = 'javascript') {
+        const pattern = this.pattern;
+        const flags = this.flags;
+        
+        const codeTemplates = {
+            javascript: `// JavaScript 정규식 코드
+const pattern = /${pattern}/${flags};
+const text = "${this.testText.replace(/"/g, '\\"')}";
+
+// 매칭 테스트
+if (pattern.test(text)) {
+    console.log('매칭됨');
+}
+
+// 모든 매치 찾기
+const matches = text.match(pattern);
+console.log('매치 결과:', matches);`,
+
+            python: `# Python 정규식 코드
+import re
+
+pattern = r"${pattern}"
+text = "${this.testText.replace(/"/g, '\\"')}"
+flags = ${this._convertFlagsToPython(flags)}
+
+# 매칭 테스트
+if re.search(pattern, text, flags):
+    print("매칭됨")
+
+# 모든 매치 찾기
+matches = re.findall(pattern, text, flags)
+print("매치 결과:", matches)`,
+
+            java: `// Java 정규식 코드
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+String pattern = "${pattern.replace(/"/g, '\\"')}";
+String text = "${this.testText.replace(/"/g, '\\"')}";
+int flags = ${this._convertFlagsToJava(flags)};
+
+Pattern p = Pattern.compile(pattern, flags);
+Matcher m = p.matcher(text);
+
+// 매칭 테스트
+if (m.find()) {
+    System.out.println("매칭됨");
+}
+
+// 모든 매치 찾기
+m.reset();
+while (m.find()) {
+    System.out.println("매치: " + m.group());
+}`,
+
+            csharp: `// C# 정규식 코드
+using System;
+using System.Text.RegularExpressions;
+
+string pattern = @"${pattern.replace(/"/g, '\\"')}";
+string text = @"${this.testText.replace(/"/g, '\\"')}";
+RegexOptions options = ${this._convertFlagsToCSharp(flags)};
+
+Regex regex = new Regex(pattern, options);
+
+// 매칭 테스트
+if (regex.IsMatch(text)) {
+    Console.WriteLine("매칭됨");
+}
+
+// 모든 매치 찾기
+MatchCollection matches = regex.Matches(text);
+foreach (Match match in matches) {
+    Console.WriteLine($"매치: {match.Value}");
+}`,
+
+            php: `<?php
+// PHP 정규식 코드
+$pattern = '/${pattern.replace(/\//g, '\\/')}/${flags}';
+$text = "${this.testText.replace(/"/g, '\\"')}";
+
+// 매칭 테스트
+if (preg_match($pattern, $text)) {
+    echo "매칭됨\\n";
+}
+
+// 모든 매치 찾기
+if (preg_match_all($pattern, $text, $matches)) {
+    print_r($matches[0]);
+}
+?>`
+        };
+
+        return codeTemplates[language] || codeTemplates.javascript;
+    }
+
+    /**
+     * Python 플래그 변환
+     * @param {string} flags - JavaScript 플래그
+     * @returns {string} Python 플래그
+     */
+    _convertFlagsToPython(flags) {
+        const flagMap = {
+            'i': 're.IGNORECASE',
+            'm': 're.MULTILINE',
+            's': 're.DOTALL',
+            'x': 're.VERBOSE'
+        };
+        
+        const pythonFlags = [];
+        for (const flag of flags) {
+            if (flagMap[flag]) {
+                pythonFlags.push(flagMap[flag]);
+            }
+        }
+        
+        return pythonFlags.length > 0 ? pythonFlags.join(' | ') : '0';
+    }
+
+    /**
+     * Java 플래그 변환
+     * @param {string} flags - JavaScript 플래그
+     * @returns {string} Java 플래그
+     */
+    _convertFlagsToJava(flags) {
+        const flagMap = {
+            'i': 'Pattern.CASE_INSENSITIVE',
+            'm': 'Pattern.MULTILINE',
+            's': 'Pattern.DOTALL'
+        };
+        
+        const javaFlags = [];
+        for (const flag of flags) {
+            if (flagMap[flag]) {
+                javaFlags.push(flagMap[flag]);
+            }
+        }
+        
+        return javaFlags.length > 0 ? javaFlags.join(' | ') : '0';
+    }
+
+    /**
+     * C# 플래그 변환
+     * @param {string} flags - JavaScript 플래그
+     * @returns {string} C# 플래그
+     */
+    _convertFlagsToCSharp(flags) {
+        const flagMap = {
+            'i': 'RegexOptions.IgnoreCase',
+            'm': 'RegexOptions.Multiline',
+            's': 'RegexOptions.Singleline'
+        };
+        
+        const csharpFlags = [];
+        for (const flag of flags) {
+            if (flagMap[flag]) {
+                csharpFlags.push(flagMap[flag]);
+            }
+        }
+        
+        return csharpFlags.length > 0 ? csharpFlags.join(' | ') : 'RegexOptions.None';
+    }
+
+    /**
+     * 성능 벤치마크
+     * @param {number} iterations - 반복 횟수
+     * @returns {Object} 벤치마크 결과
+     */
+    benchmark(iterations = 1000) {
+        if (!this.pattern || !this.testText) {
+            return { error: '패턴과 테스트 텍스트가 필요합니다.' };
+        }
+
+        const results = [];
+        const regex = new RegExp(this.pattern, this.flags);
+
+        for (let i = 0; i < iterations; i++) {
+            const start = performance.now();
+            regex.test(this.testText);
+            const end = performance.now();
+            results.push(end - start);
+        }
+
+        const totalTime = results.reduce((sum, time) => sum + time, 0);
+        const averageTime = totalTime / iterations;
+        const minTime = Math.min(...results);
+        const maxTime = Math.max(...results);
+
+        return {
+            iterations,
+            totalTime: totalTime.toFixed(3),
+            averageTime: averageTime.toFixed(3),
+            minTime: minTime.toFixed(3),
+            maxTime: maxTime.toFixed(3),
+            complexity: this.performance.complexity,
+            backtrackingRisk: this.performance.backtrackingRisk
+        };
     }
 
     /**
@@ -369,414 +690,126 @@ export class RegexTester {
         return {
             executionTime: this.performance.executionTime,
             complexity: this.performance.complexity,
-            hasBacktrackingRisk: this.hasBacktrackingRisk(this.pattern)
+            backtrackingRisk: this.performance.backtrackingRisk
         };
     }
 
     /**
-     * 정규식 최적화 제안
-     * @returns {Array} 최적화 제안 배열
+     * 패턴 유효성 검증
+     * @param {string} pattern - 검증할 패턴
+     * @returns {Object} 검증 결과
      */
-    getOptimizationSuggestions() {
-        const suggestions = [];
-        
-        // 비효율적인 패턴 체크
-        if (this.pattern.includes('.*.*')) {
-            suggestions.push({
-                type: 'performance',
-                original: '.*.*',
-                suggested: '.*',
-                reason: '중복된 .* 패턴을 단순화할 수 있습니다.'
-            });
-        }
-        
-        if (this.pattern.includes('[0-9]')) {
-            suggestions.push({
-                type: 'simplification',
-                original: '[0-9]',
-                suggested: '\\d',
-                reason: '\\d가 더 간결하고 읽기 쉽습니다.'
-            });
-        }
-        
-        if (this.pattern.includes('[a-zA-Z0-9_]')) {
-            suggestions.push({
-                type: 'simplification',
-                original: '[a-zA-Z0-9_]',
-                suggested: '\\w',
-                reason: '\\w가 더 간결하고 읽기 쉽습니다.'
-            });
-        }
-        
-        if (this.pattern.includes('[ \\t\\n\\r]')) {
-            suggestions.push({
-                type: 'simplification',
-                original: '[ \\t\\n\\r]',
-                suggested: '\\s',
-                reason: '\\s가 더 간결하고 모든 공백 문자를 포함합니다.'
-            });
-        }
-
-        return suggestions;
-    }
-}
-
-/**
- * 정규식 패턴 라이브러리
- */
-export const RegexPatterns = {
-    // 기본 패턴
-    basic: {
-        email: {
-            pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
-            description: '일반적인 이메일 주소 형식',
-            examples: {
-                valid: ['test@example.com', 'user.name@domain.org'],
-                invalid: ['invalid-email', 'user@', '@domain.com']
-            }
-        },
-        url: {
-            pattern: '^https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)$',
-            description: 'HTTP/HTTPS URL 형식',
-            examples: {
-                valid: ['https://www.example.com', 'http://domain.org/path'],
-                invalid: ['not-a-url', 'ftp://example.com']
-            }
-        },
-        ipv4: {
-            pattern: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
-            description: 'IPv4 주소 형식',
-            examples: {
-                valid: ['192.168.1.1', '10.0.0.1', '255.255.255.255'],
-                invalid: ['256.1.1.1', '192.168.1', '192.168.1.1.1']
-            }
-        }
-    },
-    
-    // 한국어 패턴
-    korean: {
-        phone: {
-            pattern: '^01[016789]-?\\d{3,4}-?\\d{4}$',
-            description: '한국 휴대폰 번호',
-            examples: {
-                valid: ['010-1234-5678', '01012345678', '011-123-4567'],
-                invalid: ['02-1234-5678', '010-12-5678']
-            }
-        },
-        hangul: {
-            pattern: '^[가-힣]+$',
-            description: '한글만 (완성형)',
-            examples: {
-                valid: ['안녕하세요', '정규식', '한글'],
-                invalid: ['Hello', '안녕123', '한글!']
-            }
-        },
-        koreanName: {
-            pattern: '^[가-힣]{2,4}$',
-            description: '한국 이름 (2-4자)',
-            examples: {
-                valid: ['김철수', '이영희', '박미영'],
-                invalid: ['김', '김철수영희박', 'Kim']
-            }
-        }
-    },
-    
-    // 검증 패턴
-    validation: {
-        strongPassword: {
-            pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$',
-            description: '강력한 비밀번호 (대소문자, 숫자, 특수문자 포함 8자 이상)',
-            examples: {
-                valid: ['Password123!', 'MyP@ssw0rd', 'Secure#2024'],
-                invalid: ['password', '12345678', 'Password123']
-            }
-        },
-        creditCard: {
-            pattern: '^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|3[0-9]{13}|6(?:011|5[0-9]{2})[0-9]{12})$',
-            description: '신용카드 번호 (Visa, MasterCard, American Express 등)',
-            examples: {
-                valid: ['4111111111111111', '5555555555554444'],
-                invalid: ['1234567890123456', '411111111111111']
-            }
-        },
-        socialSecurityNumber: {
-            pattern: '^(?:[0-9]{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[1,2][0-9]|3[0,1]))-?[1-4]-?[0-9]{6}$',
-            description: '주민등록번호',
-            examples: {
-                valid: ['901201-1234567', '850315-2123456'],
-                invalid: ['901301-1234567', '850230-1234567']
-            }
-        }
-    },
-    
-    // 개발자 패턴
-    developer: {
-        htmlTag: {
-            pattern: '<([a-z][a-z0-9]*)\\b[^>]*>(.*?)</\\1>',
-            description: 'HTML 태그 (여는 태그와 닫는 태그 매칭)',
-            examples: {
-                valid: ['<div>내용</div>', '<p class="text">문단</p>'],
-                invalid: ['<div>내용</span>', '<div>내용']
-            }
-        },
-        cssSelector: {
-            pattern: '^[a-zA-Z0-9\\-_#.\\[\\]:, >+~*]+$',
-            description: 'CSS 선택자',
-            examples: {
-                valid: ['.class', '#id', 'div > p', '[data-value="test"]'],
-                invalid: ['<div>', '{{variable}}']
-            }
-        },
-        hexColor: {
-            pattern: '^#(?:[0-9a-fA-F]{3}){1,2}$',
-            description: 'HEX 색상 코드',
-            examples: {
-                valid: ['#fff', '#ffffff', '#123ABC'],
-                invalid: ['#gg', '#12345', 'ffffff']
-            }
-        },
-        ipAddress: {
-            pattern: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
-            description: 'IP 주소 (IPv4)',
-            examples: {
-                valid: ['192.168.1.1', '10.0.0.1', '255.255.255.255'],
-                invalid: ['256.1.1.1', '192.168.1', '192.168.1.1.1']
-            }
+    static validatePattern(pattern) {
+        try {
+            new RegExp(pattern);
+            return { 
+                valid: true, 
+                error: null,
+                complexity: new RegexEngine()._calculateComplexity(pattern)
+            };
+        } catch (error) {
+            return { 
+                valid: false, 
+                error: error.message,
+                suggestions: new RegexEngine()._getErrorSuggestions(error.message)
+            };
         }
     }
-};
-
-/**
- * 정규식 유틸리티 함수들
- */
-export const RegexUtils = {
-    /**
-     * 정규식에서 특수 문자 이스케이프
-     * @param {string} text - 이스케이프할 텍스트
-     * @returns {string} 이스케이프된 텍스트
-     */
-    escapeRegExp: function(text) {
-        return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    },
 
     /**
-     * 문자열에서 정규식 매칭 부분 하이라이트
-     * @param {string} text - 원본 텍스트
-     * @param {RegExp} regex - 정규식
-     * @param {string} className - 하이라이트 CSS 클래스
-     * @returns {string} 하이라이트된 HTML
+     * 일반적인 패턴 라이브러리
+     * @returns {Object} 패턴 라이브러리
      */
-    highlightMatches: function(text, regex, className = 'match-highlight') {
-        if (!regex.global) {
-            // 전역 플래그가 없으면 추가
-            regex = new RegExp(regex.source, regex.flags + 'g');
-        }
-        
-        return text.replace(regex, `<span class="${className}">$&</span>`);
-    },
-
-    /**
-     * 정규식의 그룹 정보 추출
-     * @param {string} pattern - 정규식 패턴
-     * @returns {Array} 그룹 정보 배열
-     */
-    extractGroups: function(pattern) {
-        const groups = [];
-        let groupIndex = 1;
-        let i = 0;
-        
-        while (i < pattern.length) {
-            if (pattern[i] === '\\') {
-                i += 2; // 이스케이프된 문자 건너뛰기
-                continue;
-            }
-            
-            if (pattern[i] === '(') {
-                if (pattern[i + 1] === '?') {
-                    // 특별한 그룹 처리
-                    if (pattern[i + 2] === ':') {
-                        groups.push({
-                            index: null,
-                            type: 'non-capturing',
-                            position: i
-                        });
-                    } else if (pattern[i + 2] === '=') {
-                        groups.push({
-                            index: null,
-                            type: 'positive-lookahead',
-                            position: i
-                        });
-                    } else if (pattern[i + 2] === '!') {
-                        groups.push({
-                            index: null,
-                            type: 'negative-lookahead',
-                            position: i
-                        });
-                    }
-                } else {
-                    // 캡처링 그룹
-                    groups.push({
-                        index: groupIndex++,
-                        type: 'capturing',
-                        position: i
-                    });
-                }
-            }
-            i++;
-        }
-        
-        return groups;
-    },
-
-    /**
-     * 정규식 플래그 설명 반환
-     * @param {string} flags - 플래그 문자열
-     * @returns {Array} 플래그 설명 배열
-     */
-    getFlagDescriptions: function(flags) {
-        const flagMap = {
-            'g': '전역 검색 - 모든 매치를 찾습니다',
-            'i': '대소문자 무시 - 대소문자를 구분하지 않습니다',
-            'm': '멀티라인 - ^와 $가 각 줄의 시작과 끝을 의미합니다',
-            's': '도트올 - .이 줄바꿈 문자도 매치합니다',
-            'u': '유니코드 - 유니코드를 올바르게 처리합니다',
-            'y': '고정 - lastIndex 위치부터 정확히 매치해야 합니다'
-        };
-        
-        return flags.split('').map(flag => ({
-            flag: flag,
-            description: flagMap[flag] || '알 수 없는 플래그'
-        }));
-    },
-
-    /**
-     * 정규식 성능 벤치마크
-     * @param {RegExp} regex - 테스트할 정규식
-     * @param {string} text - 테스트 텍스트
-     * @param {number} iterations - 반복 횟수
-     * @returns {Object} 벤치마크 결과
-     */
-    benchmark: function(regex, text, iterations = 1000) {
-        const results = [];
-        
-        for (let i = 0; i < iterations; i++) {
-            const start = performance.now();
-            regex.test(text);
-            const end = performance.now();
-            results.push(end - start);
-        }
-        
-        const sortedResults = results.sort((a, b) => a - b);
-        
+    static getCommonPatterns() {
         return {
-            iterations: iterations,
-            total: results.reduce((a, b) => a + b, 0),
-            average: results.reduce((a, b) => a + b, 0) / iterations,
-            median: sortedResults[Math.floor(sortedResults.length / 2)],
-            min: Math.min(...results),
-            max: Math.max(...results),
-            standardDeviation: Math.sqrt(
-                results.reduce((sum, time) => {
-                    const avg = results.reduce((a, b) => a + b, 0) / iterations;
-                    return sum + Math.pow(time - avg, 2);
-                }, 0) / iterations
-            )
+            email: {
+                pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+                description: '기본 이메일 패턴'
+            },
+            phone: {
+                pattern: '^\\+?[1-9]\\d{1,14}$',
+                description: '국제 전화번호 패턴'
+            },
+            url: {
+                pattern: '^https?:\\/\\/[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)$',
+                description: 'URL 패턴'
+            },
+            ipv4: {
+                pattern: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+                description: 'IPv4 주소 패턴'
+            },
+            date: {
+                pattern: '^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$',
+                description: 'YYYY-MM-DD 날짜 패턴'
+            }
         };
-    },
-
-    /**
-     * 정규식 패턴을 사람이 읽기 쉬운 형태로 변환
-     * @param {string} pattern - 정규식 패턴
-     * @returns {string} 읽기 쉬운 설명
-     */
-    humanize: function(pattern) {
-        let description = pattern;
-        
-        const replacements = [
-            [/\^/g, '문자열 시작에서 '],
-            [/\$/g, ' 문자열 끝까지'],
-            [/\\d/g, '숫자'],
-            [/\\w/g, '단어문자'],
-            [/\\s/g, '공백'],
-            [/\\D/g, '숫자가 아닌 문자'],
-            [/\\W/g, '단어문자가 아닌 문자'],
-            [/\\S/g, '공백이 아닌 문자'],
-            [/\./g, '아무 문자'],
-            [/\+/g, ' (1개 이상)'],
-            [/\*/g, ' (0개 이상)'],
-            [/\?/g, ' (선택적)'],
-            [/\|/g, ' 또는 '],
-            [/\[([^\]]+)\]/g, '[$1 중 하나]'],
-            [/\{(\d+)\}/g, ' (정확히 $1개)'],
-            [/\{(\d+),\}/g, ' ($1개 이상)'],
-            [/\{(\d+),(\d+)\}/g, ' ($1-$2개)']
-        ];
-        
-        replacements.forEach(([pattern, replacement]) => {
-            description = description.replace(pattern, replacement);
-        });
-        
-        return description.trim();
-    }
-};
-
-/**
- * 정규식 빌더 클래스 (시각적 빌더용)
- */
-export class RegexBuilder {
-    constructor() {
-        this.components = [];
-    }
-
-    /**
-     * 컴포넌트 추가
-     * @param {Object} component - 추가할 컴포넌트
-     */
-    addComponent(component) {
-        this.components.push(component);
-        return this;
-    }
-
-    /**
-     * 컴포넌트 제거
-     * @param {number} index - 제거할 인덱스
-     */
-    removeComponent(index) {
-        if (index >= 0 && index < this.components.length) {
-            this.components.splice(index, 1);
-        }
-        return this;
-    }
-
-    /**
-     * 정규식 패턴 생성
-     * @returns {string} 생성된 정규식 패턴
-     */
-    build() {
-        return this.components.map(comp => comp.pattern).join('');
-    }
-
-    /**
-     * 컴포넌트 목록 반환
-     * @returns {Array} 컴포넌트 배열
-     */
-    getComponents() {
-        return [...this.components];
-    }
-
-    /**
-     * 빌더 초기화
-     */
-    clear() {
-        this.components = [];
-        return this;
     }
 }
 
-// 기본 내보내기
-export default {
-    RegexTester,
-    RegexPatterns,
-    RegexUtils,
-    RegexBuilder
-};
+// =========================
+// 전역 함수들
+// =========================
+
+/**
+ * 빠른 정규식 테스트
+ * @param {string} pattern - 정규식 패턴
+ * @param {string} text - 테스트 텍스트
+ * @param {string} flags - 플래그 (선택)
+ * @returns {boolean} 매칭 여부
+ */
+function quickTest(pattern, text, flags = '') {
+    try {
+        const regex = new RegExp(pattern, flags);
+        return regex.test(text);
+    } catch (error) {
+        console.error('정규식 오류:', error.message);
+        return false;
+    }
+}
+
+/**
+ * 정규식에서 모든 매치 찾기
+ * @param {string} pattern - 정규식 패턴
+ * @param {string} text - 테스트 텍스트
+ * @param {string} flags - 플래그 (선택)
+ * @returns {Array} 매치 배열
+ */
+function findAllMatches(pattern, text, flags = 'g') {
+    try {
+        const regex = new RegExp(pattern, flags);
+        return [...text.matchAll(regex)];
+    } catch (error) {
+        console.error('정규식 오류:', error.message);
+        return [];
+    }
+}
+
+/**
+ * 문자열에서 정규식으로 치환
+ * @param {string} text - 원본 텍스트
+ * @param {string} pattern - 정규식 패턴
+ * @param {string} replacement - 치환할 문자열
+ * @param {string} flags - 플래그 (선택)
+ * @returns {string} 치환된 텍스트
+ */
+function regexReplace(text, pattern, replacement, flags = 'g') {
+    try {
+        const regex = new RegExp(pattern, flags);
+        return text.replace(regex, replacement);
+    } catch (error) {
+        console.error('정규식 오류:', error.message);
+        return text;
+    }
+}
+
+/**
+ * 정규식 이스케이프
+ * @param {string} text - 이스케이프할 텍스트
+ * @returns {string} 이스케이프된 텍스트
+ */
+function escapeRegex(text) {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// =========================
+// 내보내기

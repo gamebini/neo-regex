@@ -4,28 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEO Regex - 차세대 정규식 도구</title>
+    <meta name="description" content="개발자를 위한 가장 직관적이고 강력한 정규식 도구. 실시간 테스트, 패턴 라이브러리, 시각적 빌더를 제공합니다.">
+    <meta name="keywords" content="정규식, regex, 정규표현식, 개발도구, 패턴매칭">
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- CSS 파일 직접 링크 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="./src/styles/main.css">
+    <link rel="stylesheet" href="./src/styles/components.css">
+    <link rel="stylesheet" href="./src/styles/utilities.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 </head>
-<body>
-    <!-- 네비게이션 -->
+<body class="font-inter">
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-logo">
-                <h1>NEO Regex</h1>
+            <div class="nav-brand">
+                <div class="nav-logo">
+                    <i class="fas fa-code-branch text-primary"></i>
+                    <span class="logo-text">NEO Regex</span>
+                </div>
+                <span class="beta-badge">BETA</span>
             </div>
-            <ul class="nav-menu">
+            
+            <ul class="nav-menu" id="nav-menu">
                 <li><a href="#home" class="nav-link active">홈</a></li>
-                <li><a href="#tester" class="nav-link">테스터</a></li>
-                <li><a href="#library" class="nav-link">패턴 라이브러리</a></li>
-                <li><a href="#builder" class="nav-link">빌더</a></li>
-                <li><a href="#docs" class="nav-link">문서</a></li>
+                <li class="nav-dropdown">
+                    <a href="#" class="nav-link">도구 <i class="fas fa-chevron-down ml-1"></i></a>
+                    <div class="dropdown-content">
+                        <a href="./tester.html" class="dropdown-item">
+                            <i class="fas fa-flask"></i>
+                            <div>
+                                <div class="dropdown-title">정규식 테스터</div>
+                                <div class="dropdown-desc">실시간 패턴 테스트</div>
+                            </div>
+                        </a>
+                        <a href="./library.html" class="dropdown-item">
+                            <i class="fas fa-book"></i>
+                            <div>
+                                <div class="dropdown-title">패턴 라이브러리</div>
+                                <div class="dropdown-desc">검증된 패턴 모음</div>
+                            </div>
+                        </a>
+                        <a href="./builder.html" class="dropdown-item">
+                            <i class="fas fa-puzzle-piece"></i>
+                            <div>
+                                <div class="dropdown-title">시각적 빌더</div>
+                                <div class="dropdown-desc">드래그로 패턴 생성</div>
+                            </div>
+                        </a>
+                    </div>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="#" class="nav-link">가이드 <i class="fas fa-chevron-down ml-1"></i></a>
+                    <div class="dropdown-content">
+                        <a href="./beginner.html" class="dropdown-item">
+                            <i class="fas fa-graduation-cap text-green-500"></i>
+                            <div>
+                                <div class="dropdown-title">초보자 가이드</div>
+                                <div class="dropdown-desc">정규식 기초부터</div>
+                            </div>
+                        </a>
+                        <a href="./expert.html" class="dropdown-item">
+                            <i class="fas fa-rocket text-purple-500"></i>
+                            <div>
+                                <div class="dropdown-title">전문가 도구</div>
+                                <div class="dropdown-desc">고급 기능 활용</div>
+                            </div>
+                        </a>
+                    </div>
+                </li>
+                <li><a href="#about" class="nav-link">소개</a></li>
             </ul>
-            <div class="hamburger">
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-toggle" title="다크 모드 전환">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="./library.html" class="btn btn-primary">
+                    <i class="fas fa-play"></i>
+                    지금 시작하기
+                </a>
+            </div>
+            
+            <div class="hamburger" id="hamburger">
                 <span class="bar"></span>
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -33,538 +103,405 @@
         </div>
     </nav>
 
-    <!-- 메인 콘텐츠 -->
-    <main class="main-content">
-        <!-- 히어로 섹션 -->
-        <section class="hero" id="home">
-            <div class="hero-container">
-                <div class="hero-content">
-                    <h1 class="hero-title">
-                        차세대 <span class="highlight">정규식</span> 도구
-                    </h1>
-                    <p class="hero-subtitle">
-                        복잡한 정규식을 쉽게 만들고, 테스트하고, 공유하세요. 
-                        개발자를 위한 가장 직관적이고 강력한 정규식 웹 도구입니다.
-                    </p>
-                    <div class="hero-buttons">
-                        <a href="#tester" class="btn btn-primary">
-                            <i class="fas fa-play"></i>
-                            지금 시작하기
-                        </a>
-                        <a href="#features" class="btn btn-secondary">
-                            <i class="fas fa-info-circle"></i>
-                            기능 살펴보기
-                        </a>
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-background">
+            <div class="grid-overlay"></div>
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+        </div>
+        
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-sparkles"></i>
+                    차세대 정규식 도구
+                </div>
+                
+                <h1 class="hero-title">
+                    정규식을 더 
+                    <span class="gradient-text">쉽고</span>, 
+                    <span class="gradient-text">빠르게</span>
+                </h1>
+                
+                <p class="hero-subtitle">
+                    복잡한 정규식 패턴을 직관적으로 만들고, 실시간으로 테스트하며, 
+                    검증된 패턴 라이브러리를 활용하세요. 초보자부터 전문가까지 모두를 위한 올인원 솔루션입니다.
+                </p>
+                
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">50,000+</div>
+                        <div class="stat-label">개발자 사용</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">99.9%</div>
+                        <div class="stat-label">정확도</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">무료 사용</div>
                     </div>
                 </div>
-                <div class="code-preview">
-                    <div class="code-header">
-                        <span class="code-title">실시간 정규식 테스트</span>
-                        <i class="fas fa-terminal"></i>
+                
+                <div class="hero-buttons">
+                    <a href="./library.html" class="btn btn-primary btn-lg" id="start-button">
+                        <i class="fas fa-rocket"></i>
+                        패턴 라이브러리 시작하기
+                    </a>
+                    <a href="./tester.html" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-play"></i>
+                        테스터 사용해보기
+                    </a>
+                </div>
+                
+                <div class="hero-features">
+                    <div class="feature-pill">
+                        <i class="fas fa-shield-alt"></i>
+                        100% 브라우저 실행
                     </div>
-                    <div class="code-content">
-                        <div class="code-line">
-                            <span class="regex-pattern">/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/</span>
+                    <div class="feature-pill">
+                        <i class="fas fa-infinity"></i>
+                        무제한 사용
+                    </div>
+                    <div class="feature-pill">
+                        <i class="fas fa-heart"></i>
+                        오픈소스
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-demo">
+                <div class="demo-window">
+                    <div class="demo-header">
+                        <div class="demo-controls">
+                            <span class="control red"></span>
+                            <span class="control yellow"></span>
+                            <span class="control green"></span>
                         </div>
-                        <div class="code-line">
-                            <span class="test-string">✓ test@example.com</span>
+                        <div class="demo-title">
+                            <i class="fas fa-terminal"></i>
+                            실시간 정규식 테스트
                         </div>
-                        <div class="code-line">
-                            <span class="test-string">✓ user.name+tag@domain.co.kr</span>
+                    </div>
+                    
+                    <div class="demo-content">
+                        <div class="demo-input">
+                            <label class="input-label">정규식 패턴</label>
+                            <div class="code-input">
+                                <span class="regex-delimiter">/</span>
+                                <span class="regex-pattern" id="demo-pattern">^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$</span>
+                                <span class="regex-delimiter">/g</span>
+                            </div>
                         </div>
-                        <div class="code-line">
-                            <span class="test-string">✗ invalid-email</span>
+                        
+                        <div class="demo-test">
+                            <label class="input-label">테스트 텍스트</label>
+                            <div class="test-text">
+                                <span class="match">user@example.com</span><br>
+                                <span class="no-match">invalid-email</span><br>
+                                <span class="match">test.email@domain.org</span>
+                            </div>
+                        </div>
+                        
+                        <div class="demo-result">
+                            <div class="result-badge success">
+                                <i class="fas fa-check"></i>
+                                2개 매칭 발견
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- 기능 섹션 -->
-        <section class="features" id="features">
-            <div class="container">
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
                 <h2 class="section-title">강력한 기능들</h2>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-vial"></i>
-                        </div>
-                        <h3>실시간 테스터</h3>
-                        <p>정규식을 입력하는 즉시 실시간으로 테스트 결과를 확인할 수 있습니다. 매칭된 부분은 시각적으로 하이라이트되어 직관적으로 파악할 수 있습니다.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-book"></i>
-                        </div>
-                        <h3>패턴 라이브러리</h3>
-                        <p>검증된 정규식 패턴 라이브러리를 제공합니다. 이메일, 전화번호, URL 등 자주 사용되는 패턴들을 바로 사용할 수 있습니다.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-puzzle-piece"></i>
-                        </div>
-                        <h3>시각적 빌더</h3>
-                        <p>드래그 앤 드롭으로 정규식을 구성할 수 있는 시각적 빌더입니다. 복잡한 문법을 몰라도 직관적으로 정규식을 만들 수 있습니다.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-share-alt"></i>
-                        </div>
-                        <h3>패턴 공유</h3>
-                        <p>만든 정규식 패턴을 URL로 공유하거나 저장할 수 있습니다. 팀원들과 쉽게 협업하고 지식을 공유하세요.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-language"></i>
-                        </div>
-                        <h3>한국어 지원</h3>
-                        <p>한국어 문자, 이름, 주소, 전화번호 등 한국 개발자를 위한 특화된 정규식 패턴과 예제를 제공합니다.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-tachometer-alt"></i>
-                        </div>
-                        <h3>성능 분석</h3>
-                        <p>정규식의 실행 시간과 복잡도를 분석하여 성능 최적화에 도움을 줍니다. ReDoS 공격 가능성도 미리 체크할 수 있습니다.</p>
-                    </div>
-                </div>
+                <p class="section-subtitle">
+                    정규식 작업을 더 효율적으로 만드는 도구들
+                </p>
             </div>
-        </section>
-
-        <!-- 빠른 테스트 섹션 -->
-        <section class="quick-test" id="quick-test">
-            <div class="container">
-                <h2 class="section-title">빠른 테스트</h2>
-                <p class="section-subtitle">지금 바로 정규식을 테스트해보세요</p>
-                
-                <div class="quick-test-container">
-                    <div class="input-group">
-                        <label for="quick-regex">정규식 패턴</label>
-                        <input type="text" id="quick-regex" placeholder="예: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" value="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
+            
+            <div class="features-grid">
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">
+                        <i class="fas fa-flask"></i>
                     </div>
-                    <div class="input-group">
-                        <label for="quick-text">테스트 텍스트</label>
-                        <textarea id="quick-text" placeholder="테스트할 텍스트를 입력하세요">test@example.com
-user.name+tag@domain.co.kr
-invalid-email
-admin@company.org</textarea>
-                    </div>
-                    <div class="quick-result">
-                        <div class="result-header">
-                            <i class="fas fa-check-circle"></i>
-                            테스트 결과
-                        </div>
-                        <div class="result-content" id="quick-result-content">
-                            정규식을 입력하면 실시간으로 결과가 표시됩니다.
-                        </div>
-                    </div>
+                    <h3 class="feature-title">실시간 테스터</h3>
+                    <p class="feature-description">
+                        입력과 동시에 결과를 확인할 수 있는 
+                        실시간 정규식 테스트 환경
+                    </p>
+                    <ul class="feature-list">
+                        <li>즉시 매칭 결과 표시</li>
+                        <li>시각적 하이라이팅</li>
+                        <li>성능 측정</li>
+                        <li>오류 진단</li>
+                    </ul>
+                    <a href="./tester.html" class="feature-link">
+                        테스터 사용하기 <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
                 
-                <div class="quick-actions">
-                    <a href="#tester" class="btn btn-primary">
-                        <i class="fas fa-external-link-alt"></i>
-                        고급 테스터로 이동
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon featured">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3 class="feature-title">패턴 라이브러리</h3>
+                    <p class="feature-description">
+                        검증된 정규식 패턴 모음으로 
+                        빠르게 원하는 패턴을 찾아 사용
+                    </p>
+                    <ul class="feature-list">
+                        <li>200+ 검증된 패턴</li>
+                        <li>카테고리별 분류</li>
+                        <li>사용 예제 제공</li>
+                        <li>즐겨찾기 기능</li>
+                    </ul>
+                    <a href="./library.html" class="feature-link">
+                        라이브러리 둘러보기 <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-icon">
+                        <i class="fas fa-puzzle-piece"></i>
+                    </div>
+                    <h3 class="feature-title">시각적 빌더</h3>
+                    <p class="feature-description">
+                        드래그 앤 드롭으로 복잡한 
+                        정규식을 직관적으로 구성
+                    </p>
+                    <ul class="feature-list">
+                        <li>드래그 앤 드롭 인터페이스</li>
+                        <li>실시간 미리보기</li>
+                        <li>자동 코드 생성</li>
+                        <li>패턴 설명</li>
+                    </ul>
+                    <a href="./builder.html" class="feature-link">
+                        빌더 체험하기 <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- 정규식 테스터 섹션 -->
-        <section class="regex-tester" id="tester">
-            <div class="container">
-                <h2 class="section-title">정규식 테스터</h2>
-                <div class="tester-container">
-                    <!-- 입력 패널 -->
-                    <div class="tester-panel">
-                        <div class="panel-header">
-                            <span><i class="fas fa-edit"></i> 정규식 입력</span>
-                            <span class="loading hidden" id="regex-loading"></span>
+    <!-- User Types Section -->
+    <section class="user-types">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">당신의 레벨에 맞는 도구</h2>
+                <p class="section-subtitle">
+                    초보자부터 전문가까지, 모든 레벨의 개발자를 위한 맞춤형 기능
+                </p>
+            </div>
+            
+            <div class="user-types-grid">
+                <div class="user-type-card beginner" data-aos="fade-up">
+                    <div class="user-type-header">
+                        <div class="user-type-icon">
+                            <i class="fas fa-graduation-cap"></i>
                         </div>
-                        <div class="panel-content">
-                            <div class="regex-input-group">
-                                <label for="regex-pattern">정규식 패턴</label>
-                                <input type="text" id="regex-pattern" class="regex-input" placeholder="정규식을 입력하세요..." value="">
-                                
-                                <div class="flags-container">
-                                    <div class="flag-button" data-flag="g">g (전역)</div>
-                                    <div class="flag-button" data-flag="i">i (대소문자 무시)</div>
-                                    <div class="flag-button" data-flag="m">m (멀티라인)</div>
-                                    <div class="flag-button" data-flag="s">s (도트올)</div>
-                                    <div class="flag-button" data-flag="u">u (유니코드)</div>
-                                    <div class="flag-button" data-flag="y">y (고정)</div>
-                                </div>
-                            </div>
-                            
-                            <div class="input-group">
-                                <label for="test-text">테스트 텍스트</label>
-                                <textarea id="test-text" class="text-input" placeholder="테스트할 텍스트를 입력하세요...">이것은 테스트 문자열입니다.
-여기에 test@example.com 같은 이메일이 있습니다.
-전화번호는 010-1234-5678 형식입니다.
-웹사이트는 https://www.example.com 입니다.</textarea>
-                            </div>
+                        <h3 class="user-type-title">초보자를 위한</h3>
+                        <p class="user-type-subtitle">정규식이 처음이신가요?</p>
+                    </div>
+                    
+                    <div class="user-type-features">
+                        <div class="feature-item">
+                            <i class="fas fa-book-open"></i>
+                            단계별 튜토리얼
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-lightbulb"></i>
+                            쉬운 예제 모음
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-question-circle"></i>
+                            실시간 도움말
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-play"></i>
+                            인터랙티브 학습
                         </div>
                     </div>
+                    
+                    <a href="./beginner.html" class="btn btn-beginner">
+                        <i class="fas fa-rocket"></i>
+                        초보자 가이드 시작
+                    </a>
+                </div>
+                
+                <div class="user-type-card expert" data-aos="fade-up" data-aos-delay="200">
+                    <div class="user-type-header">
+                        <div class="user-type-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3 class="user-type-title">전문가를 위한</h3>
+                        <p class="user-type-subtitle">더 강력한 도구가 필요하신가요?</p>
+                    </div>
+                    
+                    <div class="user-type-features">
+                        <div class="feature-item">
+                            <i class="fas fa-cog"></i>
+                            고급 패턴 생성기
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-chart-line"></i>
+                            성능 분석 도구
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-code"></i>
+                            코드 생성기
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-database"></i>
+                            패턴 라이브러리 관리
+                        </div>
+                    </div>
+                    
+                    <a href="./expert.html" class="btn btn-expert">
+                        <i class="fas fa-fire"></i>
+                        전문가 도구 사용
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-                    <!-- 결과 패널 -->
-                    <div class="tester-panel">
-                        <div class="panel-header">
-                            <span><i class="fas fa-search"></i> 테스트 결과</span>
-                            <span id="match-count">0개 매치</span>
-                        </div>
-                        <div class="panel-content">
-                            <div class="results-container" id="results-container">
-                                <div class="no-matches">
-                                    정규식을 입력하면 매칭 결과가 여기에 표시됩니다.
-                                </div>
-                            </div>
-                        </div>
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card" data-aos="fade-up">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" data-target="50000">0</div>
+                        <div class="stat-label">활성 사용자</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" data-target="200">0</div>
+                        <div class="stat-label">검증된 패턴</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" data-target="99.9">0</div>
+                        <div class="stat-label">정확도 (%)</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" data-target="24">0</div>
+                        <div class="stat-label">시간 무료</div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- 패턴 라이브러리 섹션 -->
-        <section class="pattern-library" id="library">
-            <div class="dictionary-container">
-                <h2 class="section-title">패턴 라이브러리</h2>
-                <p class="section-subtitle">검증된 정규식 패턴을 찾아보세요</p>
-                
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="패턴 검색..." id="pattern-search">
-                </div>
-                
-                <div class="category-tabs">
-                    <div class="category-tab active" data-category="all">전체</div>
-                    <div class="category-tab" data-category="basic">기본 패턴</div>
-                    <div class="category-tab" data-category="validation">검증 패턴</div>
-                    <div class="category-tab" data-category="korean">한국어</div>
-                    <div class="category-tab" data-category="developer">개발자용</div>
-                </div>
-                
-                <div class="patterns-grid" id="patterns-grid">
-                    <!-- 패턴 카드들이 JavaScript로 동적 생성됩니다 -->
-                    <div class="pattern-card" data-category="basic">
-                        <div class="pattern-title">이메일 주소</div>
-                        <div class="pattern-regex">
-                            ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-                            <button class="copy-btn" onclick="copyToClipboard(this.parentElement)">복사</button>
-                        </div>
-                        <div class="pattern-description">
-                            일반적인 이메일 주소 형식을 검증합니다. 대부분의 유효한 이메일 주소와 매치됩니다.
-                        </div>
-                        <div class="pattern-examples">
-                            <span class="example-tag valid">test@example.com</span>
-                            <span class="example-tag valid">user.name@domain.org</span>
-                            <span class="example-tag invalid">invalid-email</span>
-                        </div>
-                    </div>
-                    
-                    <div class="pattern-card" data-category="korean">
-                        <div class="pattern-title">한국 전화번호</div>
-                        <div class="pattern-regex">
-                            ^01[016789]-?\d{3,4}-?\d{4}$
-                            <button class="copy-btn" onclick="copyToClipboard(this.parentElement)">복사</button>
-                        </div>
-                        <div class="pattern-description">
-                            한국의 휴대폰 번호 형식을 검증합니다. 하이픈 있음/없음 모두 지원합니다.
-                        </div>
-                        <div class="pattern-examples">
-                            <span class="example-tag valid">010-1234-5678</span>
-                            <span class="example-tag valid">01012345678</span>
-                            <span class="example-tag invalid">02-1234-5678</span>
-                        </div>
-                    </div>
-                    
-                    <div class="pattern-card" data-category="validation">
-                        <div class="pattern-title">강력한 비밀번호</div>
-                        <div class="pattern-regex">
-                            ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$
-                            <button class="copy-btn" onclick="copyToClipboard(this.parentElement)">복사</button>
-                        </div>
-                        <div class="pattern-description">
-                            최소 8자, 대소문자, 숫자, 특수문자를 모두 포함하는 강력한 비밀번호를 검증합니다.
-                        </div>
-                        <div class="pattern-examples">
-                            <span class="example-tag valid">Password123!</span>
-                            <span class="example-tag valid">MyP@ssw0rd</span>
-                            <span class="example-tag invalid">password</span>
-                        </div>
-                    </div>
-                    
-                    <div class="pattern-card" data-category="developer">
-                        <div class="pattern-title">HTML 태그</div>
-                        <div class="pattern-regex">
-                            &lt;([a-z][a-z0-9]*)\b[^&gt;]*&gt;.*?&lt;\/\1&gt;
-                            <button class="copy-btn" onclick="copyToClipboard(this.parentElement)">복사</button>
-                        </div>
-                        <div class="pattern-description">
-                            HTML 태그를 매칭합니다. 여는 태그와 닫는 태그가 일치하는지 확인합니다.
-                        </div>
-                        <div class="pattern-examples">
-                            <span class="example-tag valid">&lt;div&gt;내용&lt;/div&gt;</span>
-                            <span class="example-tag valid">&lt;p class="text"&gt;문단&lt;/p&gt;</span>
-                            <span class="example-tag invalid">&lt;div&gt;내용&lt;/span&gt;</span>
-                        </div>
-                    </div>
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content" data-aos="fade-up">
+                <h2 class="cta-title">지금 바로 시작해보세요</h2>
+                <p class="cta-subtitle">
+                    가입 없이 즉시 사용 가능합니다. 
+                    모든 기능을 무료로 제공합니다.
+                </p>
+                <div class="cta-buttons">
+                    <a href="./library.html" class="btn btn-primary btn-lg">
+                        <i class="fas fa-rocket"></i>
+                        패턴 라이브러리 시작
+                    </a>
+                    <a href="./tester.html" class="btn btn-outline btn-lg">
+                        <i class="fas fa-play"></i>
+                        테스터 체험하기
+                    </a>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
 
-    <!-- 푸터 -->
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-section">
-                    <h3>NEO Regex</h3>
-                    <p>개발자를 위한 가장 직관적이고 강력한 정규식 도구입니다. 복잡한 정규식을 쉽게 만들고, 테스트하고, 공유하세요.</p>
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-code-branch"></i>
+                        <span>NEO Regex</span>
+                    </div>
+                    <p class="footer-description">
+                        개발자를 위한 차세대 정규식 도구
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="footer-section">
-                    <h4>빠른 링크</h4>
-                    <ul>
-                        <li><a href="#tester">정규식 테스터</a></li>
-                        <li><a href="#library">패턴 라이브러리</a></li>
-                        <li><a href="#builder">시각적 빌더</a></li>
-                        <li><a href="#docs">문서</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>지원</h4>
-                    <ul>
-                        <li><a href="#help">도움말</a></li>
-                        <li><a href="#contact">문의하기</a></li>
-                        <li><a href="#github">GitHub</a></li>
-                        <li><a href="#feedback">피드백</a></li>
-                    </ul>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-title">도구</h4>
+                        <a href="./tester.html" class="footer-link">정규식 테스터</a>
+                        <a href="./library.html" class="footer-link">패턴 라이브러리</a>
+                        <a href="./builder.html" class="footer-link">시각적 빌더</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-title">가이드</h4>
+                        <a href="./beginner.html" class="footer-link">초보자 가이드</a>
+                        <a href="./expert.html" class="footer-link">전문가 도구</a>
+                        <a href="#" class="footer-link">튜토리얼</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-title">지원</h4>
+                        <a href="#" class="footer-link">문서</a>
+                        <a href="#" class="footer-link">FAQ</a>
+                        <a href="#" class="footer-link">문의하기</a>
+                    </div>
                 </div>
             </div>
+            
             <div class="footer-bottom">
-                <p>&copy; 2024 NEO Regex. All rights reserved.</p>
+                <p>&copy; 2024 NEO Regex. All rights reserved. Built with ❤️ for developers.</p>
             </div>
         </div>
     </footer>
 
-    <!-- 알림 컨테이너 -->
-    <div class="notification-container" id="notification-container"></div>
-
-    <!-- JavaScript -->
-    <script type="module" src="src/main.js"></script>
-</body>
-</html>
-                <h2 class="section-title">빠른 테스트</h2>
-                <p class="section-subtitle">지금 바로 정규식을 테스트해보세요</p>
-                
-                <div class="quick-test-container">
-                    <div class="input-group">
-                        <label for="quick-regex">정규식 패턴</label>
-                        <input type="text" id="quick-regex" placeholder="예: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" value="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
-                    </div>
-                    <div class="input-group">
-                        <label for="quick-text">테스트 텍스트</label>
-                        <textarea id="quick-text" placeholder="테스트할 텍스트를 입력하세요">test@example.com
-user.name+tag@domain.co.kr
-invalid-email
-admin@company.org</textarea>
-                    </div>
-                    <div class="quick-result">
-                        <div class="result-header">
-                            <i class="fas fa-check-circle"></i>
-                            테스트 결과
-                        </div>
-                        <div class="result-content" id="quick-result-content">
-                            정규식을 입력하면 실시간으로 결과가 표시됩니다.
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="quick-actions">
-                    <a href="#tester" class="btn btn-primary">
-                        <i class="fas fa-external-link-alt"></i>
-                        고급 테스터로 이동
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- 정규식 테스터 섹션 -->
-        <section class="regex-tester" id="tester">
-            <div class="container">
-                <h2 class="section-title">정규식 테스터</h2>
-                <div class="tester-container">
-                    <!-- 입력 패널 -->
-                    <div class="tester-panel">
-                        <div class="panel-header">
-                            <span><i class="fas fa-edit"></i> 정규식 입력</span>
-                            <span class="loading hidden" id="regex-loading"></span>
-                        </div>
-                        <div class="panel-content">
-                            <div class="regex-input-group">
-                                <label for="regex-pattern">정규식 패턴</label>
-                                <input type="text" id="regex-pattern" class="regex-input" placeholder="정규식을 입력하세요..." value="">
-                                
-                                <div class="flags-container">
-                                    <div class="flag-button" data-flag="g">g (전역)</div>
-                                    <div class="flag-button" data-flag="i">i (대소문자 무시)</div>
-                                    <div class="flag-button" data-flag="m">m (멀티라인)</div>
-                                    <div class="flag-button" data-flag="s">s (도트올)</div>
-                                    <div class="flag-button" data-flag="u">u (유니코드)</div>
-                                    <div class="flag-button" data-flag="y">y (고정)</div>
-                                </div>
-                            </div>
-                            
-                            <div class="input-group">
-                                <label for="test-text">테스트 텍스트</label>
-                                <textarea id="test-text" class="text-input" placeholder="테스트할 텍스트를 입력하세요...">이것은 테스트 문자열입니다.
-여기에 test@example.com 같은 이메일이 있습니다.
-전화번호는 010-1234-5678 형식입니다.
-웹사이트는 https://www.example.com 입니다.</textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 결과 패널 -->
-                    <div class="tester-panel">
-                        <div class="panel-header">
-                            <span><i class="fas fa-search"></i> 테스트 결과</span>
-                            <span id="match-count">0개 매치</span>
-                        </div>
-                        <div class="panel-content">
-                            <div class="results-container" id="results-container">
-                                <div class="no-matches">
-                                    정규식을 입력하면 매칭 결과가 여기에 표시됩니다.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 패턴 라이브러리 섹션 -->
-        <section class="pattern-library" id="library">
-            <div class="dictionary-container">
-                <h2 class="section-title">패턴 라이브러리</h2>
-                <p class="section-subtitle">검증된 정규식 패턴을 찾아보세요</p>
-                
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="패턴 검색..." id="pattern-search">
-                </div>
-                
-                <div class="category-tabs">
-                    <div class="category-tab active" data-category="all">전체</div>
-                    <div class="category-tab" data-category="basic">기본 패턴</div>
-                    <div class="category-tab" data-category="validation">검증 패턴</div>
-                    <div class="category-tab" data-category="korean">한국어</div>
-                    <div class="category-tab" data-category="developer">개발자용</div>
-                </div>
-                
-                <div class="patterns-grid" id="patterns-grid">
-                    <!-- 패턴 카드들이 JavaScript로 동적 생성됩니다 -->
-                    <div class="pattern-card" data-category="basic">
-                        <div class="pattern-title">이메일 주소</div>
-                        <div class="pattern-regex">
-                            ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-                            <button class="copy-btn" onclick="copyToClipboard(this.parentElement)">복사</button>
-                        </div>
-                        <div class="pattern-description">
-                            일반적인 이메일 주소 형식을 검증합니다. 대부분의 유효한 이메일 주소와 매치됩니다.
-                        </div>
-                        <div class="pattern-examples">
-                            <span class="example-tag valid">test@example.com</span>
-                            <span class="example-tag valid">user.name@domain.org</span>
-                            <span class="example-tag invalid">invalid-email</span>
-                        </div>
-                    </div>
-                    
-                    <div class="pattern-card" data-category="korean">
-                        <div class="pattern-title">한국 전화번호</div>
-                        <div class="pattern-regex">
-                            ^01[016789]-?\d{3,4}-?\d{4}$
-                            <button class="copy-btn" onclick="copyToClipboard(this.parentElement)">복사</button>
-                        </div>
-                        <div class="pattern-description">
-                            한국의 휴대폰 번호 형식을 검증합니다. 하이픈 있음/없음 모두 지원합니다.
-                        </div>
-                        <div class="pattern-examples">
-                            <span class="example-tag valid">010-1234-5678</span>
-                            <span class="example-tag valid">01012345678</span>
-                            <span class="example-tag invalid">02-1234-5678</span>
-                        </div>
-                    </div>
-                    
-                    <div class="pattern-card" data-category="validation">
-                        <div class="pattern-title">강력한 비밀번호</div>
-                        <div class="pattern-regex">
-                            ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$
-                            <button class="copy-btn" onclick="copyToClipboard(this.parentElement)">복사</button>
-                        </div>
-                        <div class="pattern-description">
-                            최소 8자, 대소문자, 숫자, 특수문자를 모두 포함하는 강력한 비밀번호를 검증합니다.
-                        </div>
-                        <div class="pattern-examples">
-                            <span class="example-tag valid">Password123!</span>
-                            <span class="example-tag valid">MyP@ssw0rd</span>
-                            <span class="example-tag invalid">password</span>
-                        </div>
-                    </div>
-                    
-                    <div class="pattern-card" data-category="developer">
-                        <div class="pattern-title">HTML 태그</div>
-                        <div class="pattern-regex">
-                            &lt;([a-z][a-z0-9]*)\b[^&gt;]*&gt;.*?&lt;\/\1&gt;
-                            <button class="copy-btn" onclick="copyToClipboard(this.parentElement)">복사</button>
-                        </div>
-                        <div class="pattern-description">
-                            HTML 태그를 매칭합니다. 여는 태그와 닫는 태그가 일치하는지 확인합니다.
-                        </div>
-                        <div class="pattern-examples">
-                            <span class="example-tag valid">&lt;div&gt;내용&lt;/div&gt;</span>
-                            <span class="example-tag valid">&lt;p class="text"&gt;문단&lt;/p&gt;</span>
-                            <span class="example-tag invalid">&lt;div&gt;내용&lt;/span&gt;</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- 푸터 -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>NEO Regex</h3>
-                    <p>개발자를 위한 가장 직관적이고 강력한 정규식 도구입니다. 복잡한 정규식을 쉽게 만들고, 테스트하고, 공유하세요.</p>
-                </div>
-                <div class="footer-section">
-                    <h4>빠른 링크</h4>
-                    <ul>
-                        <li><a href="#tester">정규식 테스터</a></li>
-                        <li><a href="#library">패턴 라이브러리</a></li>
-                        <li><a href="#builder">시각적 빌더</a></li>
-                        <li><a href="#docs">문서</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>지원</h4>
-                    <ul>
-                        <li><a href="#help">도움말</a></li>
-                        <li><a href="#contact">문의하기</a></li>
-                        <li><a href="#github">GitHub</a></li>
-                        <li><a href="#feedback">피드백</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 NEO Regex. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- 알림 컨테이너 -->
-    <div class="notification-container" id="notification-container"></div>
-
-    <!-- JavaScript -->
-    <script src="src/main.js"></script>
+    <!-- Scripts -->
+    <script src="./src/main.js" defer></script>
+    
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
 </body>
 </html>

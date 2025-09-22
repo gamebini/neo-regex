@@ -1,539 +1,638 @@
-// frontend/src/main.js - 모듈 오류 수정
-import './styles/main.css';
-import { RegexTester } from './core/regex.js';
+/**
+ * NEO Regex - Main JavaScript File
+ * 전문적이고 현대적인 정규식 도구를 위한 메인 스크립트
+ */
 
-// 전역 변수
-let regexTester = new RegexTester();
-let activeFlags = new Set();
+// =========================
+// Global State Management
+// =========================
+const AppState = {
+  theme: localStorage.getItem('neo-regex-theme') || 'light',
+  currentPage: 'home',
+  isMenuOpen: false,
+  notifications: [],
+  userPreferences: JSON.parse(localStorage.getItem('neo-regex-preferences')) || {
+    autoSave: true,
+    showTips: true,
+    animationsEnabled: true
+  }
+};
 
-// DOM 로드 완료 후 초기화
+// =========================
+// DOM Ready Event
+// =========================
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 NEO Regex 초기화 시작...');
-    
-    initializeNavigation();
-    initializeQuickTest();
-    initializeRegexTester();
-    initializePatternLibrary();
-    initializeScrollEffects();
-    
-    // 환영 메시지 표시
-    setTimeout(() => {
-        showNotification('NEO Regex에 오신 것을 환영합니다! 🎉', 'success');
-    }, 1000);
-    
-    console.log('✅ 초기화 완료');
+  console.log('🚀 NEO Regex 초기화 중...');
+  
+  initializeApp();
+  initializeNavigation();
+  initializeTheme();
+  initializeScrollEffects();
+  initializeHeroDemo();
+  initializeStatsAnimation();
+  initializeKeyboardNavigation();
+  
+  console.log('✅ NEO Regex 초기화 완료!');
 });
 
 // =========================
-// 네비게이션 관련 함수들
+// App Initialization
 // =========================
-function initializeNavigation() {
-    const hamburger = document.querySelector('.hamburger');
-    const navMenu = document.querySelector('.nav-menu');
-    const navLinks = document.querySelectorAll('.nav-link');
-
-    // 햄버거 메뉴 토글
-    if (hamburger && navMenu) {
-        hamburger.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            hamburger.classList.toggle('active');
-        });
-    }
-
-    // 네비게이션 링크 클릭 처리
-    if (navLinks.length > 0) {
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                // 모든 링크에서 active 클래스 제거
-                navLinks.forEach(l => l.classList.remove('active'));
-                
-                // 클릭된 링크에 active 클래스 추가
-                link.classList.add('active');
-                
-                // 해당 섹션으로 스크롤
-                const targetId = link.getAttribute('href').substring(1);
-                const targetSection = document.getElementById(targetId);
-                
-                if (targetSection) {
-                    targetSection.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-                
-                // 모바일 메뉴 닫기
-                if (navMenu && navMenu.classList.contains('active')) {
-                    navMenu.classList.remove('active');
-                    if (hamburger) hamburger.classList.remove('active');
-                }
-            });
-        });
-    }
-
-    // 스크롤에 따른 네비게이션 상태 업데이트
-    window.addEventListener('scroll', updateActiveNavLink);
+function initializeApp() {
+  // Performance monitoring
+  const startTime = performance.now();
+  
+  // Apply theme
+  applyTheme(AppState.theme);
+  
+  // Setup error handling
+  setupErrorHandling();
+  
+  // Initialize service worker if available
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(console.warn);
+  }
+  
+  const endTime = performance.now();
+  console.log(`⚡ 앱 초기화 완료: ${(endTime - startTime).toFixed(2)}ms`);
 }
 
-function updateActiveNavLink() {
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-link');
+// =========================
+// Navigation System
+// =========================
+function initializeNavigation() {
+  const hamburger = document.getElementById('hamburger');
+  const navMenu = document.getElementById('nav-menu');
+  const navLinks = document.querySelectorAll('.nav-link');
+  
+  // Hamburger menu toggle
+  if (hamburger && navMenu) {
+    hamburger.addEventListener('click', toggleMobileMenu);
+  }
+  
+  // Smooth scrolling for anchor links
+  navLinks.forEach(link => {
+    if (link.getAttribute('href')?.startsWith('#')) {
+      link.addEventListener('click', handleSmoothScroll);
+    }
+  });
+  
+  // Update active navigation
+  updateActiveNavigation();
+  
+  // Handle page navigation
+  document.addEventListener('click', handlePageNavigation);
+}
+
+function toggleMobileMenu() {
+  AppState.isMenuOpen = !AppState.isMenuOpen;
+  const navMenu = document.getElementById('nav-menu');
+  const hamburger = document.getElementById('hamburger');
+  
+  if (navMenu) {
+    navMenu.classList.toggle('active', AppState.isMenuOpen);
+  }
+  
+  if (hamburger) {
+    hamburger.classList.toggle('active', AppState.isMenuOpen);
+  }
+  
+  // Update hamburger animation
+  updateHamburgerAnimation(AppState.isMenuOpen);
+}
+
+function updateHamburgerAnimation(isOpen) {
+  const bars = document.querySelectorAll('.hamburger .bar');
+  bars.forEach((bar, index) => {
+    if (isOpen) {
+      if (index === 0) {
+        bar.style.transform = 'rotate(45deg) translate(5px, 5px)';
+      } else if (index === 1) {
+        bar.style.opacity = '0';
+      } else if (index === 2) {
+        bar.style.transform = 'rotate(-45deg) translate(7px, -6px)';
+      }
+    } else {
+      bar.style.transform = '';
+      bar.style.opacity = '';
+    }
+  });
+}
+
+function handleSmoothScroll(e) {
+  e.preventDefault();
+  const targetId = e.target.getAttribute('href');
+  const targetElement = document.querySelector(targetId);
+  
+  if (targetElement) {
+    const headerOffset = 80;
+    const elementPosition = targetElement.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
     
-    let currentSection = '';
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
+    
+    // Close mobile menu if open
+    if (AppState.isMenuOpen) {
+      toggleMobileMenu();
+    }
+  }
+}
+
+function updateActiveNavigation() {
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+  
+  window.addEventListener('scroll', debounce(() => {
+    let current = '';
+    const scrollPosition = window.scrollY + 100;
     
     sections.forEach(section => {
-        const sectionTop = section.offsetTop - 100;
-        const sectionHeight = section.clientHeight;
-        
-        if (window.pageYOffset >= sectionTop && 
-            window.pageYOffset < sectionTop + sectionHeight) {
-            currentSection = section.getAttribute('id');
-        }
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.clientHeight;
+      
+      if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+        current = section.getAttribute('id');
+      }
     });
     
     navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${currentSection}`) {
-            link.classList.add('active');
-        }
+      link.classList.remove('active');
+      if (link.getAttribute('href') === `#${current}`) {
+        link.classList.add('active');
+      }
     });
+  }, 100));
+}
+
+function handlePageNavigation(e) {
+  const link = e.target.closest('a[href]');
+  if (!link) return;
+  
+  const href = link.getAttribute('href');
+  
+  // Track page navigation
+  if (href && !href.startsWith('#') && !href.startsWith('http')) {
+    trackPageNavigation(href);
+  }
 }
 
 // =========================
-// 빠른 테스트 섹션
+// Theme System
 // =========================
-function initializeQuickTest() {
-    const quickRegexInput = document.getElementById('quick-regex');
-    const quickTextInput = document.getElementById('quick-text');
-    const quickResultContent = document.getElementById('quick-result-content');
+function initializeTheme() {
+  const themeToggle = document.getElementById('theme-toggle');
+  
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+    updateThemeButton();
+  }
+}
 
-    if (!quickRegexInput || !quickTextInput || !quickResultContent) {
-        console.log('빠른 테스트 요소를 찾을 수 없습니다.');
-        return;
-    }
+function toggleTheme() {
+  AppState.theme = AppState.theme === 'light' ? 'dark' : 'light';
+  applyTheme(AppState.theme);
+  localStorage.setItem('neo-regex-theme', AppState.theme);
+  updateThemeButton();
+  
+  showNotification(
+    `${AppState.theme === 'dark' ? '다크' : '라이트'} 모드로 변경되었습니다.`,
+    'success'
+  );
+}
 
-    // 입력 이벤트 리스너
-    quickRegexInput.addEventListener('input', debounce(performQuickTest, 300));
-    quickTextInput.addEventListener('input', debounce(performQuickTest, 300));
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  
+  if (theme === 'dark') {
+    document.body.classList.add('dark');
+  } else {
+    document.body.classList.remove('dark');
+  }
+}
 
-    // 초기 테스트 실행
-    performQuickTest();
-
-    function performQuickTest() {
-        const pattern = quickRegexInput.value.trim();
-        const text = quickTextInput.value;
-
-        if (!pattern) {
-            quickResultContent.innerHTML = '정규식을 입력하면 실시간으로 결과가 표시됩니다.';
-            return;
-        }
-
-        try {
-            const regex = new RegExp(pattern, 'g');
-            const matches = [...text.matchAll(regex)];
-            
-            if (matches.length === 0) {
-                quickResultContent.innerHTML = '<span style="color: #ef4444;">매치되는 텍스트가 없습니다.</span>';
-            } else {
-                let highlightedText = text;
-                let offset = 0;
-                
-                matches.forEach(match => {
-                    const start = match.index + offset;
-                    const end = start + match[0].length;
-                    const highlighted = `<span style="background-color: #fef3c7; color: #92400e; padding: 2px 4px; border-radius: 4px; font-weight: 600;">${escapeHtml(match[0])}</span>`;
-                    
-                    highlightedText = highlightedText.substring(0, start) + 
-                                    highlighted + 
-                                    highlightedText.substring(end);
-                    
-                    offset += highlighted.length - match[0].length;
-                });
-                
-                quickResultContent.innerHTML = `<div style="color: #10b981; margin-bottom: 1rem;">${matches.length}개 매치</div><pre style="white-space: pre-wrap; margin: 0;">${highlightedText}</pre>`;
-            }
-        } catch (error) {
-            quickResultContent.innerHTML = `<span style="color: #ef4444;">오류: ${error.message}</span>`;
-        }
-    }
+function updateThemeButton() {
+  const themeToggle = document.getElementById('theme-toggle');
+  if (!themeToggle) return;
+  
+  const icon = themeToggle.querySelector('i');
+  if (icon) {
+    icon.className = AppState.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+  }
+  
+  themeToggle.setAttribute('title', 
+    AppState.theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'
+  );
 }
 
 // =========================
-// 정규식 테스터 섹션
-// =========================
-function initializeRegexTester() {
-    const regexInput = document.getElementById('regex-pattern');
-    const testTextArea = document.getElementById('test-text');
-    const flagButtons = document.querySelectorAll('.flag-button');
-    const resultsContainer = document.getElementById('results-container');
-    const matchCount = document.getElementById('match-count');
-
-    if (!regexInput || !testTextArea || !resultsContainer) {
-        console.log('정규식 테스터 요소를 찾을 수 없습니다.');
-        return;
-    }
-
-    // 플래그 버튼 이벤트
-    flagButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const flag = button.getAttribute('data-flag');
-            
-            if (activeFlags.has(flag)) {
-                activeFlags.delete(flag);
-                button.classList.remove('active');
-            } else {
-                activeFlags.add(flag);
-                button.classList.add('active');
-            }
-            
-            performRegexTest();
-        });
-    });
-
-    // 입력 이벤트
-    regexInput.addEventListener('input', debounce(performRegexTest, 300));
-    testTextArea.addEventListener('input', debounce(performRegexTest, 300));
-
-    function performRegexTest() {
-        const pattern = regexInput.value.trim();
-        const text = testTextArea.value;
-        const flags = Array.from(activeFlags).join('');
-
-        if (!pattern) {
-            resultsContainer.innerHTML = '<div class="no-matches">정규식을 입력하면 매칭 결과가 여기에 표시됩니다.</div>';
-            if (matchCount) matchCount.textContent = '0개 매치';
-            return;
-        }
-
-        try {
-            regexTester.setPattern(pattern, flags).setText(text);
-            const result = regexTester.test();
-
-            if (result.success) {
-                displayTestResults(result);
-                if (matchCount) matchCount.textContent = `${result.totalMatches}개 매치`;
-            } else {
-                resultsContainer.innerHTML = `<div class="no-matches">오류: ${result.error}</div>`;
-                if (matchCount) matchCount.textContent = '오류';
-            }
-        } catch (error) {
-            resultsContainer.innerHTML = `<div class="no-matches">오류: ${error.message}</div>`;
-            if (matchCount) matchCount.textContent = '오류';
-        }
-    }
-
-    function displayTestResults(result) {
-        if (result.totalMatches === 0) {
-            resultsContainer.innerHTML = '<div class="no-matches">매치되는 텍스트가 없습니다.</div>';
-            return;
-        }
-
-        let html = '';
-        result.matches.forEach((match, index) => {
-            html += `
-                <div class="match-item">
-                    <div class="match-header">
-                        <strong>매치 ${index + 1}</strong>
-                        <span>위치: ${match.position}-${match.position + match.length}</span>
-                    </div>
-                    <div class="match-text">
-                        <span class="match-highlight">${escapeHtml(match.match)}</span>
-                    </div>
-                    ${match.groups.length > 0 ? `
-                        <div class="match-groups">
-                            <strong>그룹:</strong>
-                            ${match.groups.map((group, i) => `
-                                <span class="match-group">$${i + 1}: ${escapeHtml(group || '')}</span>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        });
-
-        resultsContainer.innerHTML = html;
-    }
-}
-
-// =========================
-// 패턴 라이브러리 섹션
-// =========================
-function initializePatternLibrary() {
-    const searchInput = document.getElementById('pattern-search');
-    const categoryTabs = document.querySelectorAll('.category-tab');
-    const patternsGrid = document.getElementById('patterns-grid');
-
-    if (!patternsGrid) {
-        console.log('패턴 라이브러리 요소를 찾을 수 없습니다.');
-        return;
-    }
-
-    let currentCategory = 'all';
-
-    // 카테고리 탭 이벤트
-    categoryTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            // 모든 탭에서 active 클래스 제거
-            categoryTabs.forEach(t => t.classList.remove('active'));
-            
-            // 클릭된 탭에 active 클래스 추가
-            tab.classList.add('active');
-            
-            // 현재 카테고리 업데이트
-            currentCategory = tab.getAttribute('data-category');
-            
-            // 패턴 필터링
-            filterPatterns();
-        });
-    });
-
-    // 검색 입력 이벤트
-    if (searchInput) {
-        searchInput.addEventListener('input', debounce(filterPatterns, 300));
-    }
-
-    function filterPatterns() {
-        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-        const patternCards = document.querySelectorAll('.pattern-card');
-
-        patternCards.forEach(card => {
-            const category = card.getAttribute('data-category');
-            const title = card.querySelector('.pattern-title')?.textContent.toLowerCase() || '';
-            const description = card.querySelector('.pattern-description')?.textContent.toLowerCase() || '';
-            
-            const matchesCategory = currentCategory === 'all' || category === currentCategory;
-            const matchesSearch = searchTerm === '' || 
-                                title.includes(searchTerm) || 
-                                description.includes(searchTerm);
-
-            if (matchesCategory && matchesSearch) {
-                card.style.display = 'block';
-                card.style.animation = 'fadeInUp 0.3s ease-out';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
-
-    // 패턴 카드 클릭 이벤트
-    patternsGrid.addEventListener('click', (e) => {
-        const patternCard = e.target.closest('.pattern-card');
-        if (patternCard) {
-            const regexElement = patternCard.querySelector('.pattern-regex');
-            if (regexElement) {
-                const regex = regexElement.textContent.replace('복사', '').trim();
-                
-                // 정규식 테스터로 복사
-                const regexInput = document.getElementById('regex-pattern');
-                if (regexInput) {
-                    regexInput.value = regex;
-                    
-                    // 테스터 섹션으로 스크롤
-                    const testerSection = document.getElementById('tester');
-                    if (testerSection) {
-                        testerSection.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                    
-                    // 테스트 실행
-                    setTimeout(() => {
-                        regexInput.dispatchEvent(new Event('input'));
-                    }, 500);
-                    
-                    showNotification('패턴이 테스터로 복사되었습니다!', 'success');
-                }
-            }
-        }
-    });
-}
-
-// =========================
-// 스크롤 이벤트 및 애니메이션
+// Scroll Effects & Animations
 // =========================
 function initializeScrollEffects() {
-    // Intersection Observer로 요소가 뷰포트에 들어올 때 애니메이션
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.animation = 'fadeInUp 0.6s ease-out forwards';
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    // 애니메이션할 요소들 관찰
-    const animateElements = document.querySelectorAll('.feature-card, .pattern-card');
-    animateElements.forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        observer.observe(el);
-    });
-
-    // 네비게이션 배경 투명도 조절
-    window.addEventListener('scroll', () => {
-        const navbar = document.querySelector('.navbar');
-        if (navbar) {
-            if (window.scrollY > 50) {
-                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
-            } else {
-                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-            }
+  // Navbar background effect
+  const navbar = document.querySelector('.navbar');
+  
+  window.addEventListener('scroll', debounce(() => {
+    const scrollY = window.scrollY;
+    
+    if (navbar) {
+      if (scrollY > 50) {
+        navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+        navbar.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+      } else {
+        navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+        navbar.style.boxShadow = '';
+      }
+    }
+  }, 16));
+  
+  // Intersection Observer for animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+        
+        // Animate stats numbers
+        if (entry.target.classList.contains('stat-card')) {
+          animateStatNumber(entry.target);
         }
+        
+        observer.unobserve(entry.target);
+      }
     });
+  }, observerOptions);
+  
+  // Observe elements with data-aos attributes
+  const animatedElements = document.querySelectorAll('[data-aos]');
+  animatedElements.forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
 }
 
 // =========================
-// 유틸리티 함수들
+// Hero Demo Animation
 // =========================
-
-// 디바운스 함수
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// HTML 이스케이프
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// 클립보드에 복사
-function copyToClipboard(element) {
-    const text = element.textContent.replace('복사', '').trim();
+function initializeHeroDemo() {
+  const demoPattern = document.getElementById('demo-pattern');
+  if (!demoPattern) return;
+  
+  const patterns = [
+    '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+    '^\\+?[1-9]\\d{1,14}$',
+    '^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$',
+    '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d@$!%*?&]{8,}$'
+  ];
+  
+  const descriptions = [
+    '이메일 주소 검증',
+    '국제 전화번호 형식',
+    'URL 주소 매칭',
+    '강력한 비밀번호 정책'
+  ];
+  
+  let currentIndex = 0;
+  
+  setInterval(() => {
+    currentIndex = (currentIndex + 1) % patterns.length;
     
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => {
-            showNotification('클립보드에 복사되었습니다!', 'success');
-        }).catch(() => {
-            fallbackCopyTextToClipboard(text);
-        });
-    } else {
-        fallbackCopyTextToClipboard(text);
-    }
-}
-
-// 클립보드 복사 폴백
-function fallbackCopyTextToClipboard(text) {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
+    // Fade out
+    demoPattern.style.opacity = '0';
     
-    try {
-        document.execCommand('copy');
-        showNotification('클립보드에 복사되었습니다!', 'success');
-    } catch (err) {
-        showNotification('복사에 실패했습니다.', 'error');
-    }
-    
-    document.body.removeChild(textArea);
-}
-
-// 알림 표시
-function showNotification(message, type = 'info') {
-    const container = document.getElementById('notification-container');
-    if (!container) return;
-
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    
-    const iconMap = {
-        success: 'fas fa-check-circle',
-        error: 'fas fa-exclamation-circle',
-        warning: 'fas fa-exclamation-triangle',
-        info: 'fas fa-info-circle'
-    };
-
-    notification.innerHTML = `
-        <i class="${iconMap[type] || iconMap.info}"></i>
-        <div class="notification-content">
-            <div class="notification-message">${message}</div>
-        </div>
-        <button class="notification-close" onclick="this.parentElement.remove()">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-
-    container.appendChild(notification);
-
-    // 5초 후 자동 제거
     setTimeout(() => {
-        if (notification.parentElement) {
-            notification.style.animation = 'slideOut 0.3s ease-out forwards';
-            setTimeout(() => {
-                if (notification.parentElement) {
-                    notification.remove();
-                }
-            }, 300);
-        }
-    }, 5000);
+      demoPattern.textContent = patterns[currentIndex];
+      demoPattern.style.opacity = '1';
+      
+      // Update demo description if element exists
+      const demoDesc = document.querySelector('.demo-description');
+      if (demoDesc) {
+        demoDesc.textContent = descriptions[currentIndex];
+      }
+    }, 300);
+  }, 3000);
 }
 
-// CSS 애니메이션 추가
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideOut {
-        from {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateX(100%);
-        }
+// =========================
+// Stats Animation
+// =========================
+function initializeStatsAnimation() {
+  // This will be called when stats come into view
+}
+
+function animateStatNumber(statCard) {
+  const numberElement = statCard.querySelector('.stat-number');
+  if (!numberElement) return;
+  
+  const target = parseInt(numberElement.getAttribute('data-target'));
+  const isDecimal = target.toString().includes('.');
+  
+  let current = 0;
+  const increment = target / 50;
+  const timer = setInterval(() => {
+    current += increment;
+    
+    if (current >= target) {
+      current = target;
+      clearInterval(timer);
     }
     
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    if (isDecimal) {
+      numberElement.textContent = current.toFixed(1);
+    } else {
+      numberElement.textContent = Math.floor(current).toLocaleString();
     }
-`;
-document.head.appendChild(style);
+  }, 40);
+}
 
 // =========================
-// 전역 함수들 (HTML에서 호출됨)
+// Keyboard Navigation
 // =========================
+function initializeKeyboardNavigation() {
+  document.addEventListener('keydown', (e) => {
+    // ESC key closes mobile menu
+    if (e.key === 'Escape' && AppState.isMenuOpen) {
+      toggleMobileMenu();
+    }
+    
+    // Ctrl/Cmd + K opens search (if implemented)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      // TODO: Open search modal
+    }
+    
+    // Theme toggle with Ctrl/Cmd + Shift + L
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'L') {
+      e.preventDefault();
+      toggleTheme();
+    }
+  });
+  
+  // Focus management for accessibility
+  document.addEventListener('focusin', (e) => {
+    if (e.target.matches('.nav-dropdown')) {
+      document.body.classList.add('keyboard-navigation');
+    }
+  });
+  
+  document.addEventListener('focusout', (e) => {
+    setTimeout(() => {
+      if (!document.activeElement.matches('.nav-dropdown, .dropdown-content a')) {
+        document.body.classList.remove('keyboard-navigation');
+      }
+    }, 100);
+  });
+}
 
-// 글로벌 스코프에 함수 노출
+// =========================
+// Notification System
+// =========================
+function showNotification(message, type = 'info', duration = 5000) {
+  const container = document.getElementById('notification-container');
+  if (!container) return;
+  
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  
+  const iconMap = {
+    success: 'fas fa-check-circle',
+    error: 'fas fa-exclamation-circle',
+    warning: 'fas fa-exclamation-triangle',
+    info: 'fas fa-info-circle'
+  };
+  
+  notification.innerHTML = `
+    <i class="${iconMap[type] || iconMap.info}"></i>
+    <div class="notification-content">
+      <div class="notification-message">${escapeHtml(message)}</div>
+    </div>
+    <button class="notification-close" onclick="this.parentElement.remove()">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
+  
+  container.appendChild(notification);
+  
+  // Auto remove
+  setTimeout(() => {
+    if (notification.parentElement) {
+      notification.style.animation = 'slideOut 0.3s ease-out forwards';
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove();
+        }
+      }, 300);
+    }
+  }, duration);
+  
+  // Track notification
+  AppState.notifications.push({
+    message,
+    type,
+    timestamp: Date.now()
+  });
+}
+
+// =========================
+// Utility Functions
+// =========================
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+function throttle(func, limit) {
+  let inThrottle;
+  return function() {
+    const args = arguments;
+    const context = this;
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+      showNotification('클립보드에 복사되었습니다!', 'success');
+    } else {
+      fallbackCopyTextToClipboard(text);
+    }
+  } catch (err) {
+    console.error('클립보드 복사 실패:', err);
+    showNotification('복사에 실패했습니다.', 'error');
+  }
+}
+
+function fallbackCopyTextToClipboard(text) {
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.style.position = 'fixed';
+  textArea.style.left = '-999999px';
+  textArea.style.top = '-999999px';
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  
+  try {
+    document.execCommand('copy');
+    showNotification('클립보드에 복사되었습니다!', 'success');
+  } catch (err) {
+    showNotification('복사에 실패했습니다.', 'error');
+  }
+  
+  document.body.removeChild(textArea);
+}
+
+// =========================
+// Analytics & Tracking
+// =========================
+function trackPageNavigation(page) {
+  // Basic page tracking (can be enhanced with analytics services)
+  console.log(`📊 페이지 이동: ${page}`);
+  
+  // Store in local analytics
+  const analytics = JSON.parse(localStorage.getItem('neo-regex-analytics')) || {};
+  analytics.pageViews = analytics.pageViews || {};
+  analytics.pageViews[page] = (analytics.pageViews[page] || 0) + 1;
+  analytics.lastVisit = Date.now();
+  
+  localStorage.setItem('neo-regex-analytics', JSON.stringify(analytics));
+}
+
+function trackFeatureUsage(feature, action = 'used') {
+  console.log(`📊 기능 사용: ${feature} - ${action}`);
+  
+  const analytics = JSON.parse(localStorage.getItem('neo-regex-analytics')) || {};
+  analytics.features = analytics.features || {};
+  analytics.features[feature] = analytics.features[feature] || {};
+  analytics.features[feature][action] = (analytics.features[feature][action] || 0) + 1;
+  
+  localStorage.setItem('neo-regex-analytics', JSON.stringify(analytics));
+}
+
+// =========================
+// Error Handling
+// =========================
+function setupErrorHandling() {
+  window.addEventListener('error', (e) => {
+    console.error('🔥 JavaScript 오류:', e.error);
+    
+    if (e.error && e.error.stack) {
+      console.error('스택 트레이스:', e.error.stack);
+    }
+    
+    // Show user-friendly error message
+    showNotification(
+      '예상치 못한 오류가 발생했습니다. 페이지를 새로고침해주세요.',
+      'error'
+    );
+  });
+  
+  window.addEventListener('unhandledrejection', (e) => {
+    console.error('🔥 처리되지 않은 Promise 거부:', e.reason);
+    e.preventDefault();
+    
+    showNotification(
+      '네트워크 오류가 발생했습니다. 연결을 확인해주세요.',
+      'warning'
+    );
+  });
+}
+
+// =========================
+// Service Worker Support
+// =========================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(registration => {
+        console.log('✅ Service Worker 등록 성공:', registration.scope);
+      })
+      .catch(registrationError => {
+        console.log('❌ Service Worker 등록 실패:', registrationError);
+      });
+  });
+}
+
+// =========================
+// Performance Monitoring
+// =========================
+function logPerformanceMetrics() {
+  if ('performance' in window) {
+    const navigation = performance.getEntriesByType('navigation')[0];
+    if (navigation) {
+      console.log('⚡ 성능 메트릭스:', {
+        pageLoadTime: `${navigation.loadEventEnd - navigation.fetchStart}ms`,
+        domContentLoaded: `${navigation.domContentLoadedEventEnd - navigation.fetchStart}ms`,
+        firstPaint: `${performance.getEntriesByName('first-paint')[0]?.startTime || 0}ms`
+      });
+    }
+  }
+}
+
+// Performance logging after page load
+window.addEventListener('load', () => {
+  setTimeout(logPerformanceMetrics, 1000);
+});
+
+// =========================
+// Global API
+// =========================
+window.NeoRegex = {
+  // Core functions
+  showNotification,
+  copyToClipboard,
+  toggleTheme,
+  
+  // State management
+  getState: () => ({ ...AppState }),
+  updatePreferences: (prefs) => {
+    AppState.userPreferences = { ...AppState.userPreferences, ...prefs };
+    localStorage.setItem('neo-regex-preferences', JSON.stringify(AppState.userPreferences));
+  },
+  
+  // Analytics
+  trackFeatureUsage,
+  
+  // Utility
+  debounce,
+  throttle,
+  escapeHtml
+};
+
+// =========================
+// Backwards Compatibility
+// =========================
+// Support for old function names
 window.copyToClipboard = copyToClipboard;
 window.showNotification = showNotification;
 
-// 에러 핸들링
-window.addEventListener('error', (e) => {
-    console.error('JavaScript 오류:', e.error);
-});
-
-// 언핸들드 프로미스 리젝션 처리
-window.addEventListener('unhandledrejection', (e) => {
-    console.error('처리되지 않은 Promise 거부:', e.reason);
-    e.preventDefault();
-});
-
 console.log('🎉 NEO Regex JavaScript 로드 완료!');
+console.log('💡 전역 API 사용 가능: window.NeoRegex');
