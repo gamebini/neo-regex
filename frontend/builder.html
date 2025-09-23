@@ -1,995 +1,10 @@
-<label class="flag-option">
-                                    <input type="checkbox" id="flag-unicode" onchange="updateFlags()">
-                                    <span class="flag-text">
-                                        <strong>u</strong> - 유니코드 모드
-                                    </span>
-                                    <span class="flag-desc">유니코드 지원 활성화</span>
-                                </label>
-                                <label class="flag-option">
-                                    <input type="checkbox" id="flag-sticky" onchange="updateFlags()">
-                                    <span class="flag-text">
-                                        <strong>y</strong> - 스티키 모드
-                                    </span>
-                                    <span class="flag-desc">lastIndex 위치에서만 매칭</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="regex-explanation" id="regex-explanation">
-                        <h4 class="explanation-title">
-                            <i class="fas fa-info-circle mr-2"></i>
-                            패턴 설명
-                        </h4>
-                        <div class="explanation-content">
-                            <div class="explanation-empty">
-                                <i class="fas fa-lightbulb explanation-icon"></i>
-                                <p class="explanation-text">정규식을 구성하면 자동으로 설명이 생성됩니다.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Quick Test Section -->
-        <section class="quick-test">
-            <div class="container">
-                <div class="test-panel">
-                    <div class="test-header">
-                        <h3 class="test-title">
-                            <i class="fas fa-vial mr-2"></i>
-                            빠른 테스트
-                        </h3>
-                        <div class="test-controls">
-                            <button class="btn-secondary btn-sm" onclick="addTestCase()">
-                                <i class="fas fa-plus mr-2"></i>
-                                테스트 케이스 추가
-                            </button>
-                            <button class="btn-secondary btn-sm" onclick="runAllTests()">
-                                <i class="fas fa-play mr-2"></i>
-                                모든 테스트 실행
-                            </button>
-                            <button class="btn-secondary btn-sm" onclick="clearAllTests()">
-                                <i class="fas fa-trash mr-2"></i>
-                                전체 초기화
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="test-cases" id="test-cases">
-                        <div class="test-case" data-case-id="1">
-                            <div class="test-input-section">
-                                <div class="test-input-group">
-                                    <label class="test-label">테스트 텍스트</label>
-                                    <input type="text" class="test-input" placeholder="테스트할 텍스트를 입력하세요..." onkeyup="testRegexLive(this)">
-                                </div>
-                                <button class="test-remove" onclick="removeTestCase(this)" title="테스트 케이스 제거">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            <div class="test-result">
-                                <div class="result-status waiting">
-                                    <i class="fas fa-clock"></i>
-                                    <span class="result-text">대기 중</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="test-case" data-case-id="2">
-                            <div class="test-input-section">
-                                <div class="test-input-group">
-                                    <label class="test-label">테스트 텍스트</label>
-                                    <input type="text" class="test-input" placeholder="또 다른 테스트 텍스트..." onkeyup="testRegexLive(this)">
-                                </div>
-                                <button class="test-remove" onclick="removeTestCase(this)" title="테스트 케이스 제거">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            <div class="test-result">
-                                <div class="result-status waiting">
-                                    <i class="fas fa-clock"></i>
-                                    <span class="result-text">대기 중</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="test-summary" id="test-summary" style="display: none;">
-                        <div class="summary-stats">
-                            <div class="stat-item success">
-                                <span class="stat-number" id="passed-count">0</span>
-                                <span class="stat-label">성공</span>
-                            </div>
-                            <div class="stat-item error">
-                                <span class="stat-number" id="failed-count">0</span>
-                                <span class="stat-label">실패</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-number" id="total-count">0</span>
-                                <span class="stat-label">총합</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Templates Section -->
-        <section class="builder-templates">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">빠른 시작 템플릿</h2>
-                    <p class="section-subtitle">자주 사용되는 패턴으로 빠르게 시작하세요</p>
-                </div>
-                
-                <div class="templates-grid">
-                    <div class="template-card" data-template="email">
-                        <div class="template-header">
-                            <div class="template-icon">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <h3 class="template-title">이메일 주소</h3>
-                        </div>
-                        <div class="template-pattern">
-                            <code>^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$</code>
-                        </div>
-                        <p class="template-description">표준 이메일 주소 형식을 검증하는 패턴입니다.</p>
-                        <div class="template-stats">
-                            <span class="stat">정확도: 98%</span>
-                            <span class="stat">복잡도: 중간</span>
-                        </div>
-                        <button class="template-btn" onclick="loadTemplate('email')">
-                            <i class="fas fa-download mr-2"></i>
-                            템플릿 사용
-                        </button>
-                    </div>
-                    
-                    <div class="template-card" data-template="phone">
-                        <div class="template-header">
-                            <div class="template-icon">
-                                <i class="fas fa-phone"></i>
-                            </div>
-                            <h3 class="template-title">전화번호</h3>
-                        </div>
-                        <div class="template-pattern">
-                            <code>^01[0-9]-?[0-9]{4}-?[0-9]{4}$</code>
-                        </div>
-                        <p class="template-description">한국 휴대폰 번호 형식을 매칭하는 패턴입니다.</p>
-                        <div class="template-stats">
-                            <span class="stat">정확도: 99%</span>
-                            <span class="stat">복잡도: 낮음</span>
-                        </div>
-                        <button class="template-btn" onclick="loadTemplate('phone')">
-                            <i class="fas fa-download mr-2"></i>
-                            템플릿 사용
-                        </button>
-                    </div>
-                    
-                    <div class="template-card" data-template="url">
-                        <div class="template-header">
-                            <div class="template-icon">
-                                <i class="fas fa-link"></i>
-                            </div>
-                            <h3 class="template-title">URL 주소</h3>
-                        </div>
-                        <div class="template-pattern">
-                            <code>^https?:\/\/([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$</code>
-                        </div>
-                        <p class="template-description">HTTP/HTTPS URL을 검증하는 패턴입니다.</p>
-                        <div class="template-stats">
-                            <span class="stat">정확도: 95%</span>
-                            <span class="stat">복잡도: 높음</span>
-                        </div>
-                        <button class="template-btn" onclick="loadTemplate('url')">
-                            <i class="fas fa-download mr-2"></i>
-                            템플릿 사용
-                        </button>
-                    </div>
-                    
-                    <div class="template-card" data-template="password">
-                        <div class="template-header">
-                            <div class="template-icon">
-                                <i class="fas fa-key"></i>
-                            </div>
-                            <h3 class="template-title">안전한 비밀번호</h3>
-                        </div>
-                        <div class="template-pattern">
-                            <code>^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$</code>
-                        </div>
-                        <p class="template-description">대소문자, 숫자, 특수문자를 포함한 8자 이상 비밀번호 패턴입니다.</p>
-                        <div class="template-stats">
-                            <span class="stat">보안: 높음</span>
-                            <span class="stat">복잡도: 높음</span>
-                        </div>
-                        <button class="template-btn" onclick="loadTemplate('password')">
-                            <i class="fas fa-download mr-2"></i>
-                            템플릿 사용
-                        </button>
-                    </div>
-                    
-                    <div class="template-card" data-template="ipv4">
-                        <div class="template-header">
-                            <div class="template-icon">
-                                <i class="fas fa-network-wired"></i>
-                            </div>
-                            <h3 class="template-title">IPv4 주소</h3>
-                        </div>
-                        <div class="template-pattern">
-                            <code>^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$</code>
-                        </div>
-                        <p class="template-description">유효한 IPv4 주소 형식을 검증하는 패턴입니다.</p>
-                        <div class="template-stats">
-                            <span class="stat">정확도: 100%</span>
-                            <span class="stat">복잡도: 높음</span>
-                        </div>
-                        <button class="template-btn" onclick="loadTemplate('ipv4')">
-                            <i class="fas fa-download mr-2"></i>
-                            템플릿 사용
-                        </button>
-                    </div>
-                    
-                    <div class="template-card" data-template="date">
-                        <div class="template-header">
-                            <div class="template-icon">
-                                <i class="fas fa-calendar"></i>
-                            </div>
-                            <h3 class="template-title">날짜 (YYYY-MM-DD)</h3>
-                        </div>
-                        <div class="template-pattern">
-                            <code>^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$</code>
-                        </div>
-                        <p class="template-description">ISO 8601 형식의 날짜를 매칭하는 패턴입니다.</p>
-                        <div class="template-stats">
-                            <span class="stat">정확도: 97%</span>
-                            <span class="stat">복잡도: 중간</span>
-                        </div>
-                        <button class="template-btn" onclick="loadTemplate('date')">
-                            <i class="fas fa-download mr-2"></i>
-                            템플릿 사용
-                        </button>
-                    </div>
-                    
-                    <div class="template-card" data-template="creditcard">
-                        <div class="template-header">
-                            <div class="template-icon">
-                                <i class="fas fa-credit-card"></i>
-                            </div>
-                            <h3 class="template-title">신용카드 번호</h3>
-                        </div>
-                        <div class="template-pattern">
-                            <code>^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})$</code>
-                        </div>
-                        <p class="template-description">주요 신용카드사 번호 형식을 검증하는 패턴입니다.</p>
-                        <div class="template-stats">
-                            <span class="stat">커버리지: 90%</span>
-                            <span class="stat">복잡도: 높음</span>
-                        </div>
-                        <button class="template-btn" onclick="loadTemplate('creditcard')">
-                            <i class="fas fa-download mr-2"></i>
-                            템플릿 사용
-                        </button>
-                    </div>
-                    
-                    <div class="template-card" data-template="slug">
-                        <div class="template-header">
-                            <div class="template-icon">
-                                <i class="fas fa-link"></i>
-                            </div>
-                            <h3 class="template-title">URL 슬러그</h3>
-                        </div>
-                        <div class="template-pattern">
-                            <code>^[a-z0-9]+(?:-[a-z0-9]+)*$</code>
-                        </div>
-                        <p class="template-description">SEO 친화적인 URL 슬러그 형식을 검증하는 패턴입니다.</p>
-                        <div class="template-stats">
-                            <span class="stat">정확도: 99%</span>
-                            <span class="stat">복잡도: 낮음</span>
-                        </div>
-                        <button class="template-btn" onclick="loadTemplate('slug')">
-                            <i class="fas fa-download mr-2"></i>
-                            템플릿 사용
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tutorial Section -->
-        <section class="builder-tutorial">
-            <div class="container">
-                <div class="tutorial-card">
-                    <div class="tutorial-header">
-                        <div class="tutorial-icon">
-                            <i class="fas fa-play-circle"></i>
-                        </div>
-                        <div class="tutorial-content">
-                            <h3 class="tutorial-title">처음 사용하시나요?</h3>
-                            <p class="tutorial-description">
-                                시각적 빌더 사용법을 단계별로 안내해드립니다. 
-                                5분만 투자하여 전문가처럼 정규식을 만들어보세요.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="tutorial-actions">
-                        <button class="btn-primary" onclick="startTutorial()">
-                            <i class="fas fa-play mr-2"></i>
-                            튜토리얼 시작
-                        </button>
-                        <button class="btn-secondary" onclick="skipTutorial()">
-                            <i class="fas fa-forward mr-2"></i>
-                            건너뛰기
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Component Properties Modal -->
-    <div class="modal-overlay" id="component-modal-overlay" style="display: none;">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h2 class="modal-title" id="component-modal-title">구성 요소 편집</h2>
-                <button class="modal-close" onclick="closeComponentModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="modal-content" id="component-modal-content">
-                <div class="property-form">
-                    <div class="form-group">
-                        <label class="form-label">구성 요소 유형</label>
-                        <select class="form-select" id="component-type" onchange="updateComponentType()">
-                            <option value="literal">일반 문자</option>
-                            <option value="digit">숫자 (\d)</option>
-                            <option value="word">단어 문자 (\w)</option>
-                            <option value="whitespace">공백 문자 (\s)</option>
-                            <option value="character-set">문자 집합</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group" id="literal-input" style="display: none;">
-                        <label class="form-label">텍스트</label>
-                        <input type="text" class="form-input" id="literal-text" placeholder="입력할 텍스트">
-                    </div>
-                    
-                    <div class="form-group" id="charset-input" style="display: none;">
-                        <label class="form-label">문자 집합</label>
-                        <input type="text" class="form-input" id="charset-text" placeholder="예: abc, a-z, 0-9">
-                        <div class="form-help">
-                            <i class="fas fa-info-circle"></i>
-                            <span>하이픈(-)을 사용하여 범위를 지정할 수 있습니다.</span>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">수량자</label>
-                        <select class="form-select" id="quantifier-type">
-                            <option value="none">없음</option>
-                            <option value="*">* (0개 이상)</option>
-                            <option value="+">+ (1개 이상)</option>
-                            <option value="?">? (0개 또는 1개)</option>
-                            <option value="exact">{n} (정확히 n개)</option>
-                            <option value="range">{n,m} (n개부터 m개까지)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group" id="quantifier-exact" style="display: none;">
-                        <label class="form-label">반복 횟수</label>
-                        <input type="number" class="form-input" id="exact-count" value="1" min="0">
-                    </div>
-                    
-                    <div class="form-group" id="quantifier-range" style="display: none;">
-                        <div class="form-row">
-                            <div class="form-col">
-                                <label class="form-label">최소</label>
-                                <input type="number" class="form-input" id="range-min" value="0" min="0">
-                            </div>
-                            <div class="form-col">
-                                <label class="form-label">최대</label>
-                                <input type="number" class="form-input" id="range-max" value="1" min="1">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-checkbox">
-                            <input type="checkbox" id="non-greedy">
-                            <span class="checkbox-text">비탐욕적 매칭 (lazy)</span>
-                            <span class="checkbox-help">가능한 한 적게 매칭합니다</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="modal-actions">
-                <button class="btn-secondary" onclick="closeComponentModal()">
-                    <i class="fas fa-times mr-2"></i>
-                    취소
-                </button>
-                <button class="btn-primary" onclick="saveComponentProperties()">
-                    <i class="fas fa-check mr-2"></i>
-                    적용
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Template Library Modal -->
-    <div class="modal-overlay" id="template-modal-overlay" style="display: none;">
-        <div class="modal-container large">
-            <div class="modal-header">
-                <h2 class="modal-title">
-                    <i class="fas fa-file-import mr-2"></i>
-                    템플릿 라이브러리
-                </h2>
-                <button class="modal-close" onclick="closeTemplateModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="modal-content">
-                <div class="template-categories">
-                    <button class="template-category active" data-category="common">
-                        <i class="fas fa-star"></i>
-                        일반적인 패턴
-                    </button>
-                    <button class="template-category" data-category="validation">
-                        <i class="fas fa-check-circle"></i>
-                        유효성 검사
-                    </button>
-                    <button class="template-category" data-category="extraction">
-                        <i class="fas fa-search"></i>
-                        데이터 추출
-                    </button>
-                    <button class="template-category" data-category="advanced">
-                        <i class="fas fa-rocket"></i>
-                        고급 패턴
-                    </button>
-                    <button class="template-category" data-category="international">
-                        <i class="fas fa-globe"></i>
-                        국제화
-                    </button>
-                </div>
-                
-                <div class="templates-modal-grid" id="templates-modal-grid">
-                    <div class="template-modal-item" data-category="common">
-                        <div class="template-modal-header">
-                            <h4 class="template-modal-title">이메일 주소</h4>
-                            <span class="template-modal-tag">기본</span>
-                        </div>
-                        <div class="template-modal-pattern">
-                            <code>^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$</code>
-                        </div>
-                        <p class="template-modal-description">일반적인 이메일 주소 형식을 검증합니다.</p>
-                        <button class="template-modal-btn" onclick="useTemplate('email')">사용하기</button>
-                    </div>
-                    
-                    <div class="template-modal-item" data-category="validation">
-                        <div class="template-modal-header">
-                            <h4 class="template-modal-title">강력한 비밀번호</h4>
-                            <span class="template-modal-tag">보안</span>
-                        </div>
-                        <div class="template-modal-pattern">
-                            <code>^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$</code>
-                        </div>
-                        <p class="template-modal-description">대소문자, 숫자, 특수문자를 포함한 8자 이상 비밀번호를 검증합니다.</p>
-                        <button class="template-modal-btn" onclick="useTemplate('password')">사용하기</button>
-                    </div>
-                    
-                    <div class="template-modal-item" data-category="extraction">
-                        <div class="template-modal-header">
-                            <h4 class="template-modal-title">HTML 태그 추출</h4>
-                            <span class="template-modal-tag">파싱</span>
-                        </div>
-                        <div class="template-modal-pattern">
-                            <code><([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>(.*?)</\1></code>
-                        </div>
-                        <p class="template-modal-description">HTML 태그와 내용을 추출합니다.</p>
-                        <button class="template-modal-btn" onclick="useTemplate('html-extract')">사용하기</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="modal-footer">
-                <div class="modal-footer-info">
-                    <span class="template-count" id="template-modal-count">25개 템플릿</span>
-                </div>
-                <div class="modal-footer-actions">
-                    <button class="btn-secondary" onclick="closeTemplateModal()">
-                        <i class="fas fa-times mr-2"></i>
-                        닫기
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Export Modal -->
-    <div class="modal-overlay" id="export-modal-overlay" style="display: none;">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h2 class="modal-title">
-                    <i class="fas fa-download mr-2"></i>
-                    정규식 내보내기
-                </h2>
-                <button class="modal-close" onclick="closeExportModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="modal-content">
-                <div class="export-options">
-                    <div class="export-settings">
-                        <h4 class="export-title">내보내기 설정</h4>
-                        <div class="export-settings-grid">
-                            <label class="export-setting">
-                                <input type="checkbox" id="include-comments" checked>
-                                <span>주석 포함</span>
-                            </label>
-                            <label class="export-setting">
-                                <input type="checkbox" id="include-examples" checked>
-                                <span>사용 예제 포함</span>
-                            </label>
-                            <label class="export-setting">
-                                <input type="checkbox" id="include-flags">
-                                <span>플래그 설정 포함</span>
-                            </label>
-                            <label class="export-setting">
-                                <input type="checkbox" id="minified">
-                                <span>압축된 코드</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="modal-actions">
-                <button class="btn-secondary" onclick="closeExportModal()">
-                    <i class="fas fa-times mr-2"></i>
-                    취소
-                </button>
-                <button class="btn-primary" onclick="copyExport()">
-                    <i class="fas fa-copy mr-2"></i>
-                    클립보드에 복사
-                </button>
-                <button class="btn-primary" onclick="downloadExport()">
-                    <i class="fas fa-download mr-2"></i>
-                    파일 다운로드
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Save Pattern Modal -->
-    <div class="modal-overlay" id="save-pattern-modal" style="display: none;">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h2 class="modal-title">
-                    <i class="fas fa-save mr-2"></i>
-                    패턴 저장
-                </h2>
-                <button class="modal-close" onclick="closeSaveModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="modal-content">
-                <div class="save-form">
-                    <div class="form-group">
-                        <label class="form-label">패턴 이름</label>
-                        <input type="text" class="form-input" id="pattern-name" placeholder="예: 이메일 검증 패턴">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">설명</label>
-                        <textarea class="form-textarea" id="pattern-description" rows="3" placeholder="이 패턴의 용도와 특징을 설명해주세요..."></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">카테고리</label>
-                        <select class="form-select" id="pattern-category">
-                            <option value="validation">유효성 검사</option>
-                            <option value="extraction">데이터 추출</option>
-                            <option value="formatting">형식 검사</option>
-                            <option value="text">텍스트 처리</option>
-                            <option value="security">보안</option>
-                            <option value="custom">사용자 정의</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">태그</label>
-                        <input type="text" class="form-input" id="pattern-tags" placeholder="태그1, 태그2, 태그3">
-                        <div class="form-help">
-                            <i class="fas fa-info-circle"></i>
-                            <span>쉼표(,)로 태그를 구분해주세요</span>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="form-row">
-                            <div class="form-col">
-                                <label class="form-label">난이도</label>
-                                <select class="form-select" id="pattern-difficulty">
-                                    <option value="beginner">초급</option>
-                                    <option value="intermediate">중급</option>
-                                    <option value="advanced">고급</option>
-                                    <option value="expert">전문가</option>
-                                </select>
-                            </div>
-                            <div class="form-col">
-                                <label class="form-label">공개 설정</label>
-                                <select class="form-select" id="pattern-visibility">
-                                    <option value="private">비공개</option>
-                                    <option value="public">공개</option>
-                                    <option value="team">팀 공유</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="modal-actions">
-                <button class="btn-secondary" onclick="closeSaveModal()">
-                    <i class="fas fa-times mr-2"></i>
-                    취소
-                </button>
-                <button class="btn-primary" onclick="savePattern()">
-                    <i class="fas fa-save mr-2"></i>
-                    저장
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tutorial Modal -->
-    <div class="modal-overlay" id="tutorial-modal-overlay" style="display: none;">
-        <div class="modal-container large">
-            <div class="modal-header">
-                <h2 class="modal-title">
-                    <i class="fas fa-graduation-cap mr-2"></i>
-                    시각적 빌더 튜토리얼
-                </h2>
-                <button class="modal-close" onclick="closeTutorial()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="modal-content">
-                <div class="tutorial-content">
-                    <div class="tutorial-step active" id="tutorial-step-1">
-                        <div class="tutorial-step-header">
-                            <div class="step-number">1</div>
-                            <h3 class="step-title">시각적 빌더 소개</h3>
-                        </div>
-                        <div class="step-content">
-                            <p>시각적 빌더를 사용하면 복잡한 정규식을 드래그 앤 드롭으로 쉽게 만들 수 있습니다.</p>
-                            <ul>
-                                <li>왼쪽 팔레트에서 구성 요소를 선택</li>
-                                <li>가운데 캔버스로 드래그하여 배치</li>
-                                <li>오른쪽 패널에서 속성 편집</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="tutorial-step" id="tutorial-step-2">
-                        <div class="tutorial-step-header">
-                            <div class="step-number">2</div>
-                            <h3 class="step-title">구성 요소 사용법</h3>
-                        </div>
-                        <div class="step-content">
-                            <p>다양한 구성 요소를 조합하여 원하는 패턴을 만들어보세요.</p>
-                            <div class="tutorial-examples">
-                                <div class="example-item">
-                                    <span class="example-component">\d</span>
-                                    <span class="example-desc">숫자 한 개</span>
-                                </div>
-                                <div class="example-item">
-                                    <span class="example-component">\w+</span>
-                                    <span class="example-desc">단어 문자 하나 이상</span>
-                                </div>
-                                <div class="example-item">
-                                    <span class="example-component">[a-z]</span>
-                                    <span class="example-desc">소문자 한 개</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="tutorial-step" id="tutorial-step-3">
-                        <div class="tutorial-step-header">
-                            <div class="step-number">3</div>
-                            <h3 class="step-title">실시간 테스트</h3>
-                        </div>
-                        <div class="step-content">
-                            <p>만든 패턴을 실시간으로 테스트해보세요.</p>
-                            <ul>
-                                <li>하단의 테스트 섹션에서 즉시 확인</li>
-                                <li>여러 테스트 케이스 추가 가능</li>
-                                <li>성공/실패 결과를 한눈에 확인</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="tutorial-step" id="tutorial-step-4">
-                        <div class="tutorial-step-header">
-                            <div class="step-number">4</div>
-                            <h3 class="step-title">완성 및 내보내기</h3>
-                        </div>
-                        <div class="step-content">
-                            <p>완성된 정규식을 다양한 형태로 내보낼 수 있습니다.</p>
-                            <ul>
-                                <li>JavaScript, Python, Java 등 8개 언어 지원</li>
-                                <li>주석과 사용 예제 포함 옵션</li>
-                                <li>패턴 라이브러리에 저장 가능</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="tutorial-navigation">
-                    <button class="tutorial-btn prev" id="tutorial-prev" onclick="previousTutorialStep()" disabled>
-                        <i class="fas fa-chevron-left mr-2"></i>
-                        이전
-                    </button>
-                    <div class="tutorial-progress">
-                        <span class="current-step" id="tutorial-current-step">1</span>
-                        <span class="step-divider">/</span>
-                        <span class="total-steps">4</span>
-                    </div>
-                    <button class="tutorial-btn next" id="tutorial-next" onclick="nextTutorialStep()">
-                        다음
-                        <i class="fas fa-chevron-right ml-2"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="modal-actions">
-                <button class="btn-secondary" onclick="closeTutorial()">
-                    <i class="fas fa-times mr-2"></i>
-                    나중에
-                </button>
-                <button class="btn-primary" onclick="startBuilding()" style="display: none;" id="start-building-btn">
-                    <i class="fas fa-play mr-2"></i>
-                    빌더 시작하기
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo">
-                        <i class="fas fa-code-branch"></i>
-                        <span>NEO Regex</span>
-                    </div>
-                    <p class="footer-description">
-                        개발자를 위한 차세대 정규식 도구
-                    </p>
-                </div>
-                
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-title">도구</h4>
-                        <a href="./tester.html" class="footer-link">정규식 테스터</a>
-                        <a href="./library.html" class="footer-link">패턴 라이브러리</a>
-                        <a href="./builder.html" class="footer-link">시각적 빌더</a>
-                    </div>
-                    
-                    <div class="footer-column">
-                        <h4 class="footer-title">가이드</h4>
-                        <a href="./beginner.html" class="footer-link">초보자 가이드</a>
-                        <a href="./expert.html" class="footer-link">전문가 도구</a>
-                        <a href="#" class="footer-link">튜토리얼</a>
-                    </div>
-                    
-                    <div class="footer-column">
-                        <h4 class="footer-title">지원</h4>
-                        <a href="#" class="footer-link">문서</a>
-                        <a href="#" class="footer-link">FAQ</a>
-                        <a href="#" class="footer-link">문의하기</a>
-                    </div>
-                    
-                    <div class="footer-column">
-                        <h4 class="footer-title">소셜</h4>
-                        <a href="#" class="footer-link">GitHub</a>
-                        <a href="#" class="footer-link">Discord</a>
-                        <a href="#" class="footer-link">Twitter</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <div class="footer-bottom-content">
-                    <p>&copy; 2024 NEO Regex. All rights reserved.</p>
-                    <div class="footer-bottom-links">
-                        <a href="#" class="footer-bottom-link">개인정보처리방침</a>
-                        <a href="#" class="footer-bottom-link">이용약관</a>
-                        <a href="#" class="footer-bottom-link">쿠키 정책</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script src="./src/main.js"></script>
-    <script src="./src/core/regex.js"></script>
-    <script src="./src/utils/drag-drop.js"></script>
-    <script src="./src/pages/builder.js"></script>
-    
-    <!-- Notification Container -->
-    <div id="notification-container" class="notification-container"></div>
-    
-    <!-- Drag Preview -->
-    <div id="drag-preview" class="drag-preview" style="display: none;">
-        <div class="drag-preview-content">
-            <div class="drag-preview-icon"></div>
-            <span class="drag-preview-text"></span>
-        </div>
-    </div>
-    
-    <!-- Context Menu -->
-    <div id="context-menu" class="context-menu" style="display: none;">
-        <div class="context-menu-item" onclick="editComponent()">
-            <i class="fas fa-edit"></i>
-            <span>편집</span>
-        </div>
-        <div class="context-menu-item" onclick="duplicateComponent()">
-            <i class="fas fa-copy"></i>
-            <span>복제</span>
-        </div>
-        <div class="context-menu-item" onclick="deleteComponent()">
-            <i class="fas fa-trash"></i>
-            <span>삭제</span>
-        </div>
-        <div class="context-menu-divider"></div>
-        <div class="context-menu-item" onclick="moveComponentUp()">
-            <i class="fas fa-arrow-up"></i>
-            <span>위로 이동</span>
-        </div>
-        <div class="context-menu-item" onclick="moveComponentDown()">
-            <i class="fas fa-arrow-down"></i>
-            <span>아래로 이동</span>
-        </div>
-    </div>
-    
-    <!-- Keyboard Shortcuts Help -->
-    <div id="shortcuts-help" class="shortcuts-help" style="display: none;">
-        <div class="shortcuts-content">
-            <h4 class="shortcuts-title">키보드 단축키</h4>
-            <div class="shortcuts-list">
-                <div class="shortcut-item">
-                    <kbd>Ctrl</kbd> + <kbd>Z</kbd>
-                    <span>실행 취소</span>
-                </div>
-                <div class="shortcut-item">
-                    <kbd>Ctrl</kbd> + <kbd>Y</kbd>
-                    <span>다시 실행</span>
-                </div>
-                <div class="shortcut-item">
-                    <kbd>Ctrl</kbd> + <kbd>S</kbd>
-                    <span>패턴 저장</span>
-                </div>
-                <div class="shortcut-item">
-                    <kbd>Ctrl</kbd> + <kbd>E</kbd>
-                    <span>내보내기</span>
-                </div>
-                <div class="shortcut-item">
-                    <kbd>Delete</kbd>
-                    <span>선택 삭제</span>
-                </div>
-                <div class="shortcut-item">
-                    <kbd>F1</kbd>
-                    <span>도움말</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay" style="display: none;">
-        <div class="loading-content">
-            <div class="loading-spinner">
-                <div class="spinner-ring"></div>
-                <div class="spinner-ring"></div>
-                <div class="spinner-ring"></div>
-            </div>
-            <p class="loading-text">처리 중...</p>
-        </div>
-    </div>
-</body>
-</html>format">
-                        <h4 class="export-title">내보낼 형식 선택</h4>
-                        <div class="format-options">
-                            <label class="format-option">
-                                <input type="radio" name="export-format" value="javascript" checked>
-                                <div class="format-info">
-                                    <span class="format-name">JavaScript</span>
-                                    <span class="format-ext">.js</span>
-                                </div>
-                            </label>
-                            <label class="format-option">
-                                <input type="radio" name="export-format" value="python">
-                                <div class="format-info">
-                                    <span class="format-name">Python</span>
-                                    <span class="format-ext">.py</span>
-                                </div>
-                            </label>
-                            <label class="format-option">
-                                <input type="radio" name="export-format" value="java">
-                                <div class="format-info">
-                                    <span class="format-name">Java</span>
-                                    <span class="format-ext">.java</span>
-                                </div>
-                            </label>
-                            <label class="format-option">
-                                <input type="radio" name="export-format" value="csharp">
-                                <div class="format-info">
-                                    <span class="format-name">C#</span>
-                                    <span class="format-ext">.cs</span>
-                                </div>
-                            </label>
-                            <label class="format-option">
-                                <input type="radio" name="export-format" value="php">
-                                <div class="format-info">
-                                    <span class="format-name">PHP</span>
-                                    <span class="format-ext">.php</span>
-                                </div>
-                            </label>
-                            <label class="format-option">
-                                <input type="radio" name="export-format" value="ruby">
-                                <div class="format-info">
-                                    <span class="format-name">Ruby</span>
-                                    <span class="format-ext">.rb</span>
-                                </div>
-                            </label>
-                            <label class="format-option">
-                                <input type="radio" name="export-format" value="go">
-                                <div class="format-info">
-                                    <span class="format-name">Go</span>
-                                    <span class="format-ext">.go</span>
-                                </div>
-                            </label>
-                            <label class="format-option">
-                                <input type="radio" name="export-format" value="plain">
-                                <div class="format-info">
-                                    <span class="format-name">Plain Text</span>
-                                    <span class="format-ext">.txt</span>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="export-preview">
-                        <h4 class="export-title">미리보기</h4>
-                        <div class="code-preview" id="export-preview">
-                            <pre class="preview-code"><code class="language-javascript">// JavaScript
-const regex = /^$/;
-
-// 사용 예제
-const text = "테스트 문자열";
-if (regex.test(text)) {
-    console.log("매칭됨");
-} else {
-    console.log("매칭되지 않음");
-}</code></pre>
-                        </div>
-                    </div>
-                    
-                    <div class="export-<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>시각적 빌더 - NEO Regex</title>
-    <meta name="description" content="드래그 앤 드롭으로 정규식을 시각적으로 구성하세요. 복잡한 패턴도 쉽게 만들 수 있습니다.">
+    <meta name="description" content="드래그 앤 드롭으로 정규식을 시각적으로 만드는 혁신적인 빌더 도구입니다.">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1020,7 +35,7 @@ if (regex.test(text)) {
                 <li><a href="./index.html" class="nav-link">홈</a></li>
                 <li><a href="./tester.html" class="nav-link">테스터</a></li>
                 <li><a href="./library.html" class="nav-link">패턴 라이브러리</a></li>
-                <li><a href="./builder.html" class="nav-link active">빌더</a></li>
+                <li><a href="./builder.html" class="nav-link active">시각적 빌더</a></li>
                 <li class="nav-dropdown">
                     <a href="#" class="nav-link">가이드 <i class="fas fa-chevron-down ml-1"></i></a>
                     <div class="dropdown-content">
@@ -1110,430 +125,479 @@ if (regex.test(text)) {
                                 <i class="fas fa-puzzle-piece mr-2"></i>
                                 구성 요소
                             </h3>
-                            <button class="palette-collapse" id="palette-collapse" title="팔레트 접기/펼치기">
-                                <i class="fas fa-chevron-left"></i>
+                            <button class="palette-collapse-btn" onclick="togglePalette()">
+                                <i class="fas fa-angle-left"></i>
                             </button>
                         </div>
                         
+                        <div class="palette-search">
+                            <div class="search-input-wrapper">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" class="search-input" placeholder="구성 요소 검색..." id="palette-search">
+                            </div>
+                        </div>
+                        
                         <div class="palette-content">
-                            <!-- Basic Characters -->
-                            <div class="component-category">
-                                <div class="category-header">
-                                    <h4 class="category-title">
-                                        <i class="fas fa-font"></i>
-                                        기본 문자
-                                    </h4>
-                                    <span class="category-count">5개</span>
+                            <!-- 기본 문자 -->
+                            <div class="component-category" data-category="basic">
+                                <div class="category-header" onclick="toggleCategory('basic')">
+                                    <i class="fas fa-font"></i>
+                                    <span>기본 문자</span>
+                                    <i class="fas fa-chevron-down toggle-icon"></i>
                                 </div>
-                                <div class="component-grid">
-                                    <div class="component-item" draggable="true" data-type="literal" data-pattern="a" title="일반 문자">
-                                        <div class="component-icon basic">a</div>
-                                        <div class="component-info">
-                                            <span class="component-name">문자</span>
-                                            <span class="component-desc">일반 텍스트</span>
-                                        </div>
+                                <div class="category-items">
+                                    <div class="component-item" draggable="true" data-pattern="[a-z]" data-desc="소문자">
+                                        <div class="component-icon">a-z</div>
+                                        <div class="component-label">소문자</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="digit" data-pattern="\d" title="숫자 [0-9]">
-                                        <div class="component-icon character">\d</div>
-                                        <div class="component-info">
-                                            <span class="component-name">숫자</span>
-                                            <span class="component-desc">[0-9]</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="[A-Z]" data-desc="대문자">
+                                        <div class="component-icon">A-Z</div>
+                                        <div class="component-label">대문자</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="word" data-pattern="\w" title="단어 문자 [a-zA-Z0-9_]">
-                                        <div class="component-icon character">\w</div>
-                                        <div class="component-info">
-                                            <span class="component-name">단어 문자</span>
-                                            <span class="component-desc">[a-zA-Z0-9_]</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="[0-9]" data-desc="숫자">
+                                        <div class="component-icon">0-9</div>
+                                        <div class="component-label">숫자</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="whitespace" data-pattern="\s" title="공백 문자">
-                                        <div class="component-icon character">\s</div>
-                                        <div class="component-info">
-                                            <span class="component-name">공백</span>
-                                            <span class="component-desc">[ \t\n\r]</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="\\w" data-desc="영숫자">
+                                        <div class="component-icon">\\w</div>
+                                        <div class="component-label">영숫자</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="dot" data-pattern="." title="모든 문자 (줄바꿈 제외)">
-                                        <div class="component-icon character">.</div>
-                                        <div class="component-info">
-                                            <span class="component-name">모든 문자</span>
-                                            <span class="component-desc">줄바꿈 제외</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="\\s" data-desc="공백">
+                                        <div class="component-icon">\\s</div>
+                                        <div class="component-label">공백</div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-pattern="\\d" data-desc="숫자 단축">
+                                        <div class="component-icon">\\d</div>
+                                        <div class="component-label">숫자</div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Character Classes -->
-                            <div class="component-category">
-                                <div class="category-header">
-                                    <h4 class="category-title">
-                                        <i class="fas fa-brackets-square"></i>
-                                        문자 클래스
-                                    </h4>
-                                    <span class="category-count">3개</span>
+                            <!-- 수량자 -->
+                            <div class="component-category" data-category="quantifiers">
+                                <div class="category-header" onclick="toggleCategory('quantifiers')">
+                                    <i class="fas fa-repeat"></i>
+                                    <span>수량자</span>
+                                    <i class="fas fa-chevron-down toggle-icon"></i>
                                 </div>
-                                <div class="component-grid">
-                                    <div class="component-item" draggable="true" data-type="character-set" data-pattern="[abc]" title="문자 집합">
-                                        <div class="component-icon class">[abc]</div>
-                                        <div class="component-info">
-                                            <span class="component-name">문자 집합</span>
-                                            <span class="component-desc">지정된 문자 중 하나</span>
-                                        </div>
+                                <div class="category-items">
+                                    <div class="component-item" draggable="true" data-pattern="*" data-desc="0회 이상">
+                                        <div class="component-icon">*</div>
+                                        <div class="component-label">0회 이상</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="character-range" data-pattern="[a-z]" title="문자 범위">
-                                        <div class="component-icon class">[a-z]</div>
-                                        <div class="component-info">
-                                            <span class="component-name">문자 범위</span>
-                                            <span class="component-desc">범위 내 문자</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="+" data-desc="1회 이상">
+                                        <div class="component-icon">+</div>
+                                        <div class="component-label">1회 이상</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="negated-set" data-pattern="[^abc]" title="부정 문자 집합">
-                                        <div class="component-icon class">[^abc]</div>
-                                        <div class="component-info">
-                                            <span class="component-name">부정 집합</span>
-                                            <span class="component-desc">지정 문자 제외</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="?" data-desc="0~1회">
+                                        <div class="component-icon">?</div>
+                                        <div class="component-label">0~1회</div>
                                     </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Quantifiers -->
-                            <div class="component-category">
-                                <div class="category-header">
-                                    <h4 class="category-title">
-                                        <i class="fas fa-repeat"></i>
-                                        수량자
-                                    </h4>
-                                    <span class="category-count">5개</span>
-                                </div>
-                                <div class="component-grid">
-                                    <div class="component-item" draggable="true" data-type="zero-or-more" data-pattern="*" title="0개 이상 반복">
-                                        <div class="component-icon quantifier">*</div>
-                                        <div class="component-info">
-                                            <span class="component-name">0개 이상</span>
-                                            <span class="component-desc">0번 또는 여러번</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="{n}" data-desc="정확히 n회">
+                                        <div class="component-icon">{n}</div>
+                                        <div class="component-label">n회</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="one-or-more" data-pattern="+" title="1개 이상 반복">
-                                        <div class="component-icon quantifier">+</div>
-                                        <div class="component-info">
-                                            <span class="component-name">1개 이상</span>
-                                            <span class="component-desc">1번 또는 여러번</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="{n,}" data-desc="n회 이상">
+                                        <div class="component-icon">{n,}</div>
+                                        <div class="component-label">n회 이상</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="zero-or-one" data-pattern="?" title="0개 또는 1개">
-                                        <div class="component-icon quantifier">?</div>
-                                        <div class="component-info">
-                                            <span class="component-name">0개 또는 1개</span>
-                                            <span class="component-desc">선택적 요소</span>
-                                        </div>
-                                    </div>
-                                    <div class="component-item" draggable="true" data-type="exact-count" data-pattern="{n}" title="정확히 n개">
-                                        <div class="component-icon quantifier">{n}</div>
-                                        <div class="component-info">
-                                            <span class="component-name">정확히 n개</span>
-                                            <span class="component-desc">지정 횟수만</span>
-                                        </div>
-                                    </div>
-                                    <div class="component-item" draggable="true" data-type="range-count" data-pattern="{n,m}" title="n개부터 m개까지">
-                                        <div class="component-icon quantifier">{n,m}</div>
-                                        <div class="component-info">
-                                            <span class="component-name">n~m개</span>
-                                            <span class="component-desc">범위 내 횟수</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="{n,m}" data-desc="n~m회">
+                                        <div class="component-icon">{n,m}</div>
+                                        <div class="component-label">n~m회</div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Anchors -->
-                            <div class="component-category">
-                                <div class="category-header">
-                                    <h4 class="category-title">
-                                        <i class="fas fa-anchor"></i>
-                                        앵커
-                                    </h4>
-                                    <span class="category-count">3개</span>
+                            <!-- 앵커 -->
+                            <div class="component-category" data-category="anchors">
+                                <div class="category-header" onclick="toggleCategory('anchors')">
+                                    <i class="fas fa-anchor"></i>
+                                    <span>앵커</span>
+                                    <i class="fas fa-chevron-down toggle-icon"></i>
                                 </div>
-                                <div class="component-grid">
-                                    <div class="component-item" draggable="true" data-type="start-anchor" data-pattern="^" title="문자열 시작">
-                                        <div class="component-icon anchor">^</div>
-                                        <div class="component-info">
-                                            <span class="component-name">문자열 시작</span>
-                                            <span class="component-desc">시작 지점 고정</span>
-                                        </div>
+                                <div class="category-items">
+                                    <div class="component-item" draggable="true" data-pattern="^" data-desc="문자열 시작">
+                                        <div class="component-icon">^</div>
+                                        <div class="component-label">시작</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="end-anchor" data-pattern="$" title="문자열 끝">
-                                        <div class="component-icon anchor">$</div>
-                                        <div class="component-info">
-                                            <span class="component-name">문자열 끝</span>
-                                            <span class="component-desc">끝 지점 고정</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="$" data-desc="문자열 끝">
+                                        <div class="component-icon">$</div>
+                                        <div class="component-label">끝</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="word-boundary" data-pattern="\b" title="단어 경계">
-                                        <div class="component-icon anchor">\b</div>
-                                        <div class="component-info">
-                                            <span class="component-name">단어 경계</span>
-                                            <span class="component-desc">단어 시작/끝</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="\\b" data-desc="단어 경계">
+                                        <div class="component-icon">\\b</div>
+                                        <div class="component-label">단어 경계</div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-pattern="\\B" data-desc="단어 내부">
+                                        <div class="component-icon">\\B</div>
+                                        <div class="component-label">단어 내부</div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Groups -->
-                            <div class="component-category">
-                                <div class="category-header">
-                                    <h4 class="category-title">
-                                        <i class="fas fa-layer-group"></i>
-                                        그룹
-                                    </h4>
-                                    <span class="category-count">3개</span>
+                            <!-- 그룹 -->
+                            <div class="component-category" data-category="groups">
+                                <div class="category-header" onclick="toggleCategory('groups')">
+                                    <i class="fas fa-layer-group"></i>
+                                    <span>그룹</span>
+                                    <i class="fas fa-chevron-down toggle-icon"></i>
                                 </div>
-                                <div class="component-grid">
-                                    <div class="component-item" draggable="true" data-type="capturing-group" data-pattern="()" title="캡처링 그룹">
-                                        <div class="component-icon group">()</div>
-                                        <div class="component-info">
-                                            <span class="component-name">캡처 그룹</span>
-                                            <span class="component-desc">결과 저장</span>
-                                        </div>
+                                <div class="category-items">
+                                    <div class="component-item" draggable="true" data-pattern="(...)" data-desc="캡처 그룹">
+                                        <div class="component-icon">(...)</div>
+                                        <div class="component-label">캡처 그룹</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="non-capturing-group" data-pattern="(?:)" title="비캡처링 그룹">
-                                        <div class="component-icon group">(?:)</div>
-                                        <div class="component-info">
-                                            <span class="component-name">비캡처 그룹</span>
-                                            <span class="component-desc">그룹화만</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="(?:...)" data-desc="비캡처 그룹">
+                                        <div class="component-icon">(?:...)</div>
+                                        <div class="component-label">비캡처</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="alternation" data-pattern="|" title="OR 연산자">
-                                        <div class="component-icon group">|</div>
-                                        <div class="component-info">
-                                            <span class="component-name">OR 연산</span>
-                                            <span class="component-desc">선택 중 하나</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="(?=...)" data-desc="긍정형 전방탐색">
+                                        <div class="component-icon">(?=...)</div>
+                                        <div class="component-label">전방탐색</div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-pattern="(?!...)" data-desc="부정형 전방탐색">
+                                        <div class="component-icon">(?!...)</div>
+                                        <div class="component-label">부정 전방</div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Lookarounds -->
-                            <div class="component-category">
-                                <div class="category-header">
-                                    <h4 class="category-title">
-                                        <i class="fas fa-eye"></i>
-                                        전후방 탐색
-                                    </h4>
-                                    <span class="category-count">4개</span>
+                            <!-- 특수 문자 -->
+                            <div class="component-category" data-category="special">
+                                <div class="category-header" onclick="toggleCategory('special')">
+                                    <i class="fas fa-star"></i>
+                                    <span>특수 문자</span>
+                                    <i class="fas fa-chevron-down toggle-icon"></i>
                                 </div>
-                                <div class="component-grid">
-                                    <div class="component-item" draggable="true" data-type="positive-lookahead" data-pattern="(?=)" title="긍정 전방탐색">
-                                        <div class="component-icon lookaround">(?=)</div>
-                                        <div class="component-info">
-                                            <span class="component-name">긍정 전방탐색</span>
-                                            <span class="component-desc">뒤에 패턴 있음</span>
-                                        </div>
+                                <div class="category-items">
+                                    <div class="component-item" draggable="true" data-pattern="." data-desc="임의 문자">
+                                        <div class="component-icon">.</div>
+                                        <div class="component-label">임의 문자</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="negative-lookahead" data-pattern="(?!)" title="부정 전방탐색">
-                                        <div class="component-icon lookaround">(?!)</div>
-                                        <div class="component-info">
-                                            <span class="component-name">부정 전방탐색</span>
-                                            <span class="component-desc">뒤에 패턴 없음</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="|" data-desc="OR 연산자">
+                                        <div class="component-icon">|</div>
+                                        <div class="component-label">OR</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="positive-lookbehind" data-pattern="(?<=)" title="긍정 후방탐색">
-                                        <div class="component-icon lookaround">(?<=)</div>
-                                        <div class="component-info">
-                                            <span class="component-name">긍정 후방탐색</span>
-                                            <span class="component-desc">앞에 패턴 있음</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="\\." data-desc="리터럴 점">
+                                        <div class="component-icon">\\.</div>
+                                        <div class="component-label">점(.)</div>
                                     </div>
-                                    <div class="component-item" draggable="true" data-type="negative-lookbehind" data-pattern="(?<!)" title="부정 후방탐색">
-                                        <div class="component-icon lookaround">(?<!)</div>
-                                        <div class="component-info">
-                                            <span class="component-name">부정 후방탐색</span>
-                                            <span class="component-desc">앞에 패턴 없음</span>
-                                        </div>
+                                    <div class="component-item" draggable="true" data-pattern="\\-" data-desc="리터럴 대시">
+                                        <div class="component-icon">\\-</div>
+                                        <div class="component-label">대시(-)</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Builder Canvas -->
-                    <div class="builder-canvas">
+                    <!-- Canvas Area -->
+                    <div class="canvas-area">
                         <div class="canvas-header">
-                            <div class="canvas-title">
-                                <h3>
-                                    <i class="fas fa-drafting-compass mr-2"></i>
-                                    정규식 구성
-                                </h3>
-                                <div class="canvas-info">
-                                    <span class="component-count" id="component-count">0개 구성요소</span>
-                                    <span class="pattern-length" id="pattern-length">0 문자</span>
-                                </div>
-                            </div>
-                            
-                            <div class="canvas-controls">
-                                <div class="control-group">
-                                    <button class="canvas-btn" onclick="undoLastAction()" id="undo-btn" disabled title="실행 취소 (Ctrl+Z)">
-                                        <i class="fas fa-undo"></i>
-                                    </button>
-                                    <button class="canvas-btn" onclick="redoLastAction()" id="redo-btn" disabled title="다시 실행 (Ctrl+Y)">
-                                        <i class="fas fa-redo"></i>
-                                    </button>
-                                </div>
-                                <div class="control-group">
-                                    <button class="canvas-btn" onclick="zoomIn()" title="확대 (Ctrl++)">
-                                        <i class="fas fa-search-plus"></i>
-                                    </button>
-                                    <button class="canvas-btn" onclick="zoomOut()" title="축소 (Ctrl+-)">
-                                        <i class="fas fa-search-minus"></i>
-                                    </button>
-                                    <span class="zoom-level" id="zoom-level">100%</span>
-                                </div>
+                            <h3 class="canvas-title">
+                                <i class="fas fa-edit mr-2"></i>
+                                패턴 구성
+                            </h3>
+                            <div class="canvas-actions">
+                                <button class="canvas-btn" onclick="undoLastAction()" title="실행 취소">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                                <button class="canvas-btn" onclick="redoLastAction()" title="다시 실행">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                                <button class="canvas-btn" onclick="zoomIn()" title="확대">
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
+                                <button class="canvas-btn" onclick="zoomOut()" title="축소">
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
                             </div>
                         </div>
                         
-                        <div class="canvas-content" id="regex-canvas">
-                            <div class="drop-zone active" id="drop-zone">
-                                <div class="drop-zone-content">
-                                    <i class="fas fa-plus-circle drop-icon"></i>
-                                    <h4 class="drop-title">여기에 구성 요소를 끌어다 놓으세요</h4>
-                                    <p class="drop-subtitle">
-                                        왼쪽에서 원하는 구성 요소를 드래그해서 정규식을 만드세요
-                                    </p>
-                                    <div class="drop-hints">
-                                        <div class="hint-item">
-                                            <i class="fas fa-lightbulb"></i>
-                                            <span>팁: 구성 요소를 클릭하면 속성을 편집할 수 있습니다</span>
+                        <div class="canvas-container" id="canvas-container">
+                            <div class="canvas-grid" id="canvas">
+                                <div class="canvas-placeholder">
+                                    <div class="placeholder-content">
+                                        <i class="fas fa-magic"></i>
+                                        <h3>패턴 만들기 시작하기</h3>
+                                        <p>왼쪽에서 구성 요소를 드래그해서 여기에 놓으세요</p>
+                                        <div class="placeholder-tips">
+                                            <div class="tip-item">
+                                                <i class="fas fa-lightbulb"></i>
+                                                <span>팁: 구성 요소들을 연결해서 복잡한 패턴을 만들 수 있어요</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <!-- Regex Components Flow -->
-                            <div class="regex-flow" id="regex-flow" style="display: none;">
-                                <div class="flow-container">
-                                    <div class="flow-line" id="flow-line">
-                                        <!-- Dynamic components will be added here -->
-                                    </div>
-                                    <div class="flow-actions">
-                                        <button class="flow-btn" onclick="addToEnd()" title="끝에 추가">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                                
+                                <!-- Drop zones will be generated here -->
                             </div>
                         </div>
                         
-                        <!-- Canvas Footer -->
-                        <div class="canvas-footer">
-                            <div class="pattern-validation" id="pattern-validation">
-                                <div class="validation-status valid" id="validation-status">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>패턴이 유효합니다</span>
+                        <!-- Pattern Preview -->
+                        <div class="pattern-preview">
+                            <div class="preview-header">
+                                <h4 class="preview-title">생성된 정규식</h4>
+                                <div class="preview-actions">
+                                    <button class="preview-btn" onclick="copyPattern()" title="패턴 복사">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <button class="preview-btn" onclick="explainPattern()" title="패턴 설명">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
                                 </div>
                             </div>
-                            
-                            <div class="canvas-stats">
-                                <div class="stat-item">
-                                    <span class="stat-label">복잡도</span>
-                                    <span class="stat-value" id="complexity-score">낮음</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">성능</span>
-                                    <span class="stat-value" id="performance-score">좋음</span>
-                                </div>
+                            <div class="pattern-display">
+                                <code class="pattern-code" id="generated-pattern">패턴이 여기에 표시됩니다</code>
+                            </div>
+                            <div class="pattern-flags">
+                                <label class="flag-label">
+                                    <input type="checkbox" id="flag-global" value="g">
+                                    <span class="flag-text">g (전역)</span>
+                                </label>
+                                <label class="flag-label">
+                                    <input type="checkbox" id="flag-ignorecase" value="i">
+                                    <span class="flag-text">i (대소문자 무시)</span>
+                                </label>
+                                <label class="flag-label">
+                                    <input type="checkbox" id="flag-multiline" value="m">
+                                    <span class="flag-text">m (멀티라인)</span>
+                                </label>
+                                <label class="flag-label">
+                                    <input type="checkbox" id="flag-dotall" value="s">
+                                    <span class="flag-text">s (dotall)</span>
+                                </label>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Properties Panel -->
-                    <div class="properties-panel" id="properties-panel">
+                    <div class="properties-panel">
                         <div class="panel-header">
                             <h3 class="panel-title">
-                                <i class="fas fa-sliders-h mr-2"></i>
-                                속성 편집
+                                <i class="fas fa-cog mr-2"></i>
+                                속성
                             </h3>
-                            <button class="panel-close" onclick="closePropertiesPanel()">
-                                <i class="fas fa-times"></i>
+                            <button class="panel-collapse-btn" onclick="toggleProperties()">
+                                <i class="fas fa-angle-right"></i>
                             </button>
                         </div>
                         
                         <div class="panel-content" id="properties-content">
                             <div class="no-selection">
-                                <div class="no-selection-icon">
+                                <div class="no-selection-content">
                                     <i class="fas fa-mouse-pointer"></i>
+                                    <p>구성 요소를 선택하여 속성을 편집하세요</p>
                                 </div>
-                                <h4 class="no-selection-title">구성 요소를 선택하세요</h4>
-                                <p class="no-selection-text">
-                                    캔버스의 구성 요소를 클릭하여 속성을 편집할 수 있습니다.
-                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        
-        <!-- Generated Regex Section -->
-        <section class="generated-regex">
+
+        <!-- Templates Section -->
+        <section class="templates-section">
             <div class="container">
-                <div class="regex-output">
-                    <div class="output-header">
-                        <h3 class="output-title">
-                            <i class="fas fa-code mr-2"></i>
-                            생성된 정규식
-                        </h3>
-                        <div class="output-actions">
-                            <button class="btn-icon" onclick="copyGeneratedRegex()" title="복사 (Ctrl+C)">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                            <button class="btn-icon" onclick="testGeneratedRegex()" title="테스터에서 확인">
-                                <i class="fas fa-flask"></i>
-                            </button>
-                            <button class="btn-icon" onclick="shareRegex()" title="공유">
-                                <i class="fas fa-share-alt"></i>
-                            </button>
-                            <button class="btn-icon" onclick="saveToLibrary()" title="라이브러리에 저장">
-                                <i class="fas fa-bookmark"></i>
+                <div class="section-header">
+                    <h2 class="section-title">빠른 시작 템플릿</h2>
+                    <p class="section-subtitle">자주 사용하는 패턴으로 빠르게 시작하세요</p>
+                </div>
+                
+                <div class="templates-grid">
+                    <div class="template-card" onclick="loadTemplate('email')">
+                        <div class="template-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="template-content">
+                            <h3 class="template-title">이메일 주소</h3>
+                            <p class="template-desc">기본적인 이메일 주소 패턴</p>
+                            <div class="template-pattern">
+                                <code>[\w\.-]+@[\w\.-]+\.\w+</code>
+                            </div>
+                        </div>
+                        <div class="template-actions">
+                            <button class="template-load-btn">
+                                <i class="fas fa-download"></i>
+                                불러오기
                             </button>
                         </div>
                     </div>
                     
-                    <div class="regex-display">
-                        <div class="regex-code-container">
-                            <div class="regex-code">
-                                <span class="regex-delimiter">/</span>
-                                <code id="generated-regex" class="regex-pattern">^$</code>
-                                <span class="regex-delimiter">/</span>
-                                <span id="regex-flags" class="regex-flags-display"></span>
+                    <div class="template-card" onclick="loadTemplate('phone')">
+                        <div class="template-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="template-content">
+                            <h3 class="template-title">전화번호</h3>
+                            <p class="template-desc">한국 전화번호 형식</p>
+                            <div class="template-pattern">
+                                <code>0\d{1,2}-\d{3,4}-\d{4}</code>
                             </div>
-                            <div class="regex-info">
-                                <span class="regex-length" id="regex-length">2 문자</span>
-                                <span class="regex-type" id="regex-type">기본</span>
+                        </div>
+                        <div class="template-actions">
+                            <button class="template-load-btn">
+                                <i class="fas fa-download"></i>
+                                불러오기
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="template-card" onclick="loadTemplate('url')">
+                        <div class="template-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div class="template-content">
+                            <h3 class="template-title">URL</h3>
+                            <p class="template-desc">HTTP/HTTPS URL 패턴</p>
+                            <div class="template-pattern">
+                                <code>https?://[\w\.-]+</code>
+                            </div>
+                        </div>
+                        <div class="template-actions">
+                            <button class="template-load-btn">
+                                <i class="fas fa-download"></i>
+                                불러오기
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="template-card" onclick="loadTemplate('password')">
+                        <div class="template-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div class="template-content">
+                            <h3 class="template-title">비밀번호</h3>
+                            <p class="template-desc">강력한 비밀번호 패턴</p>
+                            <div class="template-pattern">
+                                <code>^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)</code>
+                            </div>
+                        </div>
+                        <div class="template-actions">
+                            <button class="template-load-btn">
+                                <i class="fas fa-download"></i>
+                                불러오기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Help Section -->
+        <section class="help-section">
+            <div class="container">
+                <div class="help-content">
+                    <div class="help-header">
+                        <h2 class="help-title">
+                            <i class="fas fa-question-circle mr-2"></i>
+                            시각적 빌더 사용법
+                        </h2>
+                        <p class="help-subtitle">드래그 앤 드롭으로 정규식을 쉽게 만드는 방법을 알아보세요</p>
+                    </div>
+                    
+                    <div class="help-steps">
+                        <div class="help-step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h3 class="step-title">구성 요소 선택</h3>
+                                <p class="step-desc">왼쪽 팔레트에서 원하는 구성 요소를 선택하세요</p>
                             </div>
                         </div>
                         
-                        <div class="flags-section">
-                            <h4 class="flags-title">플래그 설정</h4>
-                            <div class="flags-grid">
-                                <label class="flag-option">
-                                    <input type="checkbox" id="flag-global" onchange="updateFlags()">
-                                    <span class="flag-text">
-                                        <strong>g</strong> - 전역 검색
-                                    </span>
-                                    <span class="flag-desc">모든 매치를 찾습니다</span>
-                                </label>
-                                <label class="flag-option">
-                                    <input type="checkbox" id="flag-ignorecase" onchange="updateFlags()">
-                                    <span class="flag-text">
-                                        <strong>i</strong> - 대소문자 무시
-                                    </span>
-                                    <span class="flag-desc">Case-insensitive 매칭</span>
-                                </label>
-                                <label class="flag-option">
-                                    <input type="checkbox" id="flag-multiline" onchange="updateFlags()">
-                                    <span class="flag-text">
-                                        <strong>m</strong> - 멀티라인 모드
-                                    </span>
-                                    <span class="flag-desc">^, $가 각 줄에 적용</span>
-                                </label>
+                        <div class="help-step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h3 class="step-title">캔버스에 배치</h3>
+                                <p class="step-desc">선택한 구성 요소를 가운데 캔버스로 드래그하세요</p>
+                            </div>
+                        </div>
+                        
+                        <div class="help-step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h3 class="step-title">연결 및 조정</h3>
+                                <p class="step-desc">구성 요소들을 연결하고 속성을 조정하세요</p>
+                            </div>
+                        </div>
+                        
+                        <div class="help-step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h3 class="step-title">테스트 및 사용</h3>
+                                <p class="step-desc">생성된 패턴을 테스터에서 확인하고 내보내세요</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-code-branch"></i>
+                        <span>NEO Regex</span>
+                    </div>
+                    <p class="footer-description">
+                        개발자를 위한 차세대 정규식 도구
+                    </p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-title">도구</h4>
+                        <a href="./tester.html" class="footer-link">정규식 테스터</a>
+                        <a href="./library.html" class="footer-link">패턴 라이브러리</a>
+                        <a href="./builder.html" class="footer-link">시각적 빌더</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-title">가이드</h4>
+                        <a href="./beginner.html" class="footer-link">초보자 가이드</a>
+                        <a href="./expert.html" class="footer-link">전문가 도구</a>
+                        <a href="#" class="footer-link">튜토리얼</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-title">지원</h4>
+                        <a href="#" class="footer-link">문서</a>
+                        <a href="#" class="footer-link">FAQ</a>
+                        <a href="#" class="footer-link">문의하기</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-title">소셜</h4>
+                        <a href="#" class="footer-link">GitHub</a>
+                        <a href="#" class="footer-link">Discord</a>
+                        <a href="#" class="footer-link">Twitter</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <p>&copy; 2024 NEO Regex. All rights reserved.</p>
+                    <div class="footer-bottom-links">
+                        <a href="#" class="footer-bottom-link">개인정보 처리방침</a>
+                        <a href="#" class="footer-bottom-link">이용약관</a>
+                        <a href="#" class="footer-bottom-link">쿠키 정책</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="./src/main.js"></script>
+    <script src="./src/core/regex.js"></script>
+    <script src="./src/pages/builder.js"></script>
+    
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
+</body>
+</html>
