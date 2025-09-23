@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시각적 빌더 - NEO Regex</title>
+    <meta name="description" content="드래그 앤 드롭으로 정규식을 시각적으로 구성하세요. 복잡한 패턴도 쉽게 만들 수 있습니다.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="./src/styles/main.css">
+    <link rel="stylesheet" href="./src/styles/components.css">
+    <link rel="stylesheet" href="./src/styles/utilities.css">
+</head>
+<body class="font-inter">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="./index.html" class="nav-logo">
+                    <i class="fas fa-code-branch text-primary"></i>
+                    <span class="logo-text">NEO Regex</span>
+                </a>
+                <span class="beta-badge">BETA</span>
+            </div>
+            
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="./index.html" class="nav-link">홈</a></li>
+                <li><a href="./tester.html" class="nav-link">테스터</a></li>
+                <li><a href="./library.html" class="nav-link">패턴 라이브러리</a></li>
+                <li><a href="./builder.html" class="nav-link active">빌더</a></li>
+                <li class="nav-dropdown">
+                    <a href="#" class="nav-link">가이드 <i class="fas fa-chevron-down ml-1"></i></a>
+                    <div class="dropdown-content">
+                        <a href="./beginner.html" class="dropdown-item">
+                            <i class="fas fa-graduation-cap text-green-500"></i>
+                            <div>
+                                <div class="dropdown-title">초보자 가이드</div>
+                                <div class="dropdown-desc">정규식 기초부터</div>
+                            </div>
+                        </a>
+                        <a href="./expert.html" class="dropdown-item">
+                            <i class="fas fa-rocket text-purple-500"></i>
+                            <div>
+                                <div class="dropdown-title">전문가 도구</div>
+                                <div class="dropdown-desc">고급 기능 활용</div>
+                            </div>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-toggle" title="다크 모드 전환">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content builder-page">
+        <!-- Header Section -->
+        <section class="builder-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="breadcrumb">
+                        <a href="./index.html">홈</a>
+                        <i class="fas fa-chevron-right"></i>
+                        <span>시각적 빌더</span>
+                    </div>
+                    
+                    <h1 class="page-title">
+                        시각적 정규식 빌더
+                        <span class="title-accent">드래그로 만드는 스마트 패턴</span>
+                    </h1>
+                    
+                    <p class="page-subtitle">
+                        복잡한 정규식을 직관적으로 구성하세요. 
+                        코드 없이도 강력한 패턴을 만들 수 있습니다.
+                    </p>
+                    
+                    <div class="builder-quick-actions">
+                        <button class="btn-secondary" onclick="clearBuilder()">
+                            <i class="fas fa-trash mr-2"></i>
+                            초기화
+                        </button>
+                        <button class="btn-secondary" onclick="loadTemplate()">
+                            <i class="fas fa-file-import mr-2"></i>
+                            템플릿 불러오기
+                        </button>
+                        <button class="btn-primary" onclick="testInTester()">
+                            <i class="fas fa-flask mr-2"></i>
+                            테스터에서 확인
+                        </button>
+                        <button class="btn-primary" onclick="exportPattern()">
+                            <i class="fas fa-download mr-2"></i>
+                            내보내기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Builder Workspace -->
+        <section class="builder-workspace">
+            <div class="container-fluid">
+                <div class="workspace-layout">
+                    <!-- Component Palette -->
+                    <div class="component-palette">
+                        <div class="palette-header">
+                            <h3 class="palette-title">
+                                <i class="fas fa-puzzle-piece mr-2"></i>
+                                구성 요소
+                            </h3>
+                            <button class="palette-collapse" id="palette-collapse" title="팔레트 접기/펼치기">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="palette-content">
+                            <!-- Basic Characters -->
+                            <div class="component-category">
+                                <div class="category-header">
+                                    <h4 class="category-title">
+                                        <i class="fas fa-font"></i>
+                                        기본 문자
+                                    </h4>
+                                    <span class="category-count">5개</span>
+                                </div>
+                                <div class="component-grid">
+                                    <div class="component-item" draggable="true" data-type="literal" data-pattern="a" title="일반 문자">
+                                        <div class="component-icon basic">a</div>
+                                        <div class="component-info">
+                                            <span class="component-name">문자</span>
+                                            <span class="component-desc">일반 텍스트</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="digit" data-pattern="\d" title="숫자 [0-9]">
+                                        <div class="component-icon character">\d</div>
+                                        <div class="component-info">
+                                            <span class="component-name">숫자</span>
+                                            <span class="component-desc">[0-9]</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="word" data-pattern="\w" title="단어 문자 [a-zA-Z0-9_]">
+                                        <div class="component-icon character">\w</div>
+                                        <div class="component-info">
+                                            <span class="component-name">단어 문자</span>
+                                            <span class="component-desc">[a-zA-Z0-9_]</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="whitespace" data-pattern="\s" title="공백 문자">
+                                        <div class="component-icon character">\s</div>
+                                        <div class="component-info">
+                                            <span class="component-name">공백</span>
+                                            <span class="component-desc">[ \t\n\r]</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="dot" data-pattern="." title="모든 문자 (줄바꿈 제외)">
+                                        <div class="component-icon character">.</div>
+                                        <div class="component-info">
+                                            <span class="component-name">모든 문자</span>
+                                            <span class="component-desc">줄바꿈 제외</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Character Classes -->
+                            <div class="component-category">
+                                <div class="category-header">
+                                    <h4 class="category-title">
+                                        <i class="fas fa-brackets-square"></i>
+                                        문자 클래스
+                                    </h4>
+                                    <span class="category-count">3개</span>
+                                </div>
+                                <div class="component-grid">
+                                    <div class="component-item" draggable="true" data-type="character-set" data-pattern="[abc]" title="문자 집합">
+                                        <div class="component-icon class">[abc]</div>
+                                        <div class="component-info">
+                                            <span class="component-name">문자 집합</span>
+                                            <span class="component-desc">지정된 문자 중 하나</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="character-range" data-pattern="[a-z]" title="문자 범위">
+                                        <div class="component-icon class">[a-z]</div>
+                                        <div class="component-info">
+                                            <span class="component-name">문자 범위</span>
+                                            <span class="component-desc">범위 내 문자</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="negated-set" data-pattern="[^abc]" title="부정 문자 집합">
+                                        <div class="component-icon class">[^abc]</div>
+                                        <div class="component-info">
+                                            <span class="component-name">부정 집합</span>
+                                            <span class="component-desc">지정 문자 제외</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quantifiers -->
+                            <div class="component-category">
+                                <div class="category-header">
+                                    <h4 class="category-title">
+                                        <i class="fas fa-repeat"></i>
+                                        수량자
+                                    </h4>
+                                    <span class="category-count">5개</span>
+                                </div>
+                                <div class="component-grid">
+                                    <div class="component-item" draggable="true" data-type="zero-or-more" data-pattern="*" title="0개 이상 반복">
+                                        <div class="component-icon quantifier">*</div>
+                                        <div class="component-info">
+                                            <span class="component-name">0개 이상</span>
+                                            <span class="component-desc">0번 또는 여러번</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="one-or-more" data-pattern="+" title="1개 이상 반복">
+                                        <div class="component-icon quantifier">+</div>
+                                        <div class="component-info">
+                                            <span class="component-name">1개 이상</span>
+                                            <span class="component-desc">1번 또는 여러번</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="zero-or-one" data-pattern="?" title="0개 또는 1개">
+                                        <div class="component-icon quantifier">?</div>
+                                        <div class="component-info">
+                                            <span class="component-name">0개 또는 1개</span>
+                                            <span class="component-desc">선택적 요소</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="exact-count" data-pattern="{n}" title="정확히 n개">
+                                        <div class="component-icon quantifier">{n}</div>
+                                        <div class="component-info">
+                                            <span class="component-name">정확히 n개</span>
+                                            <span class="component-desc">지정 횟수만</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="range-count" data-pattern="{n,m}" title="n개부터 m개까지">
+                                        <div class="component-icon quantifier">{n,m}</div>
+                                        <div class="component-info">
+                                            <span class="component-name">n~m개</span>
+                                            <span class="component-desc">범위 내 횟수</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Anchors -->
+                            <div class="component-category">
+                                <div class="category-header">
+                                    <h4 class="category-title">
+                                        <i class="fas fa-anchor"></i>
+                                        앵커
+                                    </h4>
+                                    <span class="category-count">3개</span>
+                                </div>
+                                <div class="component-grid">
+                                    <div class="component-item" draggable="true" data-type="start-anchor" data-pattern="^" title="문자열 시작">
+                                        <div class="component-icon anchor">^</div>
+                                        <div class="component-info">
+                                            <span class="component-name">문자열 시작</span>
+                                            <span class="component-desc">시작 지점 고정</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="end-anchor" data-pattern="$" title="문자열 끝">
+                                        <div class="component-icon anchor">$</div>
+                                        <div class="component-info">
+                                            <span class="component-name">문자열 끝</span>
+                                            <span class="component-desc">끝 지점 고정</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="word-boundary" data-pattern="\b" title="단어 경계">
+                                        <div class="component-icon anchor">\b</div>
+                                        <div class="component-info">
+                                            <span class="component-name">단어 경계</span>
+                                            <span class="component-desc">단어 시작/끝</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Groups -->
+                            <div class="component-category">
+                                <div class="category-header">
+                                    <h4 class="category-title">
+                                        <i class="fas fa-layer-group"></i>
+                                        그룹
+                                    </h4>
+                                    <span class="category-count">3개</span>
+                                </div>
+                                <div class="component-grid">
+                                    <div class="component-item" draggable="true" data-type="capturing-group" data-pattern="()" title="캡처링 그룹">
+                                        <div class="component-icon group">()</div>
+                                        <div class="component-info">
+                                            <span class="component-name">캡처 그룹</span>
+                                            <span class="component-desc">결과 저장</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="non-capturing-group" data-pattern="(?:)" title="비캡처링 그룹">
+                                        <div class="component-icon group">(?:)</div>
+                                        <div class="component-info">
+                                            <span class="component-name">비캡처 그룹</span>
+                                            <span class="component-desc">그룹화만</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="alternation" data-pattern="|" title="OR 연산자">
+                                        <div class="component-icon group">|</div>
+                                        <div class="component-info">
+                                            <span class="component-name">OR 연산</span>
+                                            <span class="component-desc">선택 중 하나</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Lookarounds -->
+                            <div class="component-category">
+                                <div class="category-header">
+                                    <h4 class="category-title">
+                                        <i class="fas fa-eye"></i>
+                                        전후방 탐색
+                                    </h4>
+                                    <span class="category-count">4개</span>
+                                </div>
+                                <div class="component-grid">
+                                    <div class="component-item" draggable="true" data-type="positive-lookahead" data-pattern="(?=)" title="긍정 전방탐색">
+                                        <div class="component-icon lookaround">(?=)</div>
+                                        <div class="component-info">
+                                            <span class="component-name">긍정 전방탐색</span>
+                                            <span class="component-desc">뒤에 패턴 있음</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="negative-lookahead" data-pattern="(?!)" title="부정 전방탐색">
+                                        <div class="component-icon lookaround">(?!)</div>
+                                        <div class="component-info">
+                                            <span class="component-name">부정 전방탐색</span>
+                                            <span class="component-desc">뒤에 패턴 없음</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="positive-lookbehind" data-pattern="(?<=)" title="긍정 후방탐색">
+                                        <div class="component-icon lookaround">(?<=)</div>
+                                        <div class="component-info">
+                                            <span class="component-name">긍정 후방탐색</span>
+                                            <span class="component-desc">앞에 패턴 있음</span>
+                                        </div>
+                                    </div>
+                                    <div class="component-item" draggable="true" data-type="negative-lookbehind" data-pattern="(?<!)" title="부정 후방탐색">
+                                        <div class="component-icon lookaround">(?<!)</div>
+                                        <div class="component-info">
+                                            <span class="component-name">부정 후방탐색</span>
+                                            <span class="component-desc">앞에 패턴 없음</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Builder Canvas -->
+                    <div class="builder-canvas">
+                        <div class="canvas-header">
+                            <div class="canvas-title">
+                                <h3>
+                                    <i class="fas fa-drafting-compass mr-2"></i>
+                                    정규식 구성
+                                </h3>
+                                <div class="canvas-info">
+                                    <span class="component-count" id="component-count">0개 구성요소</span>
+                                    <span class="pattern-length" id="pattern-length">0 문자</span>
+                                </div>
+                            </div>
+                            
+                            <div class="canvas-controls">
+                                <div class="control-group">
+                                    <button class="canvas-btn" onclick="undoLastAction()" id="undo-btn" disabled title="실행 취소 (Ctrl+Z)">
+                                        <i class="fas fa-undo"></i>
+                                    </button>
+                                    <button class="canvas-btn" onclick="redoLastAction()" id="redo-btn" disabled title="다시 실행 (Ctrl+Y)">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                </div>
+                                <div class="control-group">
+                                    <button class="canvas-btn" onclick="zoomIn()" title="확대 (Ctrl++)">
+                                        <i class="fas fa-search-plus"></i>
+                                    </button>
+                                    <button class="canvas-btn" onclick="zoomOut()" title="축소 (Ctrl+-)">
+                                        <i class="fas fa-search-minus"></i>
+                                    </button>
+                                    <span class="zoom-level" id="zoom-level">100%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="canvas-content" id="regex-canvas">
+                            <div class="drop-zone active" id="drop-zone">
+                                <div class="drop-zone-content">
+                                    <i class="fas fa-plus-circle drop-icon"></i>
+                                    <h4 class="drop-title">여기에 구성 요소를 끌어다 놓으세요</h4>
+                                    <p class="drop-subtitle">
+                                        왼쪽에서 원하는 구성 요소를 드래그해서 정규식을 만드세요
+                                    </p>
+                                    <div class="drop-hints">
+                                        <div class="hint-item">
+                                            <i class="fas fa-lightbulb"></i>
+                                            <span>팁: 구성 요소를 클릭하면 속성을 편집할 수 있습니다</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Regex Components Flow -->
+                            <div class="regex-flow" id="regex-flow" style="display: none;">
+                                <div class="flow-container">
+                                    <div class="flow-line" id="flow-line">
+                                        <!-- Dynamic components will be added here -->
+                                    </div>
+                                    <div class="flow-actions">
+                                        <button class="flow-btn" onclick="addToEnd()" title="끝에 추가">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Canvas Footer -->
+                        <div class="canvas-footer">
+                            <div class="pattern-validation" id="pattern-validation">
+                                <div class="validation-status valid" id="validation-status">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>패턴이 유효합니다</span>
+                                </div>
+                            </div>
+                            
+                            <div class="canvas-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">복잡도</span>
+                                    <span class="stat-value" id="complexity-score">낮음</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">성능</span>
+                                    <span class="stat-value" id="performance-score">좋음</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Properties Panel -->
+                    <div class="properties-panel" id="properties-panel">
+                        <div class="panel-header">
+                            <h3 class="panel-title">
+                                <i class="fas fa-sliders-h mr-2"></i>
+                                속성 편집
+                            </h3>
+                            <button class="panel-close" onclick="closePropertiesPanel()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="panel-content" id="properties-content">
+                            <div class="no-selection">
+                                <div class="no-selection-icon">
+                                    <i class="fas fa-mouse-pointer"></i>
+                                </div>
+                                <h4 class="no-selection-title">구성 요소를 선택하세요</h4>
+                                <p class="no-selection-text">
+                                    캔버스의 구성 요소를 클릭하여 속성을 편집할 수 있습니다.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Generated Regex Section -->
+        <section class="generated-regex">
+            <div class="container">
+                <div class="regex-output">
+                    <div class="output-header">
+                        <h3 class="output-title">
+                            <i class="fas fa-code mr-2"></i>
+                            생성된 정규식
+                        </h3>
+                        <div class="output-actions">
+                            <button class="btn-icon" onclick="copyGeneratedRegex()" title="복사 (Ctrl+C)">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn-icon" onclick="testGeneratedRegex()" title="테스터에서 확인">
+                                <i class="fas fa-flask"></i>
+                            </button>
+                            <button class="btn-icon" onclick="shareRegex()" title="공유">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                            <button class="btn-icon" onclick="saveToLibrary()" title="라이브러리에 저장">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="regex-display">
+                        <div class="regex-code-container">
+                            <div class="regex-code">
+                                <span class="regex-delimiter">/</span>
+                                <code id="generated-regex" class="regex-pattern">^$</code>
+                                <span class="regex-delimiter">/</span>
+                                <span id="regex-flags" class="regex-flags-display"></span>
+                            </div>
+                            <div class="regex-info">
+                                <span class="regex-length" id="regex-length">2 문자</span>
+                                <span class="regex-type" id="regex-type">기본</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flags-section">
+                            <h4 class="flags-title">플래그 설정</h4>
+                            <div class="flags-grid">
+                                <label class="flag-option">
+                                    <input type="checkbox" id="flag-global" onchange="updateFlags()">
+                                    <span class="flag-text">
+                                        <strong>g</strong> - 전역 검색
+                                    </span>
+                                    <span class="flag-desc">모든 매치를 찾습니다</span>
+                                </label>
+                                <label class="flag-option">
+                                    <input type="checkbox" id="flag-ignorecase" onchange="updateFlags()">
+                                    <span class="flag-text">
+                                        <strong>i</strong> - 대소문자 무시
+                                    </span>
+                                    <span class="flag-desc">Case-insensitive 매칭</span>
+                                </label>
+                                <label class="flag-option">
+                                    <input type="checkbox" id="flag-multiline" onchange="updateFlags()">
+                                    <span class="flag-text">
+                                        <strong>m</strong> - 멀티라인 모드
+                                    </span>
+                                    <span class="flag-desc">^, $가 각 줄에 적용</span>
+                                </label>

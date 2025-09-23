@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>패턴 라이브러리 - NEO Regex</title>
-    <meta name="description" content="검증된 정규식 패턴 모음. 이메일, 전화번호, URL 등 자주 사용하는 패턴을 쉽게 찾아 사용하세요.">
+    <meta name="description" content="검증된 정규식 패턴 라이브러리. 이메일, 전화번호, URL 등 자주 사용하는 패턴을 바로 사용하세요.">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,280 +61,356 @@
                 <button class="theme-toggle" id="theme-toggle" title="다크 모드 전환">
                     <i class="fas fa-moon"></i>
                 </button>
-                <a href="./tester.html" class="btn btn-primary">
-                    <i class="fas fa-play"></i>
-                    테스터 사용
-                </a>
-            </div>
-            
-            <div class="hamburger" id="hamburger">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Page Header -->
-    <section class="page-header">
-        <div class="container">
-            <div class="header-content">
-                <div class="breadcrumb">
-                    <a href="./index.html">홈</a>
-                    <i class="fas fa-chevron-right"></i>
-                    <span>패턴 라이브러리</span>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header Section -->
+        <section class="library-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="header-text">
+                        <h1 class="page-title">
+                            패턴 라이브러리
+                            <span class="title-accent">검증된 정규식 컬렉션</span>
+                        </h1>
+                        <p class="page-subtitle">
+                            개발에 자주 사용되는 검증된 정규식 패턴들을 카테고리별로 정리했습니다. 
+                            원하는 패턴을 찾아서 바로 사용하거나 테스터에서 확인해보세요.
+                        </p>
+                    </div>
+                    <div class="header-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="pattern-count">250+</span>
+                            <span class="stat-label">패턴</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">15</span>
+                            <span class="stat-label">카테고리</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">99.9%</span>
+                            <span class="stat-label">정확도</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search and Filter -->
+        <section class="library-controls">
+            <div class="container">
+                <div class="controls-grid">
+                    <div class="search-section">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="pattern-search" placeholder="패턴 검색... (예: 이메일, 전화번호)" autocomplete="off">
+                            <div class="search-shortcut">
+                                <kbd>/</kbd>
+                            </div>
+                        </div>
+                        <div class="search-suggestions" id="search-suggestions" style="display: none;">
+                            <!-- Dynamic suggestions -->
+                        </div>
+                    </div>
+                    
+                    <div class="filter-section">
+                        <div class="filter-group">
+                            <label for="category-filter">카테고리</label>
+                            <select id="category-filter" class="filter-select">
+                                <option value="">모든 카테고리</option>
+                                <option value="validation">유효성 검사</option>
+                                <option value="extraction">데이터 추출</option>
+                                <option value="formatting">형식 검사</option>
+                                <option value="text">텍스트 처리</option>
+                                <option value="security">보안</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="complexity-filter">복잡도</label>
+                            <select id="complexity-filter" class="filter-select">
+                                <option value="">모든 레벨</option>
+                                <option value="beginner">초급</option>
+                                <option value="intermediate">중급</option>
+                                <option value="advanced">고급</option>
+                            </select>
+                        </div>
+                        
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="grid" title="그리드 뷰">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                            <button class="view-btn" data-view="list" title="리스트 뷰">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
-                <h1 class="page-title">
-                    <i class="fas fa-book"></i>
-                    패턴 라이브러리
-                </h1>
-                
-                <p class="page-subtitle">
-                    검증된 정규식 패턴 모음집. 자주 사용하는 패턴을 쉽게 찾아 테스트하고 복사하세요.
-                </p>
-                
-                <div class="header-stats">
-                    <div class="stat-badge">
+                <!-- Quick Access Categories -->
+                <div class="quick-categories">
+                    <button class="category-chip active" data-category="">전체</button>
+                    <button class="category-chip" data-category="validation">
                         <i class="fas fa-check-circle"></i>
-                        <span>200+ 검증된 패턴</span>
-                    </div>
-                    <div class="stat-badge">
-                        <i class="fas fa-users"></i>
-                        <span>50,000+ 개발자 사용</span>
-                    </div>
-                    <div class="stat-badge">
-                        <i class="fas fa-download"></i>
-                        <span>1M+ 다운로드</span>
-                    </div>
+                        유효성 검사
+                    </button>
+                    <button class="category-chip" data-category="extraction">
+                        <i class="fas fa-search"></i>
+                        데이터 추출
+                    </button>
+                    <button class="category-chip" data-category="formatting">
+                        <i class="fas fa-align-left"></i>
+                        형식 검사
+                    </button>
+                    <button class="category-chip" data-category="text">
+                        <i class="fas fa-font"></i>
+                        텍스트
+                    </button>
+                    <button class="category-chip" data-category="security">
+                        <i class="fas fa-shield-alt"></i>
+                        보안
+                    </button>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Search and Filter Section -->
-    <section class="search-section">
-        <div class="container">
-            <div class="search-controls">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input 
-                        type="text" 
-                        id="pattern-search" 
-                        placeholder="패턴 검색... (예: email, 전화번호, URL)"
-                        autocomplete="off"
-                    >
-                    <button class="search-clear" id="search-clear" style="display: none;">
-                        <i class="fas fa-times"></i>
-                    </button>
+        <!-- Pattern Library -->
+        <section class="pattern-library">
+            <div class="container">
+                <div class="patterns-grid" id="patterns-container">
+                    <!-- Patterns will be loaded dynamically -->
                 </div>
                 
-                <div class="filter-controls">
-                    <div class="difficulty-filter">
-                        <label class="filter-label">난이도</label>
-                        <select id="difficulty-filter" class="filter-select">
-                            <option value="">전체</option>
-                            <option value="beginner">초급</option>
-                            <option value="intermediate">중급</option>
-                            <option value="advanced">고급</option>
-                        </select>
-                    </div>
-                    
-                    <div class="sort-control">
-                        <label class="filter-label">정렬</label>
-                        <select id="sort-control" class="filter-select">
-                            <option value="popular">인기순</option>
-                            <option value="name">이름순</option>
-                            <option value="newest">최신순</option>
-                            <option value="difficulty">난이도순</option>
-                        </select>
-                    </div>
-                    
-                    <button class="btn btn-secondary" id="filter-reset">
-                        <i class="fas fa-undo"></i>
-                        초기화
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Category Tabs -->
-    <section class="category-section">
-        <div class="container">
-            <div class="category-tabs" id="category-tabs">
-                <button class="category-tab active" data-category="all">
-                    <i class="fas fa-th-large"></i>
-                    전체
-                    <span class="count">200+</span>
-                </button>
-                <button class="category-tab" data-category="basic">
-                    <i class="fas fa-star"></i>
-                    기본 패턴
-                    <span class="count">25</span>
-                </button>
-                <button class="category-tab" data-category="validation">
-                    <i class="fas fa-shield-alt"></i>
-                    검증 패턴
-                    <span class="count">45</span>
-                </button>
-                <button class="category-tab" data-category="korean">
-                    <i class="fas fa-flag"></i>
-                    한국어 패턴
-                    <span class="count">20</span>
-                </button>
-                <button class="category-tab" data-category="development">
-                    <i class="fas fa-code"></i>
-                    개발자 패턴
-                    <span class="count">35</span>
-                </button>
-                <button class="category-tab" data-category="web">
-                    <i class="fas fa-globe"></i>
-                    웹 패턴
-                    <span class="count">30</span>
-                </button>
-                <button class="category-tab" data-category="data">
-                    <i class="fas fa-database"></i>
-                    데이터 패턴
-                    <span class="count">25</span>
-                </button>
-                <button class="category-tab" data-category="security">
-                    <i class="fas fa-lock"></i>
-                    보안 패턴
-                    <span class="count">20</span>
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Patterns Grid -->
-    <section class="patterns-section">
-        <div class="container">
-            <div class="patterns-grid" id="patterns-grid">
-                <!-- Patterns will be loaded here by JavaScript -->
-                <div class="pattern-loading">
-                    <div class="loading-spinner lg"></div>
+                <!-- Loading State -->
+                <div class="loading-state" id="loading-state">
+                    <div class="loader"></div>
                     <p>패턴을 불러오는 중...</p>
                 </div>
+                
+                <!-- Empty State -->
+                <div class="empty-state" id="empty-state" style="display: none;">
+                    <i class="fas fa-search-minus empty-icon"></i>
+                    <h3 class="empty-title">검색 결과가 없습니다</h3>
+                    <p class="empty-message">
+                        다른 검색어나 필터를 사용해보세요.
+                    </p>
+                    <button class="btn-primary" onclick="clearFilters()">
+                        필터 초기화
+                    </button>
+                </div>
+                
+                <!-- Load More -->
+                <div class="load-more-section" id="load-more-section" style="display: none;">
+                    <button class="btn-secondary" id="load-more-btn">
+                        더 많은 패턴 보기
+                        <i class="fas fa-chevron-down ml-2"></i>
+                    </button>
+                </div>
             </div>
-            
-            <!-- Load More Button -->
-            <div class="load-more-section" id="load-more-section" style="display: none;">
-                <button class="btn btn-outline btn-lg" id="load-more-btn">
-                    <i class="fas fa-plus"></i>
-                    더 많은 패턴 보기
-                </button>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Quick Start Guide -->
-    <section class="quick-guide-section">
-        <div class="container">
-            <div class="quick-guide">
-                <h2 class="guide-title">
-                    <i class="fas fa-rocket"></i>
-                    빠른 시작 가이드
-                </h2>
-                
-                <div class="guide-steps">
-                    <div class="guide-step">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <h3>패턴 찾기</h3>
-                            <p>카테고리나 검색을 통해 원하는 패턴을 찾으세요</p>
-                        </div>
-                    </div>
-                    
-                    <div class="guide-step">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <h3>테스트하기</h3>
-                            <p>패턴을 클릭하여 상세 정보를 보고 테스트하세요</p>
-                        </div>
-                    </div>
-                    
-                    <div class="guide-step">
-                        <div class="step-number">3</div>
-                        <div class="step-content">
-                            <h3>복사하기</h3>
-                            <p>검증된 패턴을 복사하여 바로 사용하세요</p>
-                        </div>
-                    </div>
+        <!-- Featured Collections -->
+        <section class="featured-collections">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">추천 컬렉션</h2>
+                    <p class="section-subtitle">자주 사용되는 패턴들을 주제별로 모았습니다</p>
                 </div>
                 
-                <div class="guide-actions">
-                    <a href="./beginner.html" class="btn btn-beginner">
-                        <i class="fas fa-graduation-cap"></i>
-                        초보자 가이드 보기
-                    </a>
-                    <a href="./tester.html" class="btn btn-primary">
-                        <i class="fas fa-play"></i>
-                        테스터에서 연습하기
-                    </a>
+                <div class="collections-grid">
+                    <div class="collection-card">
+                        <div class="collection-header">
+                            <div class="collection-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="collection-info">
+                                <h3 class="collection-title">이메일 & 연락처</h3>
+                                <p class="collection-count">25개 패턴</p>
+                            </div>
+                        </div>
+                        <p class="collection-description">
+                            이메일, 전화번호, 주소 등 연락처 관련 검증 패턴
+                        </p>
+                        <div class="collection-tags">
+                            <span class="tag">이메일</span>
+                            <span class="tag">전화번호</span>
+                            <span class="tag">주소</span>
+                        </div>
+                        <button class="collection-btn" data-collection="contact">
+                            컬렉션 보기
+                        </button>
+                    </div>
+                    
+                    <div class="collection-card">
+                        <div class="collection-header">
+                            <div class="collection-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="collection-info">
+                                <h3 class="collection-title">웹 & URL</h3>
+                                <p class="collection-count">18개 패턴</p>
+                            </div>
+                        </div>
+                        <p class="collection-description">
+                            URL, 도메인, IP 주소 등 웹 관련 검증 패턴
+                        </p>
+                        <div class="collection-tags">
+                            <span class="tag">URL</span>
+                            <span class="tag">도메인</span>
+                            <span class="tag">IP</span>
+                        </div>
+                        <button class="collection-btn" data-collection="web">
+                            컬렉션 보기
+                        </button>
+                    </div>
+                    
+                    <div class="collection-card">
+                        <div class="collection-header">
+                            <div class="collection-icon">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <div class="collection-info">
+                                <h3 class="collection-title">개발 & 코드</h3>
+                                <p class="collection-count">32개 패턴</p>
+                            </div>
+                        </div>
+                        <p class="collection-description">
+                            변수명, 색상코드, 버전 번호 등 개발 관련 패턴
+                        </p>
+                        <div class="collection-tags">
+                            <span class="tag">변수명</span>
+                            <span class="tag">색상</span>
+                            <span class="tag">버전</span>
+                        </div>
+                        <button class="collection-btn" data-collection="development">
+                            컬렉션 보기
+                        </button>
+                    </div>
+                    
+                    <div class="collection-card">
+                        <div class="collection-header">
+                            <div class="collection-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="collection-info">
+                                <h3 class="collection-title">보안 & 검증</h3>
+                                <p class="collection-count">22개 패턴</p>
+                            </div>
+                        </div>
+                        <p class="collection-description">
+                            비밀번호, 토큰, 인증 등 보안 관련 검증 패턴
+                        </p>
+                        <div class="collection-tags">
+                            <span class="tag">비밀번호</span>
+                            <span class="tag">토큰</span>
+                            <span class="tag">인증</span>
+                        </div>
+                        <button class="collection-btn" data-collection="security">
+                            컬렉션 보기
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
     <!-- Pattern Detail Modal -->
-    <div class="modal-overlay" id="pattern-modal-overlay">
-        <div class="modal pattern-modal" id="pattern-modal">
+    <div class="modal-overlay" id="pattern-modal-overlay" style="display: none;">
+        <div class="modal-container">
             <div class="modal-header">
-                <h2 class="modal-title" id="modal-title">패턴 상세 정보</h2>
-                <button class="modal-close" id="modal-close">
+                <h2 class="modal-title" id="modal-title">패턴 상세</h2>
+                <button class="modal-close" onclick="closeModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
-            <div class="modal-body">
+            <div class="modal-content">
                 <div class="pattern-info">
-                    <div class="pattern-meta">
-                        <span class="pattern-category" id="modal-category"></span>
-                        <span class="pattern-difficulty" id="modal-difficulty"></span>
-                        <span class="pattern-usage" id="modal-usage"></span>
-                    </div>
-                    
-                    <div class="pattern-description" id="modal-description"></div>
-                    
-                    <div class="pattern-code">
-                        <label class="code-label">정규식 패턴</label>
-                        <div class="code-block">
-                            <code id="modal-pattern" class="pattern-code-text"></code>
-                            <button class="copy-btn" onclick="copyPatternCode()">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="pattern-examples">
-                        <div class="examples-section">
-                            <h4>✅ 매칭되는 예제</h4>
-                            <div class="examples-list" id="modal-valid-examples"></div>
+                    <div class="pattern-main">
+                        <div class="pattern-code-section">
+                            <label class="section-label">정규식 패턴</label>
+                            <div class="code-block">
+                                <code id="modal-pattern" class="pattern-code"></code>
+                                <button class="copy-btn" onclick="copyPatternCode()" title="복사">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
                         </div>
                         
-                        <div class="examples-section">
-                            <h4>❌ 매칭되지 않는 예제</h4>
-                            <div class="examples-list" id="modal-invalid-examples"></div>
+                        <div class="pattern-description">
+                            <label class="section-label">설명</label>
+                            <p id="modal-description"></p>
                         </div>
                     </div>
                     
-                    <div class="pattern-explanation" id="modal-explanation"></div>
+                    <div class="pattern-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">카테고리</span>
+                            <span class="meta-value" id="modal-category"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">복잡도</span>
+                            <span class="meta-value" id="modal-complexity"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">사용 빈도</span>
+                            <span class="meta-value" id="modal-usage"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pattern-examples">
+                    <div class="examples-section">
+                        <div class="examples-column">
+                            <label class="section-label success">
+                                <i class="fas fa-check-circle"></i>
+                                매칭되는 예시
+                            </label>
+                            <div class="examples-list" id="modal-valid-examples">
+                                <!-- Dynamic valid examples -->
+                            </div>
+                        </div>
+                        
+                        <div class="examples-column">
+                            <label class="section-label error">
+                                <i class="fas fa-times-circle"></i>
+                                매칭되지 않는 예시
+                            </label>
+                            <div class="examples-list" id="modal-invalid-examples">
+                                <!-- Dynamic invalid examples -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pattern-notes" id="modal-notes-section" style="display: none;">
+                    <label class="section-label">주의사항</label>
+                    <div class="notes-content" id="modal-notes">
+                        <!-- Dynamic notes -->
+                    </div>
                 </div>
             </div>
             
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="testInTester()">
-                    <i class="fas fa-flask"></i>
-                    테스터에서 시험
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal()">
+                    <i class="fas fa-times mr-2"></i>
+                    닫기
                 </button>
-                <button class="btn btn-primary" onclick="copyPatternCode()">
-                    <i class="fas fa-copy"></i>
-                    패턴 복사
+                <button class="btn-primary" onclick="testInTester()">
+                    <i class="fas fa-flask mr-2"></i>
+                    테스터에서 확인
                 </button>
-                <button class="btn btn-expert" onclick="openInBuilder()">
-                    <i class="fas fa-edit"></i>
-                    빌더에서 편집
+                <button class="btn-primary" onclick="openInBuilder()">
+                    <i class="fas fa-tools mr-2"></i>
+                    빌더에서 수정
                 </button>
             </div>
         </div>
@@ -387,7 +463,6 @@
     <!-- Scripts -->
     <script src="./src/main.js"></script>
     <script src="./src/core/regex.js"></script>
-    <script src="./src/data/patterns.js"></script>
     <script src="./src/pages/library.js"></script>
     
     <!-- Notification Container -->
