@@ -406,7 +406,7 @@ window.RegexPatterns = [
     category: 'data',
     difficulty: 'intermediate',
     description: '소수점을 포함한 실수를 매칭합니다.',
-    pattern: '^-?\\d+(\\.\\d+)?,
+    pattern: '^-?\\d+(\\.\\d+)?',
     flags: '',
     explanation: '정수 부분과 선택적인 소수 부분으로 구성된 실수를 매칭합니다. 음수도 허용합니다.',
     examples: {
@@ -425,7 +425,7 @@ window.RegexPatterns = [
     category: 'development',
     difficulty: 'advanced',
     description: 'JSON 형식의 문자열을 매칭합니다.',
-    pattern: '^"(\\\\.|[^"\\\\])*",
+    pattern: '^"(\\\\.|[^"\\\\])*"',
     flags: '',
     explanation: '큰따옴표로 둘러싸인 JSON 문자열을 매칭합니다. 이스케이프 문자도 올바르게 처리합니다.',
     examples: {
@@ -447,7 +447,7 @@ window.RegexPatterns = [
     category: 'development',
     difficulty: 'intermediate',
     description: 'JavaScript에서 유효한 변수명을 검증합니다.',
-    pattern: '^[a-zA-Z_$][a-zA-Z0-9_$]*,
+    pattern: '^[a-zA-Z_$][a-zA-Z0-9_$]*',
     flags: '',
     explanation: 'JavaScript 변수명 규칙에 따라 영문자, 밑줄, 달러 기호로 시작하고, 이후에는 숫자도 포함할 수 있습니다.',
     examples: {
@@ -485,7 +485,7 @@ window.RegexPatterns = [
     category: 'development',
     difficulty: 'intermediate',
     description: '시맨틱 버저닝(SemVer) 형식의 버전 번호를 검증합니다.',
-    pattern: '^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?,
+    pattern: '^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?',
     flags: '',
     explanation: 'MAJOR.MINOR.PATCH 형식의 시맨틱 버전을 검증합니다. 선택적으로 pre-release와 build metadata도 지원합니다.',
     examples: {
@@ -504,7 +504,7 @@ window.RegexPatterns = [
     category: 'development',
     difficulty: 'intermediate',
     description: 'MAC(Media Access Control) 주소를 검증합니다.',
-    pattern: '^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2}),
+    pattern: '^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})',
     flags: '',
     explanation: 'MAC 주소의 표준 형식을 검증합니다. 콜론(:) 또는 하이픈(-)으로 구분된 6개의 16진수 쌍을 허용합니다.',
     examples: {
@@ -523,7 +523,7 @@ window.RegexPatterns = [
     category: 'development',
     difficulty: 'intermediate',
     description: 'UUID v4 형식의 고유 식별자를 검증합니다.',
-    pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12},
+    pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}',
     flags: '',
     explanation: 'UUID v4 형식을 검증합니다. 8-4-4-4-12 자리의 16진수로 구성되며, 버전 비트와 변형 비트가 올바른지 확인합니다.',
     examples: {
@@ -564,7 +564,7 @@ window.RegexPatterns = [
     category: 'security',
     difficulty: 'beginner',
     description: '취약한 일반적인 비밀번호 패턴을 감지합니다.',
-    pattern: '^(password|123456|qwerty|abc123|admin|root|guest|test|user),
+    pattern: '^(password|123456|qwerty|abc123|admin|root|guest|test|user)',
     flags: 'i',
     explanation: '자주 사용되는 취약한 비밀번호들을 감지합니다. 이러한 비밀번호는 사용을 금지해야 합니다.',
     examples: {
@@ -586,7 +586,7 @@ window.RegexPatterns = [
     category: 'korean',
     difficulty: 'beginner',
     description: '한글 문자만으로 구성된 텍스트를 매칭합니다.',
-    pattern: '^[가-힣\\s]+,
+    pattern: '^[가-힣\\s]+',
     flags: '',
     explanation: '한글 완성형 문자(가-힣)와 공백으로만 구성된 텍스트를 매칭합니다.',
     examples: {
@@ -605,7 +605,7 @@ window.RegexPatterns = [
     category: 'korean',
     difficulty: 'beginner',
     description: '한글, 영문, 숫자가 혼합된 텍스트를 매칭합니다.',
-    pattern: '^[가-힣a-zA-Z0-9\\s]+,
+    pattern: '^[가-힣a-zA-Z0-9\\s]+',
     flags: '',
     explanation: '한글, 영문자, 숫자, 공백으로 구성된 텍스트를 매칭합니다. 특수문자는 허용하지 않습니다.',
     examples: {
@@ -624,7 +624,7 @@ window.RegexPatterns = [
     category: 'korean',
     difficulty: 'intermediate',
     description: '한국의 사업자등록번호 형식을 검증합니다.',
-    pattern: '^[0-9]{3}-?[0-9]{2}-?[0-9]{5},
+    pattern: '^[0-9]{3}-?[0-9]{2}-?[0-9]{5}',
     flags: '',
     explanation: '3-2-5 자리 또는 10자리 연속 숫자로 된 사업자등록번호를 검증합니다. 하이픈은 선택사항입니다.',
     examples: {
@@ -643,7 +643,7 @@ window.RegexPatterns = [
     category: 'korean',
     difficulty: 'intermediate',
     description: '한국의 주민등록번호 형식을 검증합니다.',
-    pattern: '^[0-9]{6}-?[1-4][0-9]{6},
+    pattern: '^[0-9]{6}-?[1-4][0-9]{6}',
     flags: '',
     explanation: '6자리 생년월일과 7자리 식별번호로 구성된 주민등록번호를 검증합니다. 7번째 자리는 1-4 중 하나여야 합니다.',
     examples: {
@@ -665,7 +665,7 @@ window.RegexPatterns = [
     category: 'web',
     difficulty: 'intermediate',
     description: '유효한 도메인 이름을 검증합니다.',
-    pattern: '^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?,
+    pattern: '^[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.[a-zA-Z]{2,}$',
     flags: '',
     explanation: '도메인 이름 규칙에 따라 영문자, 숫자, 하이픈으로 구성된 유효한 도메인을 검증합니다.',
     examples: {
@@ -684,7 +684,7 @@ window.RegexPatterns = [
     category: 'web',
     difficulty: 'beginner',
     description: 'URL에 사용할 수 있는 슬러그 형식을 검증합니다.',
-    pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*,
+    pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*',
     flags: '',
     explanation: '소문자, 숫자, 하이픈으로만 구성된 URL 슬러그를 검증합니다. 연속된 하이픈은 허용하지 않습니다.',
     examples: {
@@ -706,7 +706,7 @@ window.RegexPatterns = [
     category: 'data',
     difficulty: 'beginner',
     description: '일반적인 이미지 파일의 확장자를 매칭합니다.',
-    pattern: '\\.(jpe?g|png|gif|bmp|svg|webp),
+    pattern: '\\.(jpe?g|png|gif|bmp|svg|webp)',
     flags: 'i',
     explanation: 'JPEG, PNG, GIF, BMP, SVG, WebP 등의 이미지 파일 확장자를 매칭합니다. 대소문자를 구분하지 않습니다.',
     examples: {
@@ -725,7 +725,7 @@ window.RegexPatterns = [
     category: 'data',
     difficulty: 'beginner',
     description: '일반적인 문서 파일의 확장자를 매칭합니다.',
-    pattern: '\\.(pdf|docx?|xlsx?|pptx?|txt|rtf),
+    pattern: '\\.(pdf|docx?|xlsx?|pptx?|txt|rtf)',
     flags: 'i',
     explanation: 'PDF, Word, Excel, PowerPoint, 텍스트 파일 등의 문서 확장자를 매칭합니다.',
     examples: {

@@ -985,6 +985,45 @@
                                         <span class="stat-item">정확도: 99.9%</span>
                                         <span class="stat-item">RFC 호환</span>
                                     </div>
+<div class="pattern-actions">
+                                        <button class="pattern-btn" onclick="loadPatternInTester(this)">
+                                            <i class="fas fa-flask"></i>
+                                            테스터 확인
+                                        </button>
+                                        <button class="pattern-btn" onclick="analyzePattern(this)">
+                                            <i class="fas fa-chart-line"></i>
+                                            패턴 분석
+                                        </button>
+                                        <button class="pattern-btn" onclick="copyPattern(this)">
+                                            <i class="fas fa-copy"></i>
+                                            복사
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="parsing-tab" style="display: none;">
+                        <div class="patterns-grid">
+                            <div class="pattern-card expert">
+                                <div class="pattern-header">
+                                    <h3 class="pattern-title">SQL 쿼리 파싱</h3>
+                                    <span class="pattern-difficulty expert">전문가</span>
+                                    <span class="pattern-category parsing">파싱</span>
+                                </div>
+                                <div class="pattern-content">
+                                    <div class="pattern-code">
+                                        <code>(?i)\b(?:SELECT|INSERT|UPDATE|DELETE)\s+(?:(?!\b(?:FROM|WHERE|ORDER|GROUP|HAVING|LIMIT)\b).)+</code>
+                                    </div>
+                                    <p class="pattern-description">
+                                        SQL 쿼리의 기본 구문을 파싱하여 분석하는 패턴
+                                    </p>
+                                    <div class="pattern-stats">
+                                        <span class="stat-item">SQL 호환</span>
+                                        <span class="stat-item">구문 분석</span>
+                                        <span class="stat-item">대소문자 무시</span>
+                                    </div>
                                     <div class="pattern-actions">
                                         <button class="pattern-btn" onclick="loadPatternInTester(this)">
                                             <i class="fas fa-flask"></i>
@@ -995,3 +1034,194 @@
                                             패턴 분석
                                         </button>
                                         <button class="pattern-btn" onclick="copyPattern(this)">
+                                            <i class="fas fa-copy"></i>
+                                            복사
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="pattern-card expert">
+                                <div class="pattern-header">
+                                    <h3 class="pattern-title">로그 파일 분석</h3>
+                                    <span class="pattern-difficulty expert">전문가</span>
+                                    <span class="pattern-category parsing">파싱</span>
+                                </div>
+                                <div class="pattern-content">
+                                    <div class="pattern-code">
+                                        <code>^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})\s+\[([^\]]+)\]\s+(\w+):\s+(.+)$</code>
+                                    </div>
+                                    <p class="pattern-description">
+                                        구조화된 로그 파일의 날짜, 시간, 레벨, 메시지를 파싱
+                                    </p>
+                                    <div class="pattern-stats">
+                                        <span class="stat-item">로그 구조화</span>
+                                        <span class="stat-item">그룹 캡처</span>
+                                        <span class="stat-item">실시간 분석</span>
+                                    </div>
+                                    <div class="pattern-actions">
+                                        <button class="pattern-btn" onclick="loadPatternInTester(this)">
+                                            <i class="fas fa-flask"></i>
+                                            테스터 확인
+                                        </button>
+                                        <button class="pattern-btn" onclick="analyzePattern(this)">
+                                            <i class="fas fa-chart-line"></i>
+                                            패턴 분석
+                                        </button>
+                                        <button class="pattern-btn" onclick="copyPattern(this)">
+                                            <i class="fas fa-copy"></i>
+                                            복사
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="security-tab" style="display: none;">
+                        <div class="patterns-grid">
+                            <div class="pattern-card expert">
+                                <div class="pattern-header">
+                                    <h3 class="pattern-title">XSS 공격 탐지</h3>
+                                    <span class="pattern-difficulty expert">전문가</span>
+                                    <span class="pattern-category security">보안</span>
+                                </div>
+                                <div class="pattern-content">
+                                    <div class="pattern-code">
+                                        <code>(?i)&lt;(script|iframe|object|embed|form)[^&gt;]*&gt;|javascript:|on\w+\s*=|&lt;\/?(script|iframe)</code>
+                                    </div>
+                                    <p class="pattern-description">
+                                        XSS(Cross-Site Scripting) 공격 패턴을 탐지하는 보안 패턴
+                                    </p>
+                                    <div class="pattern-stats">
+                                        <span class="stat-item">보안 등급: 높음</span>
+                                        <span class="stat-item">XSS 탐지</span>
+                                        <span class="stat-item">웹 보안</span>
+                                    </div>
+                                    <div class="pattern-actions">
+                                        <button class="pattern-btn" onclick="loadPatternInTester(this)">
+                                            <i class="fas fa-flask"></i>
+                                            테스터 확인
+                                        </button>
+                                        <button class="pattern-btn" onclick="analyzePattern(this)">
+                                            <i class="fas fa-chart-line"></i>
+                                            패턴 분석
+                                        </button>
+                                        <button class="pattern-btn" onclick="copyPattern(this)">
+                                            <i class="fas fa-copy"></i>
+                                            복사
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="pattern-card expert">
+                                <div class="pattern-header">
+                                    <h3 class="pattern-title">SQL 인젝션 탐지</h3>
+                                    <span class="pattern-difficulty expert">전문가</span>
+                                    <span class="pattern-category security">보안</span>
+                                </div>
+                                <div class="pattern-content">
+                                    <div class="pattern-code">
+                                        <code>(?i)(union|select|insert|delete|update|drop|create|alter|exec|execute)\s+.*(from|into|where|values)</code>
+                                    </div>
+                                    <p class="pattern-description">
+                                        SQL 인젝션 공격 시도를 탐지하는 데이터베이스 보안 패턴
+                                    </p>
+                                    <div class="pattern-stats">
+                                        <span class="stat-item">보안 등급: 높음</span>
+                                        <span class="stat-item">SQL 인젝션</span>
+                                        <span class="stat-item">DB 보안</span>
+                                    </div>
+                                    <div class="pattern-actions">
+                                        <button class="pattern-btn" onclick="loadPatternInTester(this)">
+                                            <i class="fas fa-flask"></i>
+                                            테스터 확인
+                                        </button>
+                                        <button class="pattern-btn" onclick="analyzePattern(this)">
+                                            <i class="fas fa-chart-line"></i>
+                                            패턴 분석
+                                        </button>
+                                        <button class="pattern-btn" onclick="copyPattern(this)">
+                                            <i class="fas fa-copy"></i>
+                                            복사
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+<!-- Performance Tools -->
+        <section class="performance-tools">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-tachometer-alt mr-2"></i>
+                        성능 최적화 도구
+                    </h2>
+                    <p class="section-subtitle">정규식의 성능을 분석하고 최적화하는 전문가용 도구</p>
+                </div>
+                
+                <div class="tools-grid">
+                    <!-- 패턴 최적화기 -->
+                    <div class="tool-card">
+                        <div class="tool-header">
+                            <div class="tool-icon optimizer">
+                                <i class="fas fa-magic"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h3 class="tool-title">패턴 최적화기</h3>
+                                <p class="tool-desc">정규식을 자동으로 최적화하여 성능을 향상시킵니다</p>
+                            </div>
+                        </div>
+                        <div class="tool-content">
+                            <div class="optimization-options">
+                                <label class="option-item">
+                                    <input type="checkbox" checked>
+                                    <span class="option-text">백트래킹 최소화</span>
+                                </label>
+                                <label class="option-item">
+                                    <input type="checkbox" checked>
+                                    <span class="option-text">앵커 최적화</span>
+                                </label>
+                                <label class="option-item">
+                                    <input type="checkbox">
+                                    <span class="option-text">그룹 최적화</span>
+                                </label>
+                                <label class="option-item">
+                                    <input type="checkbox">
+                                    <span class="option-text">문자 클래스 최적화</span>
+                                </label>
+                            </div>
+                            <button class="tool-action-btn" onclick="optimizeRegex()">
+                                <i class="fas fa-rocket"></i>
+                                최적화 실행
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 성능 벤치마크 도구와 나머지 도구들... -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 빠른 접근 섹션과 푸터도 계속 이어짐... -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <!-- 푸터 내용 -->
+    </footer>
+
+    <!-- Scripts -->
+    <script src="./src/main.js"></script>
+    <script src="./src/core/regex.js"></script>
+    <script src="./src/pages/expert.js"></script>
+    
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
+</body>
+</html>
