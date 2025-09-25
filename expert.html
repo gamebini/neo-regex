@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>전문가 도구 - NEO Regex</title>
+    <meta name="description" content="고급 정규식 기법과 성능 최적화 도구. 복잡한 패턴 분석과 디버깅 기능을 제공합니다.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="./src/styles/main.css">
+    <link rel="stylesheet" href="./src/styles/components.css">
+    <link rel="stylesheet" href="./src/styles/expert.css">
+    <link rel="stylesheet" href="./src/styles/utilities.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+</head>
+<body class="font-inter">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="./index.html" class="nav-logo">
+                    <i class="fas fa-code-branch text-primary"></i>
+                    <span class="logo-text">NEO Regex</span>
+                </a>
+                <span class="beta-badge">BETA</span>
+            </div>
+            
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="./index.html" class="nav-link">홈</a></li>
+                <li class="nav-dropdown">
+                    <a href="#" class="nav-link">도구 <i class="fas fa-chevron-down ml-1"></i></a>
+                    <div class="dropdown-content">
+                        <a href="./tester.html" class="dropdown-item">
+                            <i class="fas fa-flask"></i>
+                            <div>
+                                <div class="dropdown-title">정규식 테스터</div>
+                                <div class="dropdown-desc">실시간 패턴 테스트</div>
+                            </div>
+                        </a>
+                        <a href="./library.html" class="dropdown-item">
+                            <i class="fas fa-book"></i>
+                            <div>
+                                <div class="dropdown-title">패턴 라이브러리</div>
+                                <div class="dropdown-desc">검증된 패턴 모음</div>
+                            </div>
+                        </a>
+                        <a href="./builder.html" class="dropdown-item">
+                            <i class="fas fa-puzzle-piece"></i>
+                            <div>
+                                <div class="dropdown-title">시각적 빌더</div>
+                                <div class="dropdown-desc">드래그로 패턴 생성</div>
+                            </div>
+                        </a>
+                        <a href="./expert.html" class="dropdown-item">
+                            <i class="fas fa-rocket text-purple-500"></i>
+                            <div>
+                                <div class="dropdown-title">전문가 도구</div>
+                                <div class="dropdown-desc">고급 기능 활용</div>
+                            </div>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                    <a href="./beginner.html" class="nav-link">가이드</a>
+                </li>
+                <li><a href="./index.html#about" class="nav-link">소개</a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-toggle" title="다크 모드 전환">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="./tester.html" class="btn btn-primary">
+                    <i class="fas fa-flask"></i>
+                    테스터
+                </a>
+            </div>
+            
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="expert-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="header-badge">
+                    <i class="fas fa-rocket"></i>
+                    고급 사용자를 위한
+                </div>
+                <h1 class="header-title">전문가 도구</h1>
+                <p class="header-subtitle">
+                    복잡한 정규식 패턴 분석부터 성능 최적화까지, 
+                    전문가 수준의 도구와 기법을 제공합니다.
+                </p>
+                
+                <div class="skill-level">
+                    <div class="level-indicator">
+                        <div class="level-bar">
+                            <div class="level-fill expert"></div>
+                        </div>
+                        <span class="level-text">전문가 레벨</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools Dashboard -->
+    <section class="tools-dashboard">
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- Advanced Tester -->
+                <div class="tool-card featured">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">고급 분석기</h3>
+                            <p class="tool-desc">패턴 복잡도와 성능을 분석합니다</p>
+                        </div>
+                        <div class="tool-status">
+                            <span class="status-badge active">활성</span>
+                        </div>
+                    </div>
+                    <div class="tool-content">
+                        <div class="analyzer-input">
+                            <label>분석할 정규식 입력:</label>
+                            <div class="advanced-input">
+                                <input 
+                                    type="text" 
+                                    id="analyze-pattern" 
+                                    placeholder="복잡한 정규식을 입력하세요..."
+                                    class="pattern-input"
+                                >
+                                <button class="analyze-btn" id="analyze-btn">
+                                    <i class="fas fa-search"></i>
+                                    분석
+                                </button>
+                            </div>
+                        </div>
+                        <div class="analysis-result" id="analysis-result">
+                            <div class="no-analysis">
+                                패턴을 입력하고 분석 버튼을 클릭하세요
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Monitor -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">성능 모니터</h3>
+                            <p class="tool-desc">실행 시간과 메모리 사용량 측정</p>
+                        </div>
+                    </div>
+                    <div class="tool-content">
+                        <div class="performance-metrics">
+                            <div class="metric-item">
+                                <div class="metric-label">실행 시간</div>
+                                <div class="metric-value" id="exec-time">-</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">백트랙 횟수</div>
+                                <div class="metric-value" id="backtrack-count">-</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">복잡도</div>
+                                <div class="metric-value" id="complexity">-</div>
+                            </div>
+                        </div>
+                        <div class="performance-chart">
+                            <canvas id="performance-chart" width="300" height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pattern Debugger -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-bug"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">패턴 디버거</h3>
+                            <p class="tool-desc">단계별 매칭 과정을 시각화</p>
+                        </div>
+                    </div>
+                    <div class="tool-content">
+                        <div class="debugger-controls">
+                            <button class="debug-btn" id="step-forward">
+                                <i class="fas fa-step-forward"></i>
+                                다음 단계
+                            </button>
+                            <button class="debug-btn" id="step-backward">
+                                <i class="fas fa-step-backward"></i>
+                                이전 단계
+                            </button>
+                            <button class="debug-btn" id="reset-debug">
+                                <i class="fas fa-refresh"></i>
+                                초기화
+                            </button>
+                        </div>
+                        <div class="debug-visualization" id="debug-viz">
+                            <div class="no-debug">
+                                패턴을 입력하고 디버깅을 시작하세요
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ReDoS Detector -->
+                <div class="tool-card security">
+                    <div class="tool-header">
+                        <div class="tool-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="tool-info">
+                            <h3 class="tool-title">ReDoS 탐지기</h3>
+                            <p class="tool-desc">정규식 서비스 거부 공격 패턴 탐지</p>
+                        </div>
+                    </div>
+                    <div class="tool-content">
+                        <div class="security-status" id="security-status">
+                            <div class="status-item safe">
+                                <i class="fas fa-check-circle"></i>
+                                <span>안전한 패턴</span>
+                            </div>
+                        </div>
+                        <div class="vulnerability-details" id="vulnerability-details">
+                            <div class="no-vulnerabilities">
+                                위험한 패턴이 감지되지 않았습니다
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Advanced Patterns -->
+    <section class="advanced-patterns">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">고급 패턴 기법</h2>
+                <p class="section-subtitle">
+                    전문가들이 사용하는 고급 정규식 기법과 최적화 방법을 알아보세요
+                </p>
+            </div>
+            
+            <div class="techniques-grid">
+                <!-- Lookahead/Lookbehind -->
+                <div class="technique-card">
+                    <div class="technique-header">
+                        <div class="technique-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h3 class="technique-title">전후방탐색 (Lookaround)</h3>
+                    </div>
+                    <div class="technique-content">
+                        <p>문자를 소비하지 않고 조건을 확인하는 고급 기법</p>
+                        
+                        <div class="example-tabs">
+                            <div class="tab-buttons">
+                                <button class="tab-btn active" data-tab="lookahead">전방탐색</button>
+                                <button class="tab-btn" data-tab="lookbehind">후방탐색</button>
+                            </div>
+                            
+                            <div class="tab-content active" id="lookahead">
+                                <div class="code-example">
+                                    <div class="code-header">
+                                        <span>긍정 전방탐색</span>
+                                        <button class="copy-code-btn">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <code>(?=.*\d)(?=.*[A-Z]).*</code>
+                                    <div class="code-desc">
+                                        숫자와 대문자를 모두 포함하는 문자열
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-content" id="lookbehind">
+                                <div class="code-example">
+                                    <div class="code-header">
+                                        <span>긍정 후방탐색</span>
+                                        <button class="copy-code-btn">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <code>(?<=\$)\d+</code>
+                                    <div class="code-desc">
+                                        달러 기호 뒤에 오는 숫자들
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Named Groups -->
+                <div class="technique-card">
+                    <div class="technique-header">
+                        <div class="technique-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <h3 class="technique-title">명명된 캡처 그룹</h3>
+                    </div>
+                    <div class="technique-content">
+                        <p>그룹에 의미있는 이름을 부여하여 가독성 향상</p>
+                        
+                        <div class="code-example">
+                            <div class="code-header">
+                                <span>이메일 파싱</span>
+                                <button class="copy-code-btn">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <code>(?&lt;username&gt;[a-zA-Z0-9._%+-]+)@(?&lt;domain&gt;[a-zA-Z0-9.-]+\.(?&lt;tld&gt;[a-zA-Z]{2,}))</code>
+                            <div class="code-desc">
+                                username, domain, tld로 이메일 구성요소를 분리
+                            </div>
+                        </div>
+                        
+                        <div class="usage-example">
+                            <h4>JavaScript 사용 예:</h4>
+                            <pre><code>const match = email.match(pattern);
+console.log(match.groups.username); // 사용자명
+console.log(match.groups.domain);   // 도메인</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Atomic Groups -->
+                <div class="technique-card">
+                    <div class="technique-header">
+                        <div class="technique-icon">
+                            <i class="fas fa-atom"></i>
+                        </div>
+                        <h3 class="technique-title">원자적 그룹</h3>
+                    </div>
+                    <div class="technique-content">
+                        <p>백트래킹을 방지하여 성능을 최적화하는 기법</p>
+                        
+                        <div class="performance-comparison">
+                            <div class="comparison-item slow">
+                                <div class="comparison-header">
+                                    <i class="fas fa-turtle"></i>
+                                    <span>일반 그룹 (느림)</span>
+                                </div>
+                                <code>(.*)*</code>
+                                <div class="comparison-desc">
+                                    catastrophic backtracking 위험
+                                </div>
+                            </div>
+                            
+                            <div class="comparison-item fast">
+                                <div class="comparison-header">
+                                    <i class="fas fa-rabbit"></i>
+                                    <span>원자적 그룹 (빠름)</span>
+                                </div>
+                                <code>(?>.*)</code>
+                                <div class="comparison-desc">
+                                    백트래킹 방지로 성능 향상
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unicode Support -->
+                <div class="technique-card">
+                    <div class="technique-header">
+                        <div class="technique-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3 class="technique-title">유니코드 지원</h3>
+                    </div>
+                    <div class="technique-content">
+                        <p>다국어 텍스트 처리를 위한 유니코드 패턴</p>
+                        
+                        <div class="unicode-examples">
+                            <div class="unicode-item">
+                                <div class="unicode-pattern">\p{Script=Hangul}+</div>
+                                <div class="unicode-desc">한글 문자 매칭</div>
+                                <div class="unicode-sample">안녕하세요</div>
+                            </div>
+                            
+                            <div class="unicode-item">
+                                <div class="unicode-pattern">\p{Emoji}</div>
+                                <div class="unicode-desc">이모지 매칭</div>
+                                <div class="unicode-sample">😀🎉🚀</div>
+                            </div>
+                            
+                            <div class="unicode-item">
+                                <div class="unicode-pattern">\p{Currency_Symbol}</div>
+                                <div class="unicode-desc">통화 기호</div>
+                                <div class="unicode-sample">$€¥₩</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Generator -->
+    <section class="code-generator">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">코드 생성기</h2>
+                <p class="section-subtitle">
+                    정규식 패턴을 다양한 프로그래밍 언어 코드로 변환합니다
+                </p>
+            </div>
+            
+            <div class="generator-workspace">
+                <div class="generator-input">
+                    <div class="input-header">
+                        <h3>정규식 패턴</h3>
+                        <div class="input-tools">
+                            <button class="tool-btn" id="validate-pattern">
+                                <i class="fas fa-check"></i>
+                                검증
+                            </button>
+                            <button class="tool-btn" id="optimize-pattern">
+                                <i class="fas fa-magic"></i>
+                                최적화
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="pattern-input-area">
+                        <input 
+                            type="text" 
+                            id="generator-pattern" 
+                            class="pattern-field"
+                            placeholder="정규식 패턴을 입력하세요..."
+                            value="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                        >
+                        <div class="flags-selector">
+                            <label><input type="checkbox" value="g"> Global</label>
+                            <label><input type="checkbox" value="i"> Ignore case</label>
+                            <label><input type="checkbox" value="m"> Multiline</label>
+                            <label><input type="checkbox" value="s"> Dotall</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="generated-code">
+                    <div class="code-tabs">
+                        <button class="code-tab active" data-lang="javascript">JavaScript</button>
+                        <button class="code-tab" data-lang="python">Python</button>
+                        <button class="code-tab" data-lang="java">Java</button>
+                        <button class="code-tab" data-lang="csharp">C#</button>
+                        <button class="code-tab" data-lang="php">PHP</button>
+                        <button class="code-tab" data-lang="go">Go</button>
+                    </div>
+                    
+                    <div class="code-panels">
+                        <div class="code-panel active" id="javascript-code">
+                            <div class="code-header">
+                                <span>JavaScript</span>
+                                <button class="copy-code-btn" data-lang="javascript">
+                                    <i class="fas fa-copy"></i>
+                                    복사
+                                </button>
+                            </div>
+                            <pre><code id="js-code">// JavaScript 코드가 여기에 생성됩니다
+const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const text = "user@example.com";
+const isValid = pattern.test(text);
+
+console.log(isValid); // true</code></pre>
+                        </div>
+                        
+                        <div class="code-panel" id="python-code">
+                            <div class="code-header">
+                                <span>Python</span>
+                                <button class="copy-code-btn" data-lang="python">
+                                    <i class="fas fa-copy"></i>
+                                    복사
+                                </button>
+                            </div>
+                            <pre><code id="py-code"># Python 코드가 여기에 생성됩니다
+import re
+
+pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+text = "user@example.com"
+is_valid = re.match(pattern, text) is not None
+
+print(is_valid)  # True</code></pre>
+                        </div>
+                        
+                        <!-- Other language panels would be here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Best Practices -->
+    <section class="best-practices">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">모범 사례</h2>
+                <p class="section-subtitle">
+                    성능과 유지보수성을 고려한 정규식 작성 가이드라인
+                </p>
+            </div>
+            
+            <div class="practices-grid">
+                <div class="practice-card">
+                    <div class="practice-header">
+                        <i class="fas fa-rocket practice-icon"></i>
+                        <h3>성능 최적화</h3>
+                    </div>
+                    <div class="practice-content">
+                        <ul class="practice-list">
+                            <li>
+                                <i class="fas fa-check"></i>
+                                비캡처링 그룹 <code>(?:)</code> 사용
+                            </li>
+                            <li>
+                                <i class="fas fa-check"></i>
+                                원자적 그룹으로 백트래킹 방지
+                            </li>
+                            <li>
+                                <i class="fas fa-check"></i>
+                                적절한 수량자 선택 (+, *, ?)
+                            </li>
+                            <li>
+                                <i class="fas fa-times"></i>
+                                중첩된 수량자 피하기
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="practice-card">
+                    <div class="practice-header">
+                        <i class="fas fa-shield-alt practice-icon"></i>
+                        <h3>보안 고려사항</h3>
+                    </div>
+                    <div class="practice-content">
+                        <ul class="practice-list">
+                            <li>
+                                <i class="fas fa-check"></i>
+                                ReDoS 공격 패턴 검증
+                            </li>
+                            <li>
+                                <i class="fas fa-check"></i>
+                                입력값 길이 제한
+                            </li>
+                            <li>
+                                <i class="fas fa-check"></i>
+                                타임아웃 설정
+                            </li>
+                            <li>
+                                <i class="fas fa-times"></i>
+                                사용자 입력을 직접 정규식에 사용 금지
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="practice-card">
+                    <div class="practice-header">
+                        <i class="fas fa-code practice-icon"></i>
+                        <h3>코드 품질</h3>
+                    </div>
+                    <div class="practice-content">
+                        <ul class="practice-list">
+                            <li>
+                                <i class="fas fa-check"></i>
+                                명명된 그룹으로 가독성 향상
+                            </li>
+                            <li>
+                                <i class="fas fa-check"></i>
+                                정규식에 주석 추가
+                            </li>
+                            <li>
+                                <i class="fas fa-check"></i>
+                                단위 테스트 작성
+                            </li>
+                            <li>
+                                <i class="fas fa-check"></i>
+                                복잡한 패턴은 여러 단계로 분리
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <div class="expert-actions">
+        <button class="action-btn" id="benchmark-mode" title="벤치마크 모드">
+            <i class="fas fa-stopwatch"></i>
+        </button>
+        <button class="action-btn" id="pattern-library" title="고급 패턴 라이브러리">
+            <i class="fas fa-database"></i>
+        </button>
+        <button class="action-btn" id="export-results" title="결과 내보내기">
+            <i class="fas fa-download"></i>
+        </button>
+        <button class="action-btn" id="share-session" title="세션 공유">
+            <i class="fas fa-share-alt"></i>
+        </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-code-branch"></i>
+                        <span>NEO Regex</span>
+                    </div>
+                    <p class="footer-description">
+                        개발자를 위한 차세대 정규식 도구
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-title">도구</h4>
+                        <a href="./tester.html" class="footer-link">정규식 테스터</a>
+                        <a href="./library.html" class="footer-link">패턴 라이브러리</a>
+                        <a href="./builder.html" class="footer-link">시각적 빌더</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-title">가이드</h4>
+                        <a href="./beginner.html" class="footer-link">초보자 가이드</a>
+                        <a href="./expert.html" class="footer-link">전문가 도구</a>
+                        <a href="#" class="footer-link">튜토리얼</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-title">지원</h4>
+                        <a href="#" class="footer-link">문서</a>
+                        <a href="#" class="footer-link">FAQ</a>
+                        <a href="#" class="footer-link">문의하기</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 NEO Regex. All rights reserved. Built with ❤️ for developers.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="./src/expert.js" defer></script>
+    
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
+</body>
+</html>
