@@ -55,15 +55,15 @@ class RegexTester {
     bindEvents() {
         // Main input events with debouncing
         this.patternInput?.addEventListener('input', 
-            Utils.debounce(() => this.handlePatternChange(), 300)
+            this.debounce(() => this.handlePatternChange(), 300)
         );
         
         this.flagsInput?.addEventListener('input', 
-            Utils.debounce(() => this.handleFlagsChange(), 300)
+            this.debounce(() => this.handleFlagsChange(), 300)
         );
         
         this.testTextarea?.addEventListener('input', 
-            Utils.debounce(() => this.handleTestTextChange(), 300)
+            this.debounce(() => this.handleTestTextChange(), 300)
         );
 
         // Flag checkbox events
@@ -92,38 +92,214 @@ class RegexTester {
     }
 
     handlePatternChange() {
+        if (!this.patternInput) return;
+        
         this.pattern = this.patternInput.value;
-        this.updateFlags();
-        this.testPattern();
+        this.validatePattern();
+        this.performTest();
         this.saveToHistory();
+        this.updateDisplay();
     }
 
     handleFlagsChange() {
+        if (!this.flagsInput) return;
+        
         this.flags = this.flagsInput.value;
         this.updateFlagCheckboxes();
-        this.testPattern();
+        this.performTest();
+        this.updateDisplay();
     }
 
     handleTestTextChange() {
+        if (!this.testTextarea) return;
+        
         this.testText = this.testTextarea.value;
-        this.testPattern();
+        this.performTest();
+        this.updateDisplay();
     }
 
     handleFlagCheckboxChange() {
-        this.updateFlagsFromCheckboxes();
-        this.testPattern();
+        const selectedFlags = [];
+        Object.entries(this.flagCheckboxes).forEach(([flag, checkbox]) => {
+            if (checkbox && checkbox.checked) {
+                selectedFlags.push(flag);
+            }
+        });
+        
+        this.flags = selectedFlags.join('');
+        if (this.flagsInput) {
+            this.flagsInput.value = this.flags;
+        }
+        
+        // Update pattern validation and test
+        this.validatePattern();
+        this.performTest();
+        this.updateDisplay();
     }
 
-    updateFlags() {
-        // Extract flags from pattern if it's in /pattern/flags format
-        const regexMatch = this.pattern.match(/^\/(.+)\/([gimuy]*)$/);
-        if (regexMatch) {
-            this.pattern = regexMatch[1];
-            this.flags = regexMatch[2];
-            this.patternInput.value = this.pattern;
-            this.flagsInput.value = this.flags;
-            this.updateFlagCheckboxes();
+    validatePattern() {
+        if (!this.pattern) {
+            this.updatePatternValidity(true, '패턴을 입력해주세요');
+            return false;
         }
+
+        try {
+            new RegExp(this.pattern, this.flags);
+            this.updatePatternValidity(true, '유효한 정규식입니다');
+            return true;
+        } catch (error) {
+            this.updatePatternValidity(false, `오류: ${error.message}`);
+            return false;
+        }
+    }
+
+    performTest() {
+        if (!this.validatePattern() || !this.testText) {
+            this.clearResults();
+            return;
+        }
+
+        try {
+            const regex = new RegExp(this.pattern, this.flags);
+            
+            // matchAll requires global flag, so ensure it's present for matching
+            let matches = [];
+            if (regex.global) {
+                matches = [...this.testText.matchAll(regex)];
+            } else {
+                // If no global flag, use alternative approach
+                const globalRegex = new RegExp(this.pattern, this.flags + 'g');
+                matches = [...this.testText.matchAll(globalRegex)];
+            }
+            
+            this.displayResults(matches);
+            this.displayMatchDetails(matches);
+            this.highlightMatches(matches);
+            
+        } catch (error) {
+            this.displayError(error.message);
+        }
+    }
+
+    displayResults(matches) {
+        if (!this.matchStats) return;
+
+        const matchCount = matches.length;
+        let statsHtml = `<div class="stat-item">
+            <span class="stat-label">매칭 수:</span>
+            <span class="stat-value ${matchCount > 0 ? 'success' : 'muted'}">${matchCount}</span>
+        </div>`;
+
+        if (matchCount > 0) {
+            const totalLength = matches.reduce((sum, match) => sum + match[0].length, 0);
+            const avgLength = Math.round(totalLength / matchCount);
+            
+            statsHtml += `
+                <div class="stat-item">
+                    <span class="stat-label">총 길이:</span>
+                    <span class="stat-value">${totalLength}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">평균 길이:</span>
+                    <span class="stat-value">${avgLength}</span>
+                </div>
+            `;
+        }
+
+        this.matchStats.innerHTML = statsHtml;
+        
+        if (this.matchCount) {
+            this.matchCount.textContent = matchCount;
+        }
+    }
+
+    displayMatchDetails(matches) {
+        if (!this.matchDetails) return;
+
+        if (matches.length === 0) {
+            this.matchDetails.innerHTML = '<p class="no-matches">매칭된 결과가 없습니다.</p>';
+            return;
+        }
+
+        const detailsHtml = matches.map((match, index) => {
+            const groups = match.slice(1).map((group, groupIndex) => 
+                group !== undefined ? 
+                `<span class="group-item">그룹 ${groupIndex + 1}: <code>${this.escapeHtml(group)}</code></span>` 
+                : ''
+            ).join('');
+
+            return `
+                <div class="match-item">
+                    <div class="match-header">
+                        <span class="match-index">#${index + 1}</span>
+                        <span class="match-position">위치: ${match.index} - ${match.index + match[0].length - 1}</span>
+                    </div>
+                    <div class="match-content">
+                        <code class="match-text">${this.escapeHtml(match[0])}</code>
+                    </div>
+                    ${groups ? `<div class="match-groups">${groups}</div>` : ''}
+                </div>
+            `;
+        }).join('');
+
+        // Create scrollable container for match details
+        this.matchDetails.innerHTML = `
+            <div class="match-details-header">
+                <h4>상세 매칭 결과 (${matches.length}개)</h4>
+            </div>
+            <div class="match-details-container" style="max-height: 300px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px; background-color: var(--bg-secondary, #f9fafb);">
+                ${detailsHtml}
+            </div>
+        `;
+
+        // Add smooth scrolling behavior
+        const container = this.matchDetails.querySelector('.match-details-container');
+        if (container) {
+            container.style.scrollBehavior = 'smooth';
+            
+            // Add scroll indicators if content overflows
+            this.addScrollIndicators(container);
+        }
+    }
+
+    highlightMatches(matches) {
+        if (!this.highlightedResult) {
+            return;
+        }
+        
+        if (matches.length === 0) {
+            this.highlightedResult.innerHTML = this.escapeHtml(this.testText);
+            return;
+        }
+
+        let highlightedText = this.testText;
+        let offset = 0;
+
+        // Sort matches by position to handle overlapping correctly
+        const sortedMatches = [...matches].sort((a, b) => a.index - b.index);
+
+        sortedMatches.forEach((match, index) => {
+            const start = match.index + offset;
+            const end = start + match[0].length;
+            const matchText = highlightedText.slice(start, end);
+            
+            const highlighted = `<mark class="match-highlight" data-match="${index + 1}" title="매칭 #${index + 1}: 위치 ${match.index}">${this.escapeHtml(matchText)}</mark>`;
+            
+            highlightedText = highlightedText.slice(0, start) + highlighted + highlightedText.slice(end);
+            offset += highlighted.length - matchText.length;
+        });
+
+        this.highlightedResult.innerHTML = highlightedText;
+    }
+
+    updatePatternValidity(isValid, message) {
+        if (!this.patternValidity) return;
+
+        this.patternValidity.innerHTML = `
+            <i class="fas fa-${isValid ? 'check-circle' : 'exclamation-circle'}"></i>
+            <span>${message}</span>
+        `;
+        this.patternValidity.className = `pattern-validity ${isValid ? 'valid' : 'invalid'}`;
     }
 
     updateFlagCheckboxes() {
@@ -134,291 +310,131 @@ class RegexTester {
         });
     }
 
-    updateFlagsFromCheckboxes() {
-        this.flags = Object.entries(this.flagCheckboxes)
-            .filter(([flag, checkbox]) => checkbox?.checked)
-            .map(([flag]) => flag)
-            .join('');
-        
-        if (this.flagsInput) {
-            this.flagsInput.value = this.flags;
-        }
-    }
-
-    testPattern() {
-        if (!this.pattern || !this.testText) {
-            this.clearResults();
-            return;
-        }
-
-        try {
-            const regex = new RegExp(this.pattern, this.flags);
-            const matches = this.flags.includes('g') ? 
-                [...this.testText.matchAll(regex)] : 
-                [this.testText.match(regex)].filter(Boolean);
-
-            this.displayResults(matches, true);
-        } catch (error) {
-            this.displayError(error.message);
-        }
-    }
-
-    displayResults(matches, isValid) {
-        // Update pattern info
-        this.updatePatternInfo(isValid, matches.length);
-
-        // Update match stats
-        this.updateMatchStats(matches.length);
-
-        // Highlight matches in text
-        this.highlightMatches(matches);
-
-        // Display match details
-        this.displayMatchDetails(matches);
-    }
-
-    updatePatternInfo(isValid, matchCount) {
-        if (this.patternValidity) {
-            this.patternValidity.textContent = isValid ? '유효' : '무효';
-            this.patternValidity.className = `info-value ${isValid ? 'valid' : 'invalid'}`;
-        }
-
-        if (this.patternFlags) {
-            this.patternFlags.textContent = this.flags || '없음';
-        }
-
-        if (this.matchCount) {
-            this.matchCount.textContent = matchCount.toString();
-        }
-    }
-
-    updateMatchStats(count) {
-        if (this.matchStats) {
-            const statText = count === 0 ? '매칭 없음' : `${count}개 매칭`;
-            this.matchStats.innerHTML = `<span class="stat-item">${statText}</span>`;
-        }
-    }
-
-    highlightMatches(matches) {
-        if (!this.highlightedResult) return;
-
-        if (matches.length === 0) {
-            this.highlightedResult.innerHTML = `
-                <div class="no-result">
-                    <i class="fas fa-search"></i>
-                    <p>매칭 결과가 없습니다.</p>
-                </div>
-            `;
-            return;
-        }
-
-        let highlightedText = this.testText;
-        let offset = 0;
-
-        matches.forEach((match, index) => {
-            if (match && match.index !== undefined) {
-                const start = match.index + offset;
-                const end = start + match[0].length;
-                
-                const beforeText = highlightedText.substring(0, start);
-                const matchText = highlightedText.substring(start, end);
-                const afterText = highlightedText.substring(end);
-                
-                const highlightHtml = `<span class="match-highlight" data-match="${index}">${this.escapeHtml(matchText)}</span>`;
-                
-                highlightedText = beforeText + highlightHtml + afterText;
-                offset += highlightHtml.length - matchText.length;
-            }
-        });
-
-        this.highlightedResult.innerHTML = `<pre>${highlightedText}</pre>`;
-    }
-
-    displayMatchDetails(matches) {
-        if (!this.matchDetails) return;
-
-        if (matches.length === 0) {
-            this.matchDetails.innerHTML = `
-                <div class="no-matches">
-                    <i class="fas fa-info-circle"></i>
-                    <p>매칭된 결과가 없습니다.</p>
-                </div>
-            `;
-            return;
-        }
-
-        const detailsHtml = matches.map((match, index) => {
-            if (!match) return '';
-            
-            return `
-                <div class="match-item">
-                    <div class="match-header">
-                        <span class="match-number">매칭 ${index + 1}</span>
-                        <span class="match-position">위치: ${match.index}-${match.index + match[0].length}</span>
-                    </div>
-                    <div class="match-text">${this.escapeHtml(match[0])}</div>
-                    ${match.length > 1 ? this.displayGroups(match) : ''}
-                </div>
-            `;
-        }).join('');
-
-        this.matchDetails.innerHTML = detailsHtml;
-    }
-
-    displayGroups(match) {
-        const groups = match.slice(1);
-        if (groups.length === 0) return '';
-
-        const groupsHtml = groups.map((group, index) => {
-            return `<div class="match-group">그룹 ${index + 1}: ${this.escapeHtml(group || 'null')}</div>`;
-        }).join('');
-
-        return `<div class="match-groups">${groupsHtml}</div>`;
-    }
-
-    displayError(errorMessage) {
-        this.updatePatternInfo(false, 0);
-        this.updateMatchStats(0);
-
-        if (this.highlightedResult) {
-            this.highlightedResult.innerHTML = `
-                <div class="error-result">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>정규식 오류: ${this.escapeHtml(errorMessage)}</p>
-                </div>
-            `;
-        }
-
-        if (this.matchDetails) {
-            this.matchDetails.innerHTML = `
-                <div class="no-matches">
-                    <i class="fas fa-times-circle"></i>
-                    <p>유효하지 않은 정규식입니다.</p>
-                </div>
-            `;
-        }
-    }
-
     clearResults() {
         if (this.highlightedResult) {
-            this.highlightedResult.innerHTML = `
-                <div class="no-result">
-                    <i class="fas fa-search"></i>
-                    <p>패턴을 입력하면 매칭 결과가 여기에 표시됩니다.</p>
-                </div>
-            `;
+            this.highlightedResult.innerHTML = this.escapeHtml(this.testText);
         }
-
+        if (this.matchStats) {
+            this.matchStats.innerHTML = '<div class="stat-item"><span class="stat-label">매칭 수:</span><span class="stat-value muted">0</span></div>';
+        }
         if (this.matchDetails) {
-            this.matchDetails.innerHTML = `
-                <div class="no-matches">
-                    <i class="fas fa-info-circle"></i>
-                    <p>매칭된 결과가 없습니다.</p>
-                </div>
-            `;
+            this.matchDetails.innerHTML = '<p class="no-matches">매칭된 결과가 없습니다.</p>';
         }
-
-        this.updatePatternInfo(true, 0);
-        this.updateMatchStats(0);
+        if (this.matchCount) {
+            this.matchCount.textContent = '0';
+        }
     }
 
-    // Tool functions
+    displayError(message) {
+        // Provide more user-friendly error messages
+        let friendlyMessage = message;
+        
+        if (message.includes('matchAll')) {
+            friendlyMessage = '정규식 처리 중 오류가 발생했습니다. 플래그 설정을 확인해주세요.';
+        } else if (message.includes('Invalid regular expression')) {
+            friendlyMessage = '유효하지 않은 정규식 패턴입니다. 문법을 확인해주세요.';
+        } else if (message.includes('Unterminated')) {
+            friendlyMessage = '정규식 패턴이 완성되지 않았습니다. 괄호나 대괄호를 확인해주세요.';
+        }
+        
+        if (this.matchDetails) {
+            this.matchDetails.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    <div class="error-content">
+                        <strong>오류 발생</strong>
+                        <p>${friendlyMessage}</p>
+                        ${message !== friendlyMessage ? `<details class="error-details"><summary>기술적 세부사항</summary><code>${message}</code></details>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Clear other result areas
+        if (this.highlightedResult) {
+            this.highlightedResult.innerHTML = this.escapeHtml(this.testText);
+        }
+        if (this.matchStats) {
+            this.matchStats.innerHTML = '<div class="stat-item"><span class="stat-label">매칭 수:</span><span class="stat-value error">오류</span></div>';
+        }
+    }
+
+    // Utility methods
     setPattern(pattern) {
         this.pattern = pattern;
         if (this.patternInput) {
             this.patternInput.value = pattern;
         }
-        this.testPattern();
-        this.saveToHistory();
+        this.performTest();
+        this.updateDisplay();
     }
 
-    async copyPattern() {
+    copyPattern() {
         if (!this.pattern) {
-            NeoRegex.showNotification('복사할 패턴이 없습니다.', 'warning');
+            this.showNotification('복사할 패턴이 없습니다', 'warning');
             return;
         }
 
-        const patternWithFlags = this.flags ? `/${this.pattern}/${this.flags}` : this.pattern;
-        
-        try {
-            await navigator.clipboard.writeText(patternWithFlags);
-            NeoRegex.showNotification('패턴이 클립보드에 복사되었습니다!', 'success');
-        } catch (error) {
-            NeoRegex.showNotification('복사에 실패했습니다.', 'error');
-        }
+        navigator.clipboard.writeText(this.pattern).then(() => {
+            this.showNotification('패턴이 클립보드에 복사되었습니다', 'success');
+        }).catch(() => {
+            this.showNotification('복사에 실패했습니다', 'error');
+        });
     }
 
     savePattern() {
         if (!this.pattern) {
-            NeoRegex.showNotification('저장할 패턴이 없습니다.', 'warning');
+            this.showNotification('저장할 패턴이 없습니다', 'warning');
             return;
         }
 
-        const patternName = prompt('패턴 이름을 입력하세요:');
-        if (!patternName) return;
-
-        const savedPatterns = NeoRegex.loadFromStorage('saved-patterns', []);
+        const saved = JSON.parse(localStorage.getItem('savedPatterns') || '[]');
         const newPattern = {
-            id: Utils.generateRandomId(),
-            name: patternName,
+            id: Date.now(),
             pattern: this.pattern,
             flags: this.flags,
             testText: this.testText,
             createdAt: new Date().toISOString()
         };
 
-        savedPatterns.push(newPattern);
-        NeoRegex.saveToStorage('saved-patterns', savedPatterns);
-        NeoRegex.showNotification('패턴이 저장되었습니다!', 'success');
+        saved.push(newPattern);
+        localStorage.setItem('savedPatterns', JSON.stringify(saved));
+        
+        this.showNotification('패턴이 저장되었습니다', 'success');
     }
 
     sharePattern() {
-        if (!this.pattern) {
-            NeoRegex.showNotification('공유할 패턴이 없습니다.', 'warning');
-            return;
-        }
-
-        const shareUrl = this.generateShareUrl();
-        
-        if (navigator.share) {
-            navigator.share({
-                title: 'NEO Regex 패턴',
-                text: `정규식 패턴: /${this.pattern}/${this.flags}`,
-                url: shareUrl
-            });
-        } else {
-            // Fallback: copy to clipboard
-            navigator.clipboard.writeText(shareUrl).then(() => {
-                NeoRegex.showNotification('공유 링크가 클립보드에 복사되었습니다!', 'success');
-            });
-        }
-    }
-
-    generateShareUrl() {
-        const params = new URLSearchParams({
+        const shareData = {
             pattern: this.pattern,
             flags: this.flags,
-            text: this.testText.substring(0, 1000) // Limit text length
+            testText: this.testText
+        };
+        
+        const shareUrl = `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(btoa(JSON.stringify(shareData)))}`;
+        
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            this.showNotification('공유 링크가 클립보드에 복사되었습니다', 'success');
+        }).catch(() => {
+            this.showNotification('공유 링크 생성에 실패했습니다', 'error');
         });
-
-        return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
     }
 
     resetAll() {
-        if (confirm('모든 내용을 초기화하시겠습니까?')) {
-            this.pattern = '';
-            this.flags = '';
-            this.testText = '';
-            
-            if (this.patternInput) this.patternInput.value = '';
-            if (this.flagsInput) this.flagsInput.value = '';
-            if (this.testTextarea) this.testTextarea.value = '';
-            
-            this.updateFlagCheckboxes();
-            this.clearResults();
-            
-            NeoRegex.showNotification('초기화되었습니다.', 'info');
-        }
+        this.pattern = '';
+        this.flags = '';
+        this.testText = '';
+        
+        if (this.patternInput) this.patternInput.value = '';
+        if (this.flagsInput) this.flagsInput.value = '';
+        if (this.testTextarea) this.testTextarea.value = '';
+        
+        Object.values(this.flagCheckboxes).forEach(checkbox => {
+            if (checkbox) checkbox.checked = false;
+        });
+        
+        this.clearResults();
+        this.updatePatternValidity(true, '패턴을 입력해주세요');
+        this.showNotification('모든 입력이 초기화되었습니다', 'info');
     }
 
     clearText() {
@@ -431,273 +447,481 @@ class RegexTester {
 
     loadSampleText() {
         const sampleTexts = [
-            `이메일 주소:
-user@example.com
-test.email+tag@domain.org
-invalid-email-format
-admin@company.co.kr`,
-            `전화번호:
-010-1234-5678
-02-123-4567
-031-987-6543
-010-INVALID-NUM`,
-            `URL 패턴:
-https://www.example.com
-http://subdomain.site.org/path
-ftp://files.company.com
-not-a-valid-url`,
-            `날짜 형식:
-2024-01-15
-2024/12/31
-01-15-2024
-invalid-date-format`
+            'example@email.com, test@domain.org, invalid-email',
+            'https://example.com, http://test.org, ftp://files.com',
+            '010-1234-5678, 02-123-4567, 1234-5678',
+            'Hello World! 안녕하세요 123 ABC',
+            'var userName = "johnDoe"; let email = "john@example.com";'
         ];
-
-        const randomSample = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
-        this.testText = randomSample;
+        
+        const randomText = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+        this.testText = randomText;
         
         if (this.testTextarea) {
-            this.testTextarea.value = randomSample;
+            this.testTextarea.value = randomText;
         }
         
-        this.testPattern();
-        NeoRegex.showNotification('샘플 텍스트가 로드되었습니다.', 'info');
+        this.performTest();
+        this.updateDisplay();
     }
 
-    // History management
+    handleKeyboardShortcuts(e) {
+        // Ctrl/Cmd + Enter: 테스트 실행
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            this.performTest();
+        }
+        
+        // Ctrl/Cmd + R: 리셋
+        if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+            e.preventDefault();
+            this.resetAll();
+        }
+        
+        // Ctrl/Cmd + S: 저장
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            this.savePattern();
+        }
+    }
+
     saveToHistory() {
         if (!this.pattern) return;
 
         const historyItem = {
             pattern: this.pattern,
             flags: this.flags,
+            testText: this.testText,
             timestamp: Date.now()
         };
 
         this.history.unshift(historyItem);
         
-        // Remove duplicates
-        this.history = this.history.filter((item, index, arr) => 
-            arr.findIndex(h => h.pattern === item.pattern && h.flags === item.flags) === index
-        );
-
-        // Limit history size
         if (this.history.length > this.maxHistory) {
             this.history = this.history.slice(0, this.maxHistory);
         }
 
-        NeoRegex.saveToStorage('tester-history', this.history);
+        localStorage.setItem('testerHistory', JSON.stringify(this.history));
     }
 
-    loadHistory() {
-        this.history = NeoRegex.loadFromStorage('tester-history', []);
-        return this.history;
-    }
-
-    // URL parameters
-    loadFromUrlParams() {
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        if (urlParams.has('pattern')) {
-            this.setPattern(urlParams.get('pattern'));
-        }
-        
-        if (urlParams.has('flags')) {
-            this.flags = urlParams.get('flags');
-            if (this.flagsInput) this.flagsInput.value = this.flags;
-            this.updateFlagCheckboxes();
-        }
-        
-        if (urlParams.has('text')) {
-            this.testText = urlParams.get('text');
-            if (this.testTextarea) this.testTextarea.value = this.testText;
-        }
-
-        if (urlParams.has('pattern') || urlParams.has('text')) {
-            this.testPattern();
-        }
-    }
-
-    // Keyboard shortcuts
-    handleKeyboardShortcuts(e) {
-        // Ctrl/Cmd + Enter: Test pattern
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-            e.preventDefault();
-            this.testPattern();
-        }
-        
-        // Ctrl/Cmd + S: Save pattern
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault();
-            this.savePattern();
-        }
-        
-        // Ctrl/Cmd + R: Reset (with confirmation)
-        if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-            e.preventDefault();
-            this.resetAll();
-        }
-        
-        // Escape: Clear focus
-        if (e.key === 'Escape') {
-            document.activeElement?.blur();
-        }
-    }
-
-    // Data persistence
     loadSavedData() {
-        const saved = NeoRegex.loadFromStorage('tester-current', {});
+        // Load from URL if shared
+        const urlParams = new URLSearchParams(window.location.search);
+        const sharedData = urlParams.get('data');
         
-        if (saved.pattern) {
-            this.pattern = saved.pattern;
-            if (this.patternInput) this.patternInput.value = saved.pattern;
-        }
-        
-        if (saved.flags) {
-            this.flags = saved.flags;
-            if (this.flagsInput) this.flagsInput.value = saved.flags;
-            this.updateFlagCheckboxes();
-        }
-        
-        if (saved.testText) {
-            this.testText = saved.testText;
-            if (this.testTextarea) this.testTextarea.value = saved.testText;
+        if (sharedData) {
+            try {
+                const data = JSON.parse(atob(sharedData));
+                this.pattern = data.pattern || '';
+                this.flags = data.flags || '';
+                this.testText = data.testText || '';
+                
+                if (this.patternInput) this.patternInput.value = this.pattern;
+                if (this.flagsInput) this.flagsInput.value = this.flags;
+                if (this.testTextarea) this.testTextarea.value = this.testText;
+                
+                this.updateFlagCheckboxes();
+                return;
+            } catch (e) {
+                console.warn('Failed to parse shared data:', e);
+            }
         }
 
-        // Check URL parameters (higher priority)
-        this.loadFromUrlParams();
+        // Load from localStorage
+        const saved = localStorage.getItem('lastTesterState');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                this.pattern = data.pattern || '';
+                this.flags = data.flags || '';
+                this.testText = data.testText || '';
+                
+                if (this.patternInput) this.patternInput.value = this.pattern;
+                if (this.flagsInput) this.flagsInput.value = this.flags;
+                if (this.testTextarea) this.testTextarea.value = this.testText;
+                
+                this.updateFlagCheckboxes();
+            } catch (e) {
+                console.warn('Failed to parse saved data:', e);
+            }
+        }
         
         // Load history
-        this.loadHistory();
-    }
-
-    saveCurrentData() {
-        const currentData = {
-            pattern: this.pattern,
-            flags: this.flags,
-            testText: this.testText,
-            timestamp: Date.now()
-        };
-        
-        NeoRegex.saveToStorage('tester-current', currentData);
+        const history = localStorage.getItem('testerHistory');
+        if (history) {
+            try {
+                this.history = JSON.parse(history);
+            } catch (e) {
+                this.history = [];
+            }
+        }
     }
 
     updateDisplay() {
-        // Auto-save current state periodically
-        setInterval(() => {
-            this.saveCurrentData();
-        }, 5000); // Save every 5 seconds
-
-        // Initial test if pattern exists
-        if (this.pattern) {
-            this.testPattern();
+        this.saveCurrentState();
+        
+        if (this.patternInfo) {
+            this.patternInfo.innerHTML = `
+                <div class="pattern-display">
+                    <code>/${this.pattern}/${this.flags}</code>
+                </div>
+            `;
+        }
+        
+        if (this.patternFlags) {
+            const flagDescriptions = {
+                g: 'Global - 모든 매칭 찾기',
+                i: 'Ignore case - 대소문자 무시',
+                m: 'Multiline - 다중행 모드'
+            };
+            
+            const activeFlagsHtml = this.flags.split('').map(flag => 
+                `<span class="flag-item active" title="${flagDescriptions[flag] || ''}">
+                    ${flag}
+                </span>`
+            ).join('');
+            
+            this.patternFlags.innerHTML = activeFlagsHtml || '<span class="flag-item inactive">플래그 없음</span>';
         }
     }
 
-    // Utility methods
+    saveCurrentState() {
+        const state = {
+            pattern: this.pattern,
+            flags: this.flags,
+            testText: this.testText
+        };
+        localStorage.setItem('lastTesterState', JSON.stringify(state));
+    }
+
+    // Helper methods
+    addScrollIndicators(container) {
+        // Check if scrolling is needed
+        const isScrollable = container.scrollHeight > container.clientHeight;
+        
+        if (isScrollable) {
+            // Add scroll indicator class
+            container.classList.add('scrollable');
+            
+            // Add scroll event listener for fade effects
+            container.addEventListener('scroll', () => {
+                const { scrollTop, scrollHeight, clientHeight } = container;
+                const isAtTop = scrollTop === 0;
+                const isAtBottom = scrollTop + clientHeight >= scrollHeight - 5;
+                
+                container.classList.toggle('scroll-fade-top', !isAtTop);
+                container.classList.toggle('scroll-fade-bottom', !isAtBottom);
+            });
+            
+            // Initial scroll state
+            container.classList.add('scroll-fade-bottom');
+            
+            // Add scroll hint
+            const scrollHint = document.createElement('div');
+            scrollHint.className = 'scroll-hint';
+            scrollHint.innerHTML = '<i class="fas fa-arrows-alt-v"></i> 스크롤하여 더 많은 결과 보기';
+            scrollHint.style.cssText = `
+                position: absolute;
+                right: 16px;
+                bottom: 8px;
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                pointer-events: none;
+                z-index: 10;
+                animation: fadeInOut 3s ease-in-out;
+            `;
+            
+            container.style.position = 'relative';
+            container.appendChild(scrollHint);
+            
+            // Remove hint after animation
+            setTimeout(() => {
+                if (scrollHint.parentNode) {
+                    scrollHint.remove();
+                }
+            }, 3000);
+            
+            // Add CSS for scroll fade effects
+            if (!document.querySelector('#scroll-fade-styles')) {
+                const styles = document.createElement('style');
+                styles.id = 'scroll-fade-styles';
+                styles.textContent = `
+                    .match-details-container.scrollable {
+                        position: relative;
+                    }
+                    .match-details-container.scroll-fade-top::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 20px;
+                        background: linear-gradient(to bottom, var(--bg-secondary, #f9fafb), transparent);
+                        pointer-events: none;
+                        z-index: 5;
+                    }
+                    .match-details-container.scroll-fade-bottom::after {
+                        content: '';
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        height: 20px;
+                        background: linear-gradient(to top, var(--bg-secondary, #f9fafb), transparent);
+                        pointer-events: none;
+                        z-index: 5;
+                    }
+                    @keyframes fadeInOut {
+                        0%, 100% { opacity: 0; }
+                        50% { opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(styles);
+            }
+        }
+    }
+
+    exportMatches() {
+        if (!this.testResults || this.testResults.matchCount === 0) {
+            this.showNotification('내보낼 매칭 결과가 없습니다', 'warning');
+            return;
+        }
+
+        try {
+            const regex = new RegExp(this.pattern, this.flags);
+            let matches = [];
+            if (regex.global) {
+                matches = [...this.testText.matchAll(regex)];
+            } else {
+                const globalRegex = new RegExp(this.pattern, this.flags + 'g');
+                matches = [...this.testText.matchAll(globalRegex)];
+            }
+
+            const exportData = {
+                pattern: this.pattern,
+                flags: this.flags,
+                testText: this.testText,
+                matchCount: matches.length,
+                matches: matches.map((match, index) => ({
+                    index: index + 1,
+                    text: match[0],
+                    position: match.index,
+                    length: match[0].length,
+                    groups: match.slice(1)
+                })),
+                exportTime: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `regex-matches-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            this.showNotification('매칭 결과가 내보내기되었습니다', 'success');
+        } catch (error) {
+            this.showNotification('내보내기 중 오류가 발생했습니다', 'error');
+        }
+    }
+
+    // Helper methods
     escapeHtml(text) {
+        if (typeof text !== 'string') return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
-    measurePerformance(pattern, text, flags) {
-        const start = performance.now();
+    addScrollIndicators(container) {
+        // Check if scrolling is needed
+        const isScrollable = container.scrollHeight > container.clientHeight;
         
-        try {
-            const regex = new RegExp(pattern, flags);
-            const matches = [...text.matchAll(regex)];
-            const end = performance.now();
+        if (isScrollable) {
+            // Add scroll indicator class
+            container.classList.add('scrollable');
             
-            return {
-                executionTime: end - start,
-                matchCount: matches.length,
-                success: true
-            };
-        } catch (error) {
-            const end = performance.now();
-            return {
-                executionTime: end - start,
-                error: error.message,
-                success: false
-            };
+            // Add scroll event listener for fade effects
+            container.addEventListener('scroll', () => {
+                const { scrollTop, scrollHeight, clientHeight } = container;
+                const isAtTop = scrollTop === 0;
+                const isAtBottom = scrollTop + clientHeight >= scrollHeight - 5;
+                
+                container.classList.toggle('scroll-fade-top', !isAtTop);
+                container.classList.toggle('scroll-fade-bottom', !isAtBottom);
+            });
+            
+            // Initial scroll state
+            container.classList.add('scroll-fade-bottom');
+            
+            // Add scroll hint
+            const scrollHint = document.createElement('div');
+            scrollHint.className = 'scroll-hint';
+            scrollHint.innerHTML = '<i class="fas fa-arrows-alt-v"></i> 스크롤하여 더 많은 결과 보기';
+            scrollHint.style.cssText = `
+                position: absolute;
+                right: 16px;
+                bottom: 8px;
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                pointer-events: none;
+                z-index: 10;
+                animation: fadeInOut 3s ease-in-out;
+            `;
+            
+            container.style.position = 'relative';
+            container.appendChild(scrollHint);
+            
+            // Remove hint after animation
+            setTimeout(() => {
+                if (scrollHint.parentNode) {
+                    scrollHint.remove();
+                }
+            }, 3000);
+            
+            // Add CSS for scroll fade effects
+            if (!document.querySelector('#scroll-fade-styles')) {
+                const styles = document.createElement('style');
+                styles.id = 'scroll-fade-styles';
+                styles.textContent = `
+                    .match-details-container.scrollable {
+                        position: relative;
+                    }
+                    .match-details-container.scroll-fade-top::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 20px;
+                        background: linear-gradient(to bottom, var(--bg-secondary, #f9fafb), transparent);
+                        pointer-events: none;
+                        z-index: 5;
+                    }
+                    .match-details-container.scroll-fade-bottom::after {
+                        content: '';
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        height: 20px;
+                        background: linear-gradient(to top, var(--bg-secondary, #f9fafb), transparent);
+                        pointer-events: none;
+                        z-index: 5;
+                    }
+                    @keyframes fadeInOut {
+                        0%, 100% { opacity: 0; }
+                        50% { opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(styles);
+            }
         }
+    }
+
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${this.getNotificationIcon(type)}"></i>
+            <span>${message}</span>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        // Add to container
+        const container = document.getElementById('notification-container') || document.body;
+        container.appendChild(notification);
+
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 3000);
+    }
+
+    getNotificationIcon(type) {
+        const icons = {
+            success: 'check-circle',
+            error: 'exclamation-circle',
+            warning: 'exclamation-triangle',
+            info: 'info-circle'
+        };
+        return icons[type] || 'info-circle';
     }
 }
 
-// Performance monitoring
+// Performance monitoring class
 class PerformanceMonitor {
     constructor() {
         this.measurements = [];
-        this.maxMeasurements = 100;
     }
 
-    measure(pattern, text, flags = '') {
-        const measurement = this.measureExecution(pattern, text, flags);
-        this.measurements.unshift(measurement);
+    start(label) {
+        performance.mark(`${label}-start`);
+    }
+
+    end(label) {
+        performance.mark(`${label}-end`);
+        performance.measure(label, `${label}-start`, `${label}-end`);
         
-        if (this.measurements.length > this.maxMeasurements) {
-            this.measurements = this.measurements.slice(0, this.maxMeasurements);
+        const measure = performance.getEntriesByName(label).pop();
+        if (measure) {
+            this.measurements.push({
+                label,
+                duration: measure.duration,
+                timestamp: Date.now()
+            });
         }
-        
-        return measurement;
     }
 
-    measureExecution(pattern, text, flags) {
-        const start = performance.now();
-        let result = null;
-        let error = null;
-        
-        try {
-            const regex = new RegExp(pattern, flags);
-            result = [...text.matchAll(regex)];
-        } catch (e) {
-            error = e.message;
-        }
-        
-        const end = performance.now();
-        
-        return {
-            pattern,
-            flags,
-            textLength: text.length,
-            executionTime: end - start,
-            matchCount: result ? result.length : 0,
-            error,
-            timestamp: Date.now(),
-            success: !error
-        };
+    getStats() {
+        return this.measurements;
     }
 
-    getAverageTime() {
-        if (this.measurements.length === 0) return 0;
-        
-        const total = this.measurements.reduce((sum, m) => sum + m.executionTime, 0);
-        return total / this.measurements.length;
-    }
-
-    getSlowPatterns(threshold = 10) {
-        return this.measurements.filter(m => m.executionTime > threshold);
-    }
-
-    generateReport() {
-        return {
-            totalMeasurements: this.measurements.length,
-            averageTime: this.getAverageTime(),
-            slowPatterns: this.getSlowPatterns(),
-            recentMeasurements: this.measurements.slice(0, 10)
-        };
+    clearStats() {
+        this.measurements = [];
+        performance.clearMarks();
+        performance.clearMeasures();
     }
 }
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if we're on the tester page
-    if (document.getElementById('pattern-input')) {
-        window.RegexTesterInstance = new RegexTester();
-        window.PerformanceMonitorInstance = new PerformanceMonitor();
-        console.log('🧪 Regex Tester initialized!');
-    }
+    window.regexTester = new RegexTester();
+    window.performanceMonitor = new PerformanceMonitor();
+    
+    console.log('🧪 NEO Regex Tester initialized!');
+    
+    // Add performance monitoring for regex operations
+    const originalTest = window.regexTester.performTest;
+    window.regexTester.performTest = function() {
+        window.performanceMonitor.start('regex-test');
+        originalTest.call(this);
+        window.performanceMonitor.end('regex-test');
+    };
 });
 
 // Export for use in other modules

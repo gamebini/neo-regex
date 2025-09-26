@@ -1,198 +1,195 @@
-// NEO Regex Library - 패턴 라이브러리 기능
+// NEO Regex Library - 패턴 라이브러리 관리
 
-class PatternLibrary {
+class RegexLibrary {
     constructor() {
         this.patterns = [];
         this.filteredPatterns = [];
         this.currentCategory = 'all';
-        this.currentView = 'grid';
-        this.favorites = [];
         this.searchQuery = '';
+        this.favorites = this.loadFavorites();
+        this.currentSort = 'title';
+        this.currentOrder = 'asc';
         
         this.init();
     }
 
     init() {
-        this.bindElements();
-        this.bindEvents();
-        this.loadPatterns();
-        this.loadFavorites();
-        this.updateDisplay();
+        console.log('Initializing RegexLibrary...');
+        
+        try {
+            this.bindElements();
+            this.bindEvents();
+            this.loadPatterns();
+            this.renderCategories();
+            this.renderPatterns();
+            this.updateStats();
+            
+            console.log('RegexLibrary initialized successfully');
+        } catch (error) {
+            console.error('Error initializing RegexLibrary:', error);
+            
+            // Show error message if pattern grid exists
+            if (this.patternGrid) {
+                this.patternGrid.innerHTML = `
+                    <div class="error-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>초기화 오류</h3>
+                        <p>라이브러리 초기화 중 오류가 발생했습니다.</p>
+                        <button onclick="location.reload()" class="btn btn-primary">새로고침</button>
+                    </div>
+                `;
+            }
+        }
     }
 
     bindElements() {
-        // Search and filter elements
-        this.searchInput = document.getElementById('pattern-search');
+        // Search elements
+        this.searchInput = document.getElementById('library-search');
         this.clearSearchBtn = document.getElementById('clear-search');
+        this.searchResults = document.getElementById('search-results');
+        
+        // Filter elements
         this.filterTabs = document.querySelectorAll('.filter-tab');
-        
-        // View controls
-        this.viewButtons = document.querySelectorAll('.view-btn');
-        this.patternsGrid = document.getElementById('patterns-grid');
-        this.resultsCount = document.getElementById('results-count');
         this.activeFilter = document.getElementById('active-filter');
-        this.noResults = document.getElementById('no-results');
-        this.loadingState = document.getElementById('loading-state');
-        this.resetFiltersBtn = document.getElementById('reset-filters');
+        this.sortSelect = document.getElementById('sort-select');
+        this.orderToggle = document.getElementById('order-toggle');
         
-        // Modal elements
+        // Pattern grid - 여러 가능한 ID 시도
+        this.patternGrid = document.getElementById('pattern-grid') || 
+                          document.getElementById('patterns-grid') ||
+                          document.querySelector('.pattern-grid') ||
+                          document.querySelector('.patterns-container');
+        
+        // Debug: 찾은 엘리먼트들 로깅
+        console.log('Pattern grid element:', this.patternGrid);
+        if (!this.patternGrid) {
+            console.error('Pattern grid element not found! Available elements with "pattern" in ID:');
+            const patternElements = Array.from(document.querySelectorAll('[id*="pattern"]'));
+            patternElements.forEach(el => console.log('-', el.id, el.className));
+        }
+        
+        this.patternCount = document.getElementById('pattern-count');
+        this.loadingIndicator = document.getElementById('loading-indicator');
+        
+        // Modals
         this.patternModal = document.getElementById('pattern-modal');
-        this.modalClose = document.getElementById('modal-close');
-        this.modalTitle = document.getElementById('modal-title');
-        this.modalCategory = document.getElementById('modal-category');
-        this.modalFavorite = document.getElementById('modal-favorite');
-        this.modalName = document.getElementById('modal-name');
-        this.modalDescription = document.getElementById('modal-description');
-        this.modalPattern = document.getElementById('modal-pattern');
-        this.validExamples = document.getElementById('valid-examples');
-        this.invalidExamples = document.getElementById('invalid-examples');
-        this.copyPatternBtn = document.getElementById('copy-pattern-btn');
-        this.testPatternBtn = document.getElementById('test-pattern-btn');
-        this.copyJsBtn = document.getElementById('copy-js-btn');
-        this.copyPythonBtn = document.getElementById('copy-python-btn');
+        this.modalOverlay = document.querySelector('.modal-overlay');
+        
+        // Stats elements
+        this.totalPatternsCount = document.getElementById('total-patterns');
+        this.favoritesCount = document.getElementById('favorites-count');
+        this.categoriesCount = document.getElementById('categories-count');
         
         // Quick actions
-        this.quickTester = document.getElementById('quick-tester');
-        this.quickFavorites = document.getElementById('quick-favorites');
-        this.scrollTopBtn = document.getElementById('scroll-top');
+        this.favoriteAllBtn = document.getElementById('favorite-all');
+        this.exportPatternsBtn = document.getElementById('export-patterns');
+        this.importPatternsBtn = document.getElementById('import-patterns');
     }
 
     bindEvents() {
-        // Search functionality
-        this.searchInput?.addEventListener('input', 
-            Utils.debounce(() => this.handleSearch(), 300)
-        );
-        
+        // Search events
+        this.searchInput?.addEventListener('input', (e) => this.handleSearch());
         this.clearSearchBtn?.addEventListener('click', () => this.clearSearch());
-
-        // Filter tabs
+        
+        // Filter events
         this.filterTabs.forEach(tab => {
             tab.addEventListener('click', () => this.handleCategoryFilter(tab));
         });
-
-        // View controls
-        this.viewButtons.forEach(btn => {
-            btn.addEventListener('click', () => this.handleViewChange(btn));
-        });
-
-        // Reset filters
-        this.resetFiltersBtn?.addEventListener('click', () => this.resetFilters());
-
-        // Modal events
-        this.modalClose?.addEventListener('click', () => this.closeModal());
-        this.patternModal?.addEventListener('click', (e) => {
-            if (e.target === this.patternModal) this.closeModal();
-        });
-
-        // Modal actions
-        this.copyPatternBtn?.addEventListener('click', () => this.copyCurrentPattern());
-        this.testPatternBtn?.addEventListener('click', () => this.testCurrentPattern());
-        this.copyJsBtn?.addEventListener('click', () => this.copyJavaScriptCode());
-        this.copyPythonBtn?.addEventListener('click', () => this.copyPythonCode());
-
-        // Quick actions
-        this.quickTester?.addEventListener('click', () => {
-            window.location.href = './tester.html';
-        });
-
-        this.quickFavorites?.addEventListener('click', () => this.showFavorites());
         
-        // Scroll to top
-        this.scrollTopBtn?.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Sort events
+        this.sortSelect?.addEventListener('change', (e) => this.handleSort(e.target.value));
+        this.orderToggle?.addEventListener('click', () => this.toggleSortOrder());
+        
+        // Modal events
+        this.modalOverlay?.addEventListener('click', (e) => {
+            if (e.target === this.modalOverlay) {
+                this.closeModal();
+            }
         });
-
-        // Show/hide scroll button
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset > 300;
-            this.scrollTopBtn?.classList.toggle('visible', scrolled);
-        });
-
-        // Keyboard shortcuts
+        
+        // Quick action events
+        this.favoriteAllBtn?.addEventListener('click', () => this.favoriteCurrentPatterns());
+        this.exportPatternsBtn?.addEventListener('click', () => this.exportPatterns());
+        this.importPatternsBtn?.addEventListener('click', () => this.importPatterns());
+        
+        // Keyboard events
         document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
     }
 
     loadPatterns() {
-        // Load built-in patterns
-        this.patterns = this.getBuiltInPatterns();
-        
-        // Load user saved patterns
-        const savedPatterns = NeoRegex.loadFromStorage('user-patterns', []);
-        this.patterns = this.patterns.concat(savedPatterns.map(p => ({
-            ...p,
-            category: 'user',
-            isUserPattern: true
-        })));
+        // RegexPatterns가 정의되어 있다면 사용, 아니면 기본 패턴 사용
+        if (typeof RegexPatterns !== 'undefined' && RegexPatterns.getAll) {
+            this.patterns = RegexPatterns.getAll();
+        } else if (typeof window.RegexPatterns !== 'undefined' && window.RegexPatterns.getAll) {
+            this.patterns = window.RegexPatterns.getAll();
+        } else {
+            console.warn('RegexPatterns not found, using default patterns');
+            this.patterns = this.getDefaultPatterns();
+        }
         
         this.filteredPatterns = [...this.patterns];
+        
+        // Debug log
+        console.log('Loaded patterns:', this.patterns.length);
+        if (this.patterns.length === 0) {
+            console.error('No patterns loaded! Check patterns.js');
+        }
     }
 
-    getBuiltInPatterns() {
+    getDefaultPatterns() {
+        // Fallback patterns if RegexPatterns is not available
         return [
-            // Basic patterns
             {
-                id: 'email-basic',
+                id: 'email',
                 title: '이메일 주소',
                 pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
                 category: 'basic',
-                description: '기본적인 이메일 주소 형식을 검증합니다.',
+                description: '유효한 이메일 주소 형식을 검증합니다.',
                 examples: {
-                    valid: ['user@example.com', 'test.email+tag@domain.org', 'admin@company.co.kr'],
-                    invalid: ['invalid-email', 'user@', '@domain.com', 'user.domain.com']
+                    valid: ['user@example.com', 'test@domain.org'],
+                    invalid: ['invalid-email', '@domain.com']
                 },
                 icon: 'fa-envelope'
             },
             {
-                id: 'phone-korean',
-                title: '한국 전화번호',
-                pattern: '^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$',
-                category: 'korean',
-                description: '한국 휴대폰 번호 형식을 검증합니다.',
+                id: 'phone',
+                title: '전화번호',
+                pattern: '^\\d{2,3}-\\d{3,4}-\\d{4}$',
+                category: 'basic',
+                description: '한국 전화번호 형식을 검증합니다.',
                 examples: {
-                    valid: ['010-1234-5678', '01012345678', '011-123-4567'],
-                    invalid: ['02-123-4567', '010-12345-678', '010-abc-defg']
+                    valid: ['02-123-4567', '010-1234-5678'],
+                    invalid: ['1234-5678', '010-12345-678']
                 },
                 icon: 'fa-phone'
             },
             {
-                id: 'url-basic',
-                title: 'URL 주소',
-                pattern: '^https?:\\/\\/[^\\s]+$',
+                id: 'url',
+                title: 'URL',
+                pattern: 'https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)',
                 category: 'basic',
-                description: 'HTTP/HTTPS URL 형식을 검증합니다.',
+                description: 'HTTP/HTTPS URL을 매칭합니다.',
                 examples: {
-                    valid: ['https://www.example.com', 'http://subdomain.site.org/path', 'https://api.service.com/v1/users'],
-                    invalid: ['ftp://files.com', 'www.example.com', 'https://']
+                    valid: ['https://example.com', 'http://www.site.org'],
+                    invalid: ['ftp://example.com', 'not-a-url']
                 },
                 icon: 'fa-link'
             },
             {
-                id: 'ip-address',
-                title: 'IP 주소',
-                pattern: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
-                category: 'basic',
-                description: 'IPv4 주소 형식을 검증합니다.',
-                examples: {
-                    valid: ['192.168.1.1', '10.0.0.1', '255.255.255.0'],
-                    invalid: ['256.1.1.1', '192.168', '192.168.1']
-                },
-                icon: 'fa-network-wired'
-            },
-            {
                 id: 'password-strong',
-                title: '강력한 비밀번호',
+                title: '강한 비밀번호',
                 pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$',
                 category: 'validation',
-                description: '8자 이상, 대소문자, 숫자, 특수문자 포함 비밀번호를 검증합니다.',
+                description: '8자 이상, 대문자, 소문자, 숫자, 특수문자 포함',
                 examples: {
-                    valid: ['Password123!', 'MySecure@Pass1', 'StrongP@ss99'],
-                    invalid: ['password', 'PASSWORD', '12345678', 'Password123']
+                    valid: ['Password123!', 'MySecure@Pass1'],
+                    invalid: ['password', '12345678', 'Password123']
                 },
-                icon: 'fa-lock'
+                icon: 'fa-shield-alt'
             },
             {
                 id: 'date-iso',
-                title: 'ISO 날짜 형식',
+                title: 'ISO 날짜',
                 pattern: '^\\d{4}-\\d{2}-\\d{2}$',
                 category: 'validation',
                 description: 'YYYY-MM-DD 형식의 날짜를 검증합니다.',
@@ -249,9 +246,33 @@ class PatternLibrary {
                     invalid: ['<div>content', '<>content</>', '<div></span>']
                 },
                 icon: 'fa-code'
-            },
-            // Add more patterns as needed...
+            }
         ];
+    }
+
+    renderCategories() {
+        const categories = this.getCategoryStats();
+        
+        // Update category tabs with counts
+        this.filterTabs.forEach(tab => {
+            const category = tab.getAttribute('data-category');
+            const countElement = tab.querySelector('.category-count');
+            
+            if (countElement) {
+                const count = category === 'all' ? this.patterns.length : 
+                             category === 'favorites' ? this.favorites.length :
+                             categories[category] || 0;
+                countElement.textContent = count;
+            }
+        });
+    }
+
+    getCategoryStats() {
+        const stats = {};
+        this.patterns.forEach(pattern => {
+            stats[pattern.category] = (stats[pattern.category] || 0) + 1;
+        });
+        return stats;
     }
 
     handleSearch() {
@@ -317,449 +338,615 @@ class PatternLibrary {
             filtered = filtered.filter(p => 
                 p.title.toLowerCase().includes(this.searchQuery) ||
                 p.description.toLowerCase().includes(this.searchQuery) ||
-                p.pattern.toLowerCase().includes(this.searchQuery)
+                p.pattern.toLowerCase().includes(this.searchQuery) ||
+                (p.tags && p.tags.some(tag => tag.toLowerCase().includes(this.searchQuery)))
             );
         }
 
         this.filteredPatterns = filtered;
+        this.sortPatterns();
+        this.renderPatterns();
+        this.updatePatternCount();
+    }
+
+    handleSort(sortBy) {
+        this.currentSort = sortBy;
+        this.sortPatterns();
         this.renderPatterns();
     }
 
-    renderPatterns() {
-        if (!this.patternsGrid) return;
-
-        // Show loading state
-        this.showLoading(true);
-
-        // Simulate loading delay for better UX
-        setTimeout(() => {
-            if (this.filteredPatterns.length === 0) {
-                this.showNoResults(true);
-                this.showLoading(false);
-                this.updateResultsCount(0);
-                return;
-            }
-
-            this.showNoResults(false);
-            this.showLoading(false);
-
-            const patternsHtml = this.filteredPatterns.map(pattern => 
-                this.createPatternCard(pattern)
-            ).join('');
-
-            this.patternsGrid.innerHTML = patternsHtml;
-            this.patternsGrid.className = `patterns-grid ${this.currentView}-view`;
-
-            this.updateResultsCount(this.filteredPatterns.length);
-            this.bindPatternEvents();
-
-            // Animate in
-            this.animatePatternCards();
-        }, 200);
+    toggleSortOrder() {
+        this.currentOrder = this.currentOrder === 'asc' ? 'desc' : 'asc';
+        
+        if (this.orderToggle) {
+            const icon = this.orderToggle.querySelector('i');
+            icon.className = this.currentOrder === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+        }
+        
+        this.sortPatterns();
+        this.renderPatterns();
     }
 
-    createPatternCard(pattern) {
-        const isFavorited = this.favorites.includes(pattern.id);
+    sortPatterns() {
+        this.filteredPatterns.sort((a, b) => {
+            let valueA, valueB;
+            
+            switch (this.currentSort) {
+                case 'title':
+                    valueA = a.title.toLowerCase();
+                    valueB = b.title.toLowerCase();
+                    break;
+                case 'category':
+                    valueA = a.category;
+                    valueB = b.category;
+                    break;
+                case 'difficulty':
+                    const difficultyOrder = { 'easy': 1, 'medium': 2, 'hard': 3 };
+                    valueA = difficultyOrder[a.difficulty] || 2;
+                    valueB = difficultyOrder[b.difficulty] || 2;
+                    break;
+                default:
+                    valueA = a.title.toLowerCase();
+                    valueB = b.title.toLowerCase();
+            }
+            
+            if (valueA < valueB) return this.currentOrder === 'asc' ? -1 : 1;
+            if (valueA > valueB) return this.currentOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+
+    renderPatterns() {
+        if (!this.patternGrid) {
+            console.error('Pattern grid element not found. Creating fallback container.');
+            
+            // Try to find a container to create the pattern grid in
+            const container = document.querySelector('.library-container') || 
+                            document.querySelector('.main-content') ||
+                            document.querySelector('main') ||
+                            document.body;
+            
+            if (container) {
+                // Create a fallback pattern grid
+                const fallbackGrid = document.createElement('div');
+                fallbackGrid.id = 'pattern-grid';
+                fallbackGrid.className = 'pattern-grid fallback-grid';
+                fallbackGrid.style.cssText = `
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                    gap: 20px;
+                    padding: 20px;
+                    margin: 20px 0;
+                `;
+                
+                container.appendChild(fallbackGrid);
+                this.patternGrid = fallbackGrid;
+                
+                console.log('Created fallback pattern grid');
+            } else {
+                console.error('No suitable container found for pattern grid');
+                return;
+            }
+        }
+        
+        console.log('Rendering patterns:', this.filteredPatterns.length);
+        
+        if (this.filteredPatterns.length === 0) {
+            this.patternGrid.innerHTML = this.renderEmptyState();
+            return;
+        }
+
+        try {
+            const patternsHtml = this.filteredPatterns.map(pattern => this.renderPatternCard(pattern)).join('');
+            this.patternGrid.innerHTML = patternsHtml;
+            
+            // Bind card events
+            this.bindPatternCardEvents();
+        } catch (error) {
+            console.error('Error rendering patterns:', error);
+            this.patternGrid.innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>패턴 로딩 오류</h3>
+                    <p>패턴을 불러오는 중 오류가 발생했습니다.</p>
+                    <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; font-size: 12px; overflow: auto;">
+                        ${error.message}
+                    </pre>
+                    <button onclick="location.reload()" class="btn btn-primary">새로고침</button>
+                </div>
+            `;
+        }
+    }
+
+    renderPatternCard(pattern) {
+        try {
+            const isFavorite = this.favorites.includes(pattern.id);
+            const categoryColor = this.getCategoryColor(pattern.category);
+            const difficultyClass = pattern.difficulty ? `difficulty-${pattern.difficulty}` : 'difficulty-medium';
+
+            return `
+                <div class="pattern-card ${difficultyClass}" data-pattern-id="${pattern.id}">
+                    <div class="pattern-header">
+                        <div class="pattern-icon" style="color: ${categoryColor}">
+                            <i class="fas ${pattern.icon || 'fa-code'}"></i>
+                        </div>
+                        <button class="favorite-btn ${isFavorite ? 'active' : ''}" 
+                                onclick="regexLibrary.toggleFavorite('${pattern.id}')"
+                                title="${isFavorite ? '즐겨찾기 제거' : '즐겨찾기 추가'}">
+                            <i class="fas ${isFavorite ? 'fa-heart' : 'fa-heart-o'}"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="pattern-content">
+                        <h3 class="pattern-title">${this.escapeHtml(pattern.title || 'Untitled')}</h3>
+                        <p class="pattern-description">${this.escapeHtml(pattern.description || 'No description')}</p>
+                        
+                        <div class="pattern-preview">
+                            <code class="pattern-code">${this.escapeHtml(pattern.pattern || '')}</code>
+                        </div>
+                        
+                        <div class="pattern-meta">
+                            <span class="category-badge" style="background-color: ${categoryColor}">
+                                ${this.getCategoryName(pattern.category)}
+                            </span>
+                            ${pattern.difficulty ? `<span class="difficulty-badge ${difficultyClass}">${this.getDifficultyName(pattern.difficulty)}</span>` : ''}
+                            ${pattern.tags ? pattern.tags.slice(0, 2).map(tag => `<span class="tag-badge">${this.escapeHtml(tag)}</span>`).join('') : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="pattern-actions">
+                        <button class="action-btn test-btn" 
+                                onclick="regexLibrary.testPattern('${pattern.id}')"
+                                title="테스트">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="action-btn copy-btn" 
+                                onclick="regexLibrary.copyPattern('${pattern.id}')"
+                                title="복사">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="action-btn detail-btn" 
+                                onclick="regexLibrary.showPatternDetail('${pattern.id}')"
+                                title="상세보기">
+                            <i class="fas fa-info"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Error rendering pattern card for:', pattern, error);
+            return `
+                <div class="pattern-card error-card">
+                    <div class="error-content">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h4>패턴 로딩 오류</h4>
+                        <p>ID: ${pattern?.id || 'unknown'}</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    renderEmptyState() {
+        const isSearching = this.searchQuery.length > 0;
+        const isFiltered = this.currentCategory !== 'all';
+        
+        if (isSearching) {
+            return `
+                <div class="empty-state">
+                    <i class="fas fa-search empty-icon"></i>
+                    <h3>검색 결과가 없습니다</h3>
+                    <p>"${this.searchQuery}"에 대한 패턴을 찾을 수 없습니다.</p>
+                    <button class="btn btn-primary" onclick="regexLibrary.clearSearch()">
+                        검색 초기화
+                    </button>
+                </div>
+            `;
+        }
+        
+        if (isFiltered && this.currentCategory === 'favorites') {
+            return `
+                <div class="empty-state">
+                    <i class="fas fa-heart empty-icon"></i>
+                    <h3>즐겨찾기가 비어있습니다</h3>
+                    <p>패턴을 즐겨찾기에 추가해보세요.</p>
+                    <button class="btn btn-primary" onclick="regexLibrary.handleCategoryFilter(document.querySelector('[data-category=\\"all\\"]'))">
+                        모든 패턴 보기
+                    </button>
+                </div>
+            `;
+        }
         
         return `
-            <div class="pattern-card ${isFavorited ? 'favorited' : ''}" data-pattern-id="${pattern.id}">
-                <div class="pattern-header">
-                    <div class="pattern-category ${pattern.category}">${this.getCategoryName(pattern.category)}</div>
-                    <button class="favorite-btn ${isFavorited ? 'favorited' : ''}" data-pattern-id="${pattern.id}">
-                        <i class="fas fa-heart"></i>
-                    </button>
-                </div>
-                
-                <div class="pattern-icon">
-                    <i class="fas ${pattern.icon || 'fa-code'}"></i>
-                </div>
-                
-                <div class="pattern-content">
-                    <h3 class="pattern-title">${pattern.title}</h3>
-                    <p class="pattern-description">${pattern.description}</p>
-                    <div class="pattern-code">${this.formatPattern(pattern.pattern)}</div>
-                </div>
-                
-                <div class="pattern-actions">
-                    <button class="action-btn primary" data-action="view" data-pattern-id="${pattern.id}">
-                        <i class="fas fa-eye"></i>
-                        보기
-                    </button>
-                    <button class="action-btn" data-action="test" data-pattern-id="${pattern.id}">
-                        <i class="fas fa-flask"></i>
-                        테스트
-                    </button>
-                    <button class="action-btn" data-action="copy" data-pattern-id="${pattern.id}">
-                        <i class="fas fa-copy"></i>
-                        복사
-                    </button>
-                </div>
+            <div class="empty-state">
+                <i class="fas fa-code empty-icon"></i>
+                <h3>패턴이 없습니다</h3>
+                <p>이 카테고리에는 패턴이 없습니다.</p>
             </div>
         `;
     }
 
-    bindPatternEvents() {
-        // Pattern card click events
+    bindPatternCardEvents() {
+        // Double-click to open detail
         document.querySelectorAll('.pattern-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                if (!e.target.closest('.favorite-btn, .action-btn')) {
-                    const patternId = card.getAttribute('data-pattern-id');
-                    this.showPatternModal(patternId);
-                }
-            });
-        });
-
-        // Favorite buttons
-        document.querySelectorAll('.favorite-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const patternId = btn.getAttribute('data-pattern-id');
-                this.toggleFavorite(patternId);
-            });
-        });
-
-        // Action buttons
-        document.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const action = btn.getAttribute('data-action');
-                const patternId = btn.getAttribute('data-pattern-id');
-                this.handlePatternAction(action, patternId);
+            card.addEventListener('dblclick', () => {
+                const patternId = card.getAttribute('data-pattern-id');
+                this.showPatternDetail(patternId);
             });
         });
     }
 
-    handlePatternAction(action, patternId) {
-        const pattern = this.patterns.find(p => p.id === patternId);
+    showPatternDetail(id) {
+        const pattern = this.patterns.find(p => p.id === id);
         if (!pattern) return;
 
-        switch (action) {
-            case 'view':
-                this.showPatternModal(patternId);
-                break;
-            case 'test':
-                this.testPattern(pattern);
-                break;
-            case 'copy':
-                this.copyPattern(pattern);
-                break;
-        }
+        const modal = this.createPatternModal(pattern);
+        document.body.appendChild(modal);
     }
 
-    showPatternModal(patternId) {
-        const pattern = this.patterns.find(p => p.id === patternId);
-        if (!pattern || !this.patternModal) return;
+    createPatternModal(pattern) {
+        const isFavorite = this.favorites.includes(pattern.id);
+        const categoryColor = this.getCategoryColor(pattern.category);
 
-        this.currentPattern = pattern;
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay pattern-detail-modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="pattern-info">
+                        <div class="pattern-icon" style="color: ${categoryColor}">
+                            <i class="fas ${pattern.icon || 'fa-code'}"></i>
+                        </div>
+                        <div>
+                            <h3>${pattern.title}</h3>
+                            <p>${pattern.description}</p>
+                        </div>
+                    </div>
+                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="pattern-detail-section">
+                        <h4>정규식 패턴</h4>
+                        <div class="pattern-display">
+                            <code class="pattern-code">${this.escapeHtml(pattern.pattern)}</code>
+                            <button class="copy-pattern-btn" onclick="regexLibrary.copyPatternText('${pattern.id}')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    ${pattern.examples ? `
+                    <div class="pattern-detail-section">
+                        <h4>예제</h4>
+                        <div class="examples-container">
+                            <div class="examples-valid">
+                                <h5><i class="fas fa-check text-success"></i> 유효한 예제</h5>
+                                <ul>
+                                    ${pattern.examples.valid.map(example => 
+                                        `<li><code>${this.escapeHtml(example)}</code></li>`
+                                    ).join('')}
+                                </ul>
+                            </div>
+                            <div class="examples-invalid">
+                                <h5><i class="fas fa-times text-error"></i> 무효한 예제</h5>
+                                <ul>
+                                    ${pattern.examples.invalid.map(example => 
+                                        `<li><code>${this.escapeHtml(example)}</code></li>`
+                                    ).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="pattern-detail-section">
+                        <h4>테스트</h4>
+                        <div class="test-section">
+                            <div class="test-input-group">
+                                <input type="text" id="test-input-${pattern.id}" 
+                                       placeholder="테스트할 텍스트를 입력하세요..." 
+                                       class="test-input">
+                                <button onclick="regexLibrary.testPatternInModal('${pattern.id}')" 
+                                        class="btn btn-primary">
+                                    테스트
+                                </button>
+                            </div>
+                            <div id="test-result-${pattern.id}" class="test-result"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="pattern-meta-detail">
+                        <div class="meta-item">
+                            <strong>카테고리:</strong>
+                            <span class="category-badge" style="background-color: ${categoryColor}">
+                                ${this.getCategoryName(pattern.category)}
+                            </span>
+                        </div>
+                        ${pattern.difficulty ? `
+                        <div class="meta-item">
+                            <strong>난이도:</strong>
+                            <span class="difficulty-badge difficulty-${pattern.difficulty}">
+                                ${this.getDifficultyName(pattern.difficulty)}
+                            </span>
+                        </div>
+                        ` : ''}
+                        ${pattern.tags ? `
+                        <div class="meta-item">
+                            <strong>태그:</strong>
+                            ${pattern.tags.map(tag => `<span class="tag-badge">${tag}</span>`).join('')}
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button class="btn btn-outline" onclick="regexLibrary.toggleFavorite('${pattern.id}'); this.querySelector('span').textContent = regexLibrary.favorites.includes('${pattern.id}') ? '즐겨찾기 제거' : '즐겨찾기 추가'">
+                        <i class="fas ${isFavorite ? 'fa-heart' : 'fa-heart-o'}"></i>
+                        <span>${isFavorite ? '즐겨찾기 제거' : '즐겨찾기 추가'}</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="regexLibrary.useInTester('${pattern.id}')">
+                        <i class="fas fa-flask"></i>
+                        테스터에서 사용
+                    </button>
+                    <button class="btn btn-primary" onclick="regexLibrary.copyPattern('${pattern.id}')">
+                        <i class="fas fa-copy"></i>
+                        패턴 복사
+                    </button>
+                </div>
+            </div>
+        `;
 
-        // Update modal content
-        if (this.modalName) this.modalName.textContent = pattern.title;
-        if (this.modalDescription) this.modalDescription.textContent = pattern.description;
-        if (this.modalCategory) {
-            this.modalCategory.textContent = this.getCategoryName(pattern.category);
-            this.modalCategory.className = `pattern-category ${pattern.category}`;
-        }
-        if (this.modalPattern) this.modalPattern.textContent = pattern.pattern;
-        
-        // Update favorite button
-        if (this.modalFavorite) {
-            const isFavorited = this.favorites.includes(pattern.id);
-            this.modalFavorite.classList.toggle('favorited', isFavorited);
-            this.modalFavorite.onclick = () => this.toggleFavorite(pattern.id);
-        }
-
-        // Update examples
-        this.updateModalExamples(pattern.examples);
-
-        // Show modal
-        this.patternModal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-
-        // Focus trap for accessibility
-        setTimeout(() => {
-            this.modalClose?.focus();
-        }, 100);
+        return modal;
     }
 
-    updateModalExamples(examples) {
-        if (this.validExamples) {
-            this.validExamples.innerHTML = examples.valid.map(example => 
-                `<div class="example-item">${this.escapeHtml(example)}</div>`
-            ).join('');
-        }
-
-        if (this.invalidExamples) {
-            this.invalidExamples.innerHTML = examples.invalid.map(example => 
-                `<div class="example-item">${this.escapeHtml(example)}</div>`
-            ).join('');
-        }
-    }
-
-    closeModal() {
-        if (this.patternModal) {
-            this.patternModal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-        this.currentPattern = null;
-    }
-
-    async copyCurrentPattern() {
-        if (!this.currentPattern) return;
-        await this.copyPattern(this.currentPattern);
-    }
-
-    testCurrentPattern() {
-        if (!this.currentPattern) return;
-        this.testPattern(this.currentPattern);
-        this.closeModal();
-    }
-
-    copyJavaScriptCode() {
-        if (!this.currentPattern) return;
-        
-        const jsCode = `// ${this.currentPattern.title}
-const pattern = /${this.currentPattern.pattern}/g;
-const text = "your test text here";
-const matches = text.match(pattern);
-
-console.log(matches);`;
-
-        this.copyToClipboard(jsCode, 'JavaScript 코드가 복사되었습니다!');
-    }
-
-    copyPythonCode() {
-        if (!this.currentPattern) return;
-        
-        const pythonCode = `# ${this.currentPattern.title}
-import re
-
-pattern = r'${this.currentPattern.pattern}'
-text = "your test text here"
-matches = re.findall(pattern, text)
-
-print(matches)`;
-
-        this.copyToClipboard(pythonCode, 'Python 코드가 복사되었습니다!');
-    }
-
-    async copyPattern(pattern) {
-        await this.copyToClipboard(pattern.pattern, '패턴이 복사되었습니다!');
-    }
-
-    async copyToClipboard(text, successMessage) {
-        try {
-            await navigator.clipboard.writeText(text);
-            NeoRegex.showNotification(successMessage, 'success', 2000);
-        } catch (error) {
-            NeoRegex.showNotification('복사에 실패했습니다.', 'error');
-        }
-    }
-
-    testPattern(pattern) {
-        const params = new URLSearchParams({
-            pattern: pattern.pattern,
-            text: pattern.examples.valid.join('\n') + '\n' + pattern.examples.invalid.join('\n')
-        });
-        
-        window.open(`./tester.html?${params.toString()}`, '_blank');
-    }
-
-    toggleFavorite(patternId) {
-        const index = this.favorites.indexOf(patternId);
-        
-        if (index === -1) {
-            this.favorites.push(patternId);
-            NeoRegex.showNotification('즐겨찾기에 추가되었습니다!', 'success', 2000);
-        } else {
+    // Pattern actions
+    toggleFavorite(id) {
+        const index = this.favorites.indexOf(id);
+        if (index > -1) {
             this.favorites.splice(index, 1);
-            NeoRegex.showNotification('즐겨찾기에서 제거되었습니다!', 'info', 2000);
+            this.showNotification('즐겨찾기에서 제거되었습니다', 'info');
+        } else {
+            this.favorites.push(id);
+            this.showNotification('즐겨찾기에 추가되었습니다', 'success');
         }
         
         this.saveFavorites();
+        this.renderPatterns();
+        this.renderCategories();
+    }
+
+    copyPattern(id) {
+        const pattern = this.patterns.find(p => p.id === id);
+        if (!pattern) return;
+
+        navigator.clipboard.writeText(pattern.pattern).then(() => {
+            this.showNotification('패턴이 클립보드에 복사되었습니다', 'success');
+        }).catch(() => {
+            this.showNotification('복사에 실패했습니다', 'error');
+        });
+    }
+
+    copyPatternText(id) {
+        this.copyPattern(id);
+    }
+
+    testPattern(id) {
+        const pattern = this.patterns.find(p => p.id === id);
+        if (!pattern) return;
+
+        // Redirect to tester with pattern
+        const testerUrl = `./tester.html?pattern=${encodeURIComponent(pattern.pattern)}`;
+        window.open(testerUrl, '_blank');
+    }
+
+    testPatternInModal(id) {
+        const pattern = this.patterns.find(p => p.id === id);
+        const testInput = document.getElementById(`test-input-${id}`);
+        const testResult = document.getElementById(`test-result-${id}`);
         
-        // Update UI
-        this.updateFavoriteButtons(patternId);
-        
-        // If currently showing favorites, re-render
-        if (this.currentCategory === 'favorites') {
-            this.applyFilters();
+        if (!pattern || !testInput || !testResult) return;
+
+        const testText = testInput.value;
+        if (!testText) {
+            testResult.innerHTML = '<p class="test-empty">테스트할 텍스트를 입력해주세요.</p>';
+            return;
+        }
+
+        try {
+            const regex = new RegExp(pattern.pattern, 'g');
+            const matches = [...testText.matchAll(regex)];
+
+            if (matches.length === 0) {
+                testResult.innerHTML = '<p class="test-no-match">매칭된 결과가 없습니다.</p>';
+            } else {
+                const highlightedText = this.highlightMatches(testText, matches);
+                testResult.innerHTML = `
+                    <div class="test-success">
+                        <p><strong>${matches.length}개의 매칭 발견</strong></p>
+                        <div class="highlighted-result">${highlightedText}</div>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            testResult.innerHTML = `<p class="test-error">오류: ${error.message}</p>`;
         }
     }
 
-    updateFavoriteButtons(patternId) {
-        const isFavorited = this.favorites.includes(patternId);
+    highlightMatches(text, matches) {
+        let result = text;
+        let offset = 0;
+
+        matches.forEach((match, index) => {
+            const start = match.index + offset;
+            const end = start + match[0].length;
+            const matchText = result.slice(start, end);
+            
+            const highlighted = `<mark class="match-highlight" title="매칭 #${index + 1}">${this.escapeHtml(matchText)}</mark>`;
+            
+            result = result.slice(0, start) + highlighted + result.slice(end);
+            offset += highlighted.length - matchText.length;
+        });
+
+        return result;
+    }
+
+    useInTester(id) {
+        const pattern = this.patterns.find(p => p.id === id);
+        if (!pattern) return;
+
+        // Save to localStorage for tester to pick up
+        localStorage.setItem('selectedPattern', JSON.stringify(pattern));
         
-        // Update card favorite button
-        const cardBtn = document.querySelector(`.pattern-card[data-pattern-id="${patternId}"] .favorite-btn`);
-        if (cardBtn) {
-            cardBtn.classList.toggle('favorited', isFavorited);
-        }
-        
-        // Update modal favorite button
-        if (this.modalFavorite && this.currentPattern && this.currentPattern.id === patternId) {
-            this.modalFavorite.classList.toggle('favorited', isFavorited);
-        }
-        
-        // Update card styling
-        const card = document.querySelector(`.pattern-card[data-pattern-id="${patternId}"]`);
-        if (card) {
-            card.classList.toggle('favorited', isFavorited);
+        // Navigate to tester
+        window.location.href = './tester.html';
+    }
+
+    // Utility methods
+    getCategoryColor(category) {
+        const colors = {
+            'basic': '#3b82f6',
+            'validation': '#10b981', 
+            'korean': '#f59e0b',
+            'developer': '#8b5cf6'
+        };
+        return colors[category] || '#6b7280';
+    }
+
+    getCategoryName(category) {
+        const names = {
+            'basic': '기본',
+            'validation': '검증',
+            'korean': '한국어',
+            'developer': '개발자'
+        };
+        return names[category] || category;
+    }
+
+    getDifficultyName(difficulty) {
+        const names = {
+            'easy': '쉬움',
+            'medium': '보통',
+            'hard': '어려움'
+        };
+        return names[difficulty] || difficulty;
+    }
+
+    updatePatternCount() {
+        if (this.patternCount) {
+            this.patternCount.textContent = this.filteredPatterns.length;
         }
     }
 
+    updateStats() {
+        if (this.totalPatternsCount) {
+            this.totalPatternsCount.textContent = this.patterns.length;
+        }
+        if (this.favoritesCount) {
+            this.favoritesCount.textContent = this.favorites.length;
+        }
+        if (this.categoriesCount) {
+            const categories = new Set(this.patterns.map(p => p.category));
+            this.categoriesCount.textContent = categories.size;
+        }
+    }
+
+    // Data management
     loadFavorites() {
-        this.favorites = NeoRegex.loadFromStorage('favorites', []);
+        try {
+            const saved = localStorage.getItem('regexFavorites');
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            return [];
+        }
     }
 
     saveFavorites() {
-        NeoRegex.saveToStorage('favorites', this.favorites);
-    }
-
-    showFavorites() {
-        // Switch to favorites tab
-        const favoritesTab = document.querySelector('.filter-tab[data-category="favorites"]');
-        if (favoritesTab) {
-            this.handleCategoryFilter(favoritesTab);
+        try {
+            localStorage.setItem('regexFavorites', JSON.stringify(this.favorites));
+        } catch (e) {
+            console.warn('Failed to save favorites:', e);
         }
     }
 
-    handleViewChange(button) {
-        // Update active view button
-        this.viewButtons.forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-        
-        this.currentView = button.getAttribute('data-view');
-        
-        // Update grid class
-        if (this.patternsGrid) {
-            this.patternsGrid.className = `patterns-grid ${this.currentView}-view`;
-        }
-        
-        // Save view preference
-        NeoRegex.saveToStorage('preferred-view', this.currentView);
-    }
-
-    resetFilters() {
-        this.searchQuery = '';
-        this.currentCategory = 'all';
-        
-        if (this.searchInput) {
-            this.searchInput.value = '';
-        }
-        
-        // Reset active tab
-        this.filterTabs.forEach(tab => {
-            tab.classList.toggle('active', tab.getAttribute('data-category') === 'all');
+    // Quick actions
+    favoriteCurrentPatterns() {
+        let added = 0;
+        this.filteredPatterns.forEach(pattern => {
+            if (!this.favorites.includes(pattern.id)) {
+                this.favorites.push(pattern.id);
+                added++;
+            }
         });
         
-        this.applyFilters();
-        this.updateClearButton();
-        this.updateActiveFilter();
+        if (added > 0) {
+            this.saveFavorites();
+            this.renderPatterns();
+            this.renderCategories();
+            this.showNotification(`${added}개 패턴이 즐겨찾기에 추가되었습니다`, 'success');
+        } else {
+            this.showNotification('이미 모든 패턴이 즐겨찾기에 있습니다', 'info');
+        }
+    }
+
+    exportPatterns() {
+        const dataStr = JSON.stringify(this.patterns, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
         
-        NeoRegex.showNotification('필터가 초기화되었습니다.', 'info', 2000);
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = 'neo-regex-patterns.json';
+        link.click();
+        
+        this.showNotification('패턴이 내보내기되었습니다', 'success');
     }
 
-    updateResultsCount(count) {
-        if (this.resultsCount) {
-            this.resultsCount.textContent = `${count}개의 패턴`;
-        }
-    }
-
-    showLoading(show) {
-        if (this.loadingState) {
-            this.loadingState.style.display = show ? 'block' : 'none';
-        }
-        if (this.patternsGrid) {
-            this.patternsGrid.style.display = show ? 'none' : 'grid';
-        }
-    }
-
-    showNoResults(show) {
-        if (this.noResults) {
-            this.noResults.style.display = show ? 'block' : 'none';
-        }
-    }
-
-    animatePatternCards() {
-        const cards = document.querySelectorAll('.pattern-card');
-        cards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
+    importPatterns() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
             
-            setTimeout(() => {
-                card.style.transition = 'all 0.3s ease-out';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 50);
-        });
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedPatterns = JSON.parse(e.target.result);
+                    this.patterns = [...this.patterns, ...importedPatterns];
+                    this.applyFilters();
+                    this.renderCategories();
+                    this.updateStats();
+                    this.showNotification('패턴이 가져오기되었습니다', 'success');
+                } catch (error) {
+                    this.showNotification('파일 형식이 올바르지 않습니다', 'error');
+                }
+            };
+            reader.readAsText(file);
+        };
+        
+        input.click();
     }
 
+    // Keyboard shortcuts
     handleKeyboardShortcuts(e) {
-        // Escape: Close modal
-        if (e.key === 'Escape' && this.patternModal?.style.display === 'flex') {
-            this.closeModal();
-        }
-        
-        // Ctrl/Cmd + K: Focus search
-        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        // Ctrl/Cmd + F: Focus search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
             e.preventDefault();
             this.searchInput?.focus();
         }
         
-        // Ctrl/Cmd + F: Show favorites
-        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-            e.preventDefault();
-            this.showFavorites();
-        }
-        
-        // Number keys 1-5: Switch categories
-        if (e.key >= '1' && e.key <= '5' && !e.ctrlKey && !e.metaKey) {
-            const categories = ['all', 'basic', 'validation', 'korean', 'developer'];
-            const categoryIndex = parseInt(e.key) - 1;
-            if (categories[categoryIndex]) {
-                const tab = document.querySelector(`.filter-tab[data-category="${categories[categoryIndex]}"]`);
-                if (tab) this.handleCategoryFilter(tab);
-            }
+        // Escape: Close modal
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay').forEach(modal => modal.remove());
         }
     }
 
-    updateDisplay() {
-        // Load saved view preference
-        const savedView = NeoRegex.loadFromStorage('preferred-view', 'grid');
-        this.currentView = savedView;
-        
-        // Update view button
-        const viewBtn = document.querySelector(`.view-btn[data-view="${savedView}"]`);
-        if (viewBtn) {
-            this.viewButtons.forEach(btn => btn.classList.remove('active'));
-            viewBtn.classList.add('active');
-        }
-        
-        // Update active filter display
-        this.updateActiveFilter();
-        
-        // Initial render
-        this.renderPatterns();
-    }
-
-    // Utility methods
-    getCategoryName(category) {
-        const categoryNames = {
-            'basic': '기본',
-            'validation': '검증',
-            'korean': '한국어',
-            'developer': '개발자',
-            'user': '사용자'
-        };
-        return categoryNames[category] || category;
-    }
-
-    formatPattern(pattern) {
-        // Truncate long patterns for card display
-        if (pattern.length > 50) {
-            return pattern.substring(0, 50) + '...';
-        }
-        return pattern;
+    closeModal() {
+        document.querySelectorAll('.modal-overlay').forEach(modal => modal.remove());
     }
 
     escapeHtml(text) {
@@ -768,199 +955,80 @@ print(matches)`;
         return div.innerHTML;
     }
 
-    // Export functionality
-    exportPatterns(format = 'json') {
-        const dataToExport = {
-            patterns: this.patterns.filter(p => p.isUserPattern),
-            favorites: this.favorites,
-            exportedAt: new Date().toISOString(),
-            version: '1.0'
-        };
+    showNotification(message, type = 'info', duration = 3000) {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${this.getNotificationIcon(type)}"></i>
+            <span>${message}</span>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
 
-        let content, filename, mimeType;
+        const container = document.getElementById('notification-container') || document.body;
+        container.appendChild(notification);
 
-        switch (format) {
-            case 'json':
-                content = JSON.stringify(dataToExport, null, 2);
-                filename = 'neo-regex-patterns.json';
-                mimeType = 'application/json';
-                break;
-            case 'csv':
-                content = this.convertToCSV(dataToExport.patterns);
-                filename = 'neo-regex-patterns.csv';
-                mimeType = 'text/csv';
-                break;
-            default:
-                return;
-        }
-
-        this.downloadFile(content, filename, mimeType);
-    }
-
-    convertToCSV(patterns) {
-        const headers = ['ID', 'Title', 'Pattern', 'Category', 'Description'];
-        const rows = patterns.map(p => [
-            p.id,
-            p.title,
-            p.pattern,
-            p.category,
-            p.description
-        ]);
-
-        return [headers, ...rows]
-            .map(row => row.map(field => `"${field}"`).join(','))
-            .join('\n');
-    }
-
-    downloadFile(content, filename, mimeType) {
-        const blob = new Blob([content], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        URL.revokeObjectURL(url);
-        
-        NeoRegex.showNotification(`${filename} 다운로드가 시작되었습니다.`, 'success');
-    }
-
-    // Import functionality
-    importPatterns(file) {
-        const reader = new FileReader();
-        
-        reader.onload = (e) => {
-            try {
-                const data = JSON.parse(e.target.result);
-                
-                if (data.patterns && Array.isArray(data.patterns)) {
-                    const userPatterns = NeoRegex.loadFromStorage('user-patterns', []);
-                    const newPatterns = data.patterns.filter(p => 
-                        !userPatterns.some(existing => existing.id === p.id)
-                    );
-                    
-                    if (newPatterns.length > 0) {
-                        userPatterns.push(...newPatterns);
-                        NeoRegex.saveToStorage('user-patterns', userPatterns);
-                        
-                        // Reload patterns
-                        this.loadPatterns();
-                        this.applyFilters();
-                        
-                        NeoRegex.showNotification(
-                            `${newPatterns.length}개의 새로운 패턴을 가져왔습니다.`, 
-                            'success'
-                        );
-                    } else {
-                        NeoRegex.showNotification('새로운 패턴이 없습니다.', 'info');
-                    }
-                }
-                
-                if (data.favorites && Array.isArray(data.favorites)) {
-                    // Merge favorites
-                    const newFavorites = [...new Set([...this.favorites, ...data.favorites])];
-                    this.favorites = newFavorites;
-                    this.saveFavorites();
-                }
-                
-            } catch (error) {
-                NeoRegex.showNotification('파일을 읽는 중 오류가 발생했습니다.', 'error');
-                console.error('Import error:', error);
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
             }
+        }, duration);
+    }
+
+    getNotificationIcon(type) {
+        const icons = {
+            success: 'check-circle',
+            error: 'exclamation-circle',
+            warning: 'exclamation-triangle',
+            info: 'info-circle'
         };
-        
-        reader.readAsText(file);
-    }
-}
-
-// Pattern search and recommendation engine
-class PatternRecommendationEngine {
-    constructor(patterns) {
-        this.patterns = patterns;
-        this.userHistory = NeoRegex.loadFromStorage('pattern-usage-history', []);
-    }
-
-    recommend(query, limit = 5) {
-        const scores = this.patterns.map(pattern => ({
-            pattern,
-            score: this.calculateRelevanceScore(pattern, query)
-        }));
-
-        return scores
-            .filter(item => item.score > 0)
-            .sort((a, b) => b.score - a.score)
-            .slice(0, limit)
-            .map(item => item.pattern);
-    }
-
-    calculateRelevanceScore(pattern, query) {
-        let score = 0;
-        const queryLower = query.toLowerCase();
-
-        // Title match
-        if (pattern.title.toLowerCase().includes(queryLower)) {
-            score += 10;
-        }
-
-        // Description match
-        if (pattern.description.toLowerCase().includes(queryLower)) {
-            score += 5;
-        }
-
-        // Category match
-        if (pattern.category.toLowerCase().includes(queryLower)) {
-            score += 3;
-        }
-
-        // Usage history boost
-        const usageCount = this.userHistory.filter(h => h.patternId === pattern.id).length;
-        score += usageCount * 2;
-
-        // Recent usage boost
-        const recentUsage = this.userHistory
-            .filter(h => h.patternId === pattern.id)
-            .filter(h => Date.now() - h.timestamp < 7 * 24 * 60 * 60 * 1000); // Last 7 days
-        score += recentUsage.length * 3;
-
-        return score;
-    }
-
-    recordUsage(patternId) {
-        this.userHistory.push({
-            patternId,
-            timestamp: Date.now()
-        });
-
-        // Keep only recent history (last 1000 items)
-        if (this.userHistory.length > 1000) {
-            this.userHistory = this.userHistory.slice(-1000);
-        }
-
-        NeoRegex.saveToStorage('pattern-usage-history', this.userHistory);
+        return icons[type] || 'info-circle';
     }
 }
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if we're on the library page
-    if (document.getElementById('patterns-grid')) {
-        window.PatternLibraryInstance = new PatternLibrary();
-        
-        // Initialize recommendation engine
-        setTimeout(() => {
-            window.RecommendationEngine = new PatternRecommendationEngine(
-                window.PatternLibraryInstance.patterns
-            );
-        }, 500);
-        
-        console.log('📚 Pattern Library initialized!');
-    }
+    console.log('DOM loaded, initializing RegexLibrary...');
+    
+    // Wait a bit for patterns.js to load if it's loaded separately
+    setTimeout(() => {
+        try {
+            window.regexLibrary = new RegexLibrary();
+            console.log('📚 NEO Regex Library initialized successfully!');
+        } catch (error) {
+            console.error('Failed to initialize RegexLibrary:', error);
+            
+            // Show error message in the main container
+            const mainContainer = document.querySelector('.main-content') || 
+                                document.querySelector('main') || 
+                                document.body;
+            
+            if (mainContainer) {
+                const errorDiv = document.createElement('div');
+                errorDiv.innerHTML = `
+                    <div style="padding: 40px; text-align: center; background: #fee; border: 1px solid #fcc; border-radius: 8px; margin: 20px;">
+                        <h2 style="color: #c00;">라이브러리 초기화 실패</h2>
+                        <p>정규식 라이브러리를 초기화하는 중 오류가 발생했습니다.</p>
+                        <button onclick="location.reload()" style="padding: 10px 20px; background: #007cba; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            페이지 새로고침
+                        </button>
+                        <details style="margin-top: 20px; text-align: left;">
+                            <summary>기술적 세부사항</summary>
+                            <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow: auto; font-size: 12px;">
+                                ${error.message}
+                                ${error.stack}
+                            </pre>
+                        </details>
+                    </div>
+                `;
+                mainContainer.insertBefore(errorDiv, mainContainer.firstChild);
+            }
+        }
+    }, 200);
 });
 
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { PatternLibrary, PatternRecommendationEngine };
+    module.exports = { RegexLibrary };
 }
