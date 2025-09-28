@@ -1435,3 +1435,121 @@
   border-color: var(--color-gray-600);
   color: var(--color-gray-300);
 }
+
+/* 버튼 활성화 애니메이션 */
+@keyframes buttonActivate {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+    }
+}
+
+.next-lesson.activated {
+    animation: buttonActivate 0.5s ease-out;
+}
+
+/* TOC 아이템 상태별 스타일 */
+/* 기본 상태 */
+.toc-item {
+    border: 1px solid #d1d5db;
+}
+
+/* 완료된 레슨 - 초록 테두리 + 체크 표시 */
+.toc-item.completed {
+    border-color: #10b981 !important;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.toc-item.completed .toc-number {
+    background: #10b981;
+    color: white;
+}
+
+.toc-item.completed .toc-check {
+    display: block;
+    color: #10b981;
+}
+
+/* 현재 레슨 - 검정 테두리 (완료 여부 관계없이) */
+.toc-item.current {
+    border-color: #374151 !important;
+    background: rgba(55, 65, 81, 0.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.toc-item.current .toc-number {
+    background: #374151;
+    color: white;
+}
+
+/* 현재 레슨이면서 완료된 레슨 - 검정 테두리 + 체크 표시 */
+.toc-item.current.completed .toc-check {
+    display: block;
+    color: #374151;
+}
+
+/* 체크 표시 기본 숨김 */
+.toc-check {
+    display: none;
+}
+
+/* 연습 결과 스타일 - 흰색 배경 */
+.demo-explanation.success {
+    background: white;
+    color: #065f46;
+    border: 1px solid #10b981;
+    border-left: 4px solid #10b981;
+}
+
+.demo-explanation.warning {
+    background: white;
+    color: #92400e;
+    border: 1px solid #f59e0b;
+    border-left: 4px solid #f59e0b;
+}
+
+.demo-explanation.error {
+    background: white;
+    color: #991b1b;
+    border: 1px solid #ef4444;
+    border-left: 4px solid #ef4444;
+}
+
+.demo-explanation {
+    background: white;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-left: 4px solid #6b7280;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-top: 12px;
+}
+
+/* 레슨 완료 메시지 애니메이션 */
+@keyframes completionPulse {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.demo-explanation.success span {
+    animation: completionPulse 0.6s ease-out;
+}
+
