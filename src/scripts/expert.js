@@ -1,4 +1,4 @@
-// NEO Regex Expert - 전문가 도구 및 고급 기능
+// NEO Regex Expert - 전문가 도구 완전 구현
 
 class RegexExpert {
     constructor() {
@@ -8,11 +8,14 @@ class RegexExpert {
         this.performanceData = [];
         this.history = [];
         this.maxHistorySize = 100;
+        this.debugSteps = [];
+        this.currentDebugStep = 0;
         
         this.init();
     }
 
     init() {
+        console.log('Initializing RegexExpert...');
         this.bindElements();
         this.bindEvents();
         this.loadSettings();
@@ -20,837 +23,873 @@ class RegexExpert {
     }
 
     bindElements() {
-        // Advanced Pattern Input
-        this.patternInput = document.getElementById('expert-pattern');
-        this.flagsContainer = document.getElementById('flags-container');
-        this.flagCheckboxes = document.querySelectorAll('.flag-checkbox');
+        // 고급 분석기
+        this.analyzePatternInput = document.getElementById('analyze-pattern');
+        this.analyzeBtn = document.getElementById('analyze-btn');
+        this.analysisResult = document.getElementById('analysis-result');
         
-        // Test Input
-        this.testInput = document.getElementById('expert-test-input');
-        this.testFile = document.getElementById('test-file-input');
-        this.sampleDataBtn = document.getElementById('load-sample-data');
+        // 성능 모니터
+        this.execTimeEl = document.getElementById('exec-time');
+        this.backtrackCountEl = document.getElementById('backtrack-count');
+        this.complexityEl = document.getElementById('complexity');
+        this.performanceChart = document.getElementById('performance-chart');
         
-        // Results
-        this.resultsContainer = document.getElementById('results-container');
-        this.matchesTable = document.getElementById('matches-table');
-        this.performancePanel = document.getElementById('performance-panel');
-        this.explanationPanel = document.getElementById('explanation-panel');
+        // 패턴 디버거
+        this.stepBackwardBtn = document.getElementById('step-backward');
+        this.stepForwardBtn = document.getElementById('step-forward');
+        this.resetDebugBtn = document.getElementById('reset-debug');
+        this.debugViz = document.getElementById('debug-viz');
         
-        // Tools
-        this.regexGeneratorBtn = document.getElementById('regex-generator');
-        this.patternOptimizerBtn = document.getElementById('pattern-optimizer');
-        this.performanceAnalyzerBtn = document.getElementById('performance-analyzer');
-        this.codeGeneratorBtn = document.getElementById('code-generator');
-        
-        // Advanced Features
-        this.regexDebugger = document.getElementById('regex-debugger');
-        this.backtrackingVisualizer = document.getElementById('backtracking-visualizer');
-        this.unicodeAnalyzer = document.getElementById('unicode-analyzer');
-        
-        // Export/Import
-        this.exportBtn = document.getElementById('export-results');
-        this.importBtn = document.getElementById('import-pattern');
-        this.shareBtn = document.getElementById('share-pattern');
-        
-        // Settings
-        this.settingsPanel = document.getElementById('expert-settings');
-        this.themeSelect = document.getElementById('theme-select');
-        this.timeoutInput = document.getElementById('timeout-input');
+        // ReDoS 탐지기
+        this.securityStatus = document.getElementById('security-status');
+        this.vulnerabilityDetails = document.getElementById('vulnerability-details');
     }
 
     bindEvents() {
-        // Pattern input events
-        this.patternInput?.addEventListener('input', this.debounce(() => this.handlePatternChange(), 500));
-        
-        // Flag events
-        this.flagCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', () => this.handleFlagChange());
-        });
-        
-        // Test input events
-        this.testInput?.addEventListener('input', this.debounce(() => this.performAdvancedTest(), 300));
-        this.testFile?.addEventListener('change', (e) => this.handleFileUpload(e));
-        this.sampleDataBtn?.addEventListener('click', () => this.loadSampleData());
-        
-        // Tool buttons
-        this.regexGeneratorBtn?.addEventListener('click', () => this.openRegexGenerator());
-        this.patternOptimizerBtn?.addEventListener('click', () => this.optimizePattern());
-        this.performanceAnalyzerBtn?.addEventListener('click', () => this.analyzePerformance());
-        this.codeGeneratorBtn?.addEventListener('click', () => this.generateCode());
-        
-        // Advanced features
-        this.regexDebugger?.addEventListener('click', () => this.openDebugger());
-        this.backtrackingVisualizer?.addEventListener('click', () => this.visualizeBacktracking());
-        this.unicodeAnalyzer?.addEventListener('click', () => this.analyzeUnicode());
-        
-        // Export/Import
-        this.exportBtn?.addEventListener('click', () => this.exportResults());
-        this.importBtn?.addEventListener('click', () => this.importPattern());
-        this.shareBtn?.addEventListener('click', () => this.sharePattern());
-        
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
-    }
-
-    handlePatternChange() {
-        const pattern = this.patternInput?.value || '';
-        this.currentRegex = this.validateAndCompileRegex(pattern);
-        this.updatePatternAnalysis();
-        this.performAdvancedTest();
-        this.addToHistory(pattern);
-    }
-
-    handleFlagChange() {
-        const flags = Array.from(this.flagCheckboxes)
-            .filter(cb => cb.checked)
-            .map(cb => cb.value)
-            .join('');
-        
-        this.currentFlags = flags;
-        this.handlePatternChange();
-    }
-
-    validateAndCompileRegex(pattern) {
-        if (!pattern) return null;
-        
-        try {
-            return new RegExp(pattern, this.currentFlags);
-        } catch (error) {
-            this.showPatternError(error.message);
-            return null;
+        // 고급 분석기 이벤트
+        if (this.analyzeBtn) {
+            this.analyzeBtn.addEventListener('click', () => this.analyzePattern());
         }
-    }
-
-    performAdvancedTest() {
-        if (!this.currentRegex || !this.testInput?.value) {
-            this.clearResults();
-            return;
-        }
-
-        const testText = this.testInput.value;
-        const startTime = performance.now();
         
-        try {
-            // Basic matching
-            const matches = [...testText.matchAll(this.currentRegex)];
-            const endTime = performance.now();
-            const executionTime = endTime - startTime;
-            
-            // Advanced analysis
-            this.analyzeMatches(matches, testText);
-            this.recordPerformance(executionTime, testText.length, matches.length);
-            this.updateResultsDisplay(matches, executionTime);
-            this.explainPattern();
-            
-        } catch (error) {
-            this.showTestError(error.message);
+        if (this.analyzePatternInput) {
+            this.analyzePatternInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') this.analyzePattern();
+            });
         }
-    }
-
-    analyzeMatches(matches, text) {
-        const analysis = {
-            matchCount: matches.length,
-            totalMatchLength: matches.reduce((sum, match) => sum + match[0].length, 0),
-            averageMatchLength: matches.length > 0 ? 
-                matches.reduce((sum, match) => sum + match[0].length, 0) / matches.length : 0,
-            positions: matches.map(match => ({ start: match.index, end: match.index + match[0].length })),
-            uniqueMatches: [...new Set(matches.map(match => match[0]))],
-            groups: this.analyzeGroups(matches),
-            coverage: matches.length > 0 ? 
-                matches.reduce((sum, match) => sum + match[0].length, 0) / text.length * 100 : 0
-        };
-
-        this.testResults = analysis;
-        return analysis;
-    }
-
-    analyzeGroups(matches) {
-        const groupAnalysis = {};
         
-        matches.forEach((match, matchIndex) => {
-            match.forEach((group, groupIndex) => {
-                if (groupIndex === 0) return; // Skip full match
+        // 패턴 디버거 이벤트
+        if (this.stepBackwardBtn) {
+            this.stepBackwardBtn.addEventListener('click', () => this.debugStepBackward());
+        }
+        
+        if (this.stepForwardBtn) {
+            this.stepForwardBtn.addEventListener('click', () => this.debugStepForward());
+        }
+        
+        if (this.resetDebugBtn) {
+            this.resetDebugBtn.addEventListener('click', () => this.resetDebug());
+        }
+        
+        // 복사 버튼 이벤트 바인딩
+        this.bindCopyButtons();
+        
+        // 탭 전환 이벤트 바인딩
+        this.bindTabSwitching();
+    }
+
+    bindCopyButtons() {
+        // 모든 복사 버튼에 이벤트 추가
+        document.querySelectorAll('.copy-code-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const codeElement = button.closest('.code-example')?.querySelector('code') ||
+                                   button.closest('.technique-card')?.querySelector('code') ||
+                                   button.previousElementSibling?.querySelector('code');
                 
-                if (!groupAnalysis[groupIndex]) {
-                    groupAnalysis[groupIndex] = {
-                        values: [],
-                        count: 0,
-                        uniqueValues: new Set()
-                    };
-                }
-                
-                if (group !== undefined) {
-                    groupAnalysis[groupIndex].values.push(group);
-                    groupAnalysis[groupIndex].count++;
-                    groupAnalysis[groupIndex].uniqueValues.add(group);
+                if (codeElement) {
+                    const codeText = codeElement.textContent;
+                    this.copyToClipboard(codeText, button);
                 }
             });
         });
-
-        // Convert Sets to Arrays for serialization
-        Object.keys(groupAnalysis).forEach(key => {
-            groupAnalysis[key].uniqueValues = Array.from(groupAnalysis[key].uniqueValues);
-        });
-
-        return groupAnalysis;
     }
 
-    recordPerformance(executionTime, textLength, matchCount) {
-        const performanceRecord = {
-            timestamp: Date.now(),
-            executionTime,
-            textLength,
-            matchCount,
-            pattern: this.patternInput?.value || '',
-            flags: this.currentFlags
-        };
-
-        this.performanceData.push(performanceRecord);
-        
-        // Keep only last 50 records
-        if (this.performanceData.length > 50) {
-            this.performanceData = this.performanceData.slice(-50);
-        }
-    }
-
-    updateResultsDisplay(matches, executionTime) {
-        if (!this.resultsContainer) return;
-
-        // Update matches table
-        this.updateMatchesTable(matches);
-        
-        // Update performance panel
-        this.updatePerformancePanel(executionTime);
-        
-        // Update statistics
-        this.updateStatistics(matches);
-        
-        // Highlight matches in text
-        this.highlightMatchesInText(matches);
-    }
-
-    updateMatchesTable(matches) {
-        if (!this.matchesTable) return;
-
-        if (matches.length === 0) {
-            this.matchesTable.innerHTML = `
-                <div class="no-matches">
-                    <i class="fas fa-search"></i>
-                    <p>매칭된 결과가 없습니다</p>
-                </div>
-            `;
-            return;
-        }
-
-        const tableHtml = `
-            <div class="matches-header">
-                <h4>매칭 결과 (${matches.length}개)</h4>
-                <div class="matches-controls">
-                    <button onclick="expertTool.exportMatches()" class="btn-sm">
-                        <i class="fas fa-download"></i> 내보내기
-                    </button>
-                </div>
-            </div>
-            <div class="matches-table-container">
-                <table class="matches-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>매칭</th>
-                            <th>위치</th>
-                            <th>길이</th>
-                            ${this.getGroupHeaders(matches)}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${matches.map((match, index) => `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td><code>${this.escapeHtml(match[0])}</code></td>
-                                <td>${match.index}-${match.index + match[0].length - 1}</td>
-                                <td>${match[0].length}</td>
-                                ${this.getGroupCells(match)}
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        `;
-
-        this.matchesTable.innerHTML = tableHtml;
-    }
-
-    getGroupHeaders(matches) {
-        const maxGroups = Math.max(...matches.map(match => match.length - 1));
-        return Array.from({ length: maxGroups }, (_, i) => `<th>그룹 ${i + 1}</th>`).join('');
-    }
-
-    getGroupCells(match) {
-        const groups = match.slice(1);
-        return groups.map(group => 
-            `<td>${group !== undefined ? `<code>${this.escapeHtml(group)}</code>` : '<span class="undefined">undefined</span>'}</td>`
-        ).join('');
-    }
-
-    updatePerformancePanel(executionTime) {
-        if (!this.performancePanel) return;
-
-        const performanceHtml = `
-            <div class="performance-metrics">
-                <div class="metric">
-                    <span class="metric-label">실행 시간</span>
-                    <span class="metric-value ${executionTime > 10 ? 'warning' : 'success'}">
-                        ${executionTime.toFixed(3)}ms
-                    </span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">텍스트 길이</span>
-                    <span class="metric-value">${this.testInput?.value.length || 0}</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">매칭 수</span>
-                    <span class="metric-value">${this.testResults.matchCount}</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">커버리지</span>
-                    <span class="metric-value">${this.testResults.coverage.toFixed(1)}%</span>
-                </div>
-            </div>
-            
-            ${this.renderPerformanceChart()}
-        `;
-
-        this.performancePanel.innerHTML = performanceHtml;
-    }
-
-    renderPerformanceChart() {
-        if (this.performanceData.length < 2) {
-            return '<p class="no-data">성능 데이터가 충분하지 않습니다</p>';
-        }
-
-        const recentData = this.performanceData.slice(-10);
-        const maxTime = Math.max(...recentData.map(d => d.executionTime));
-        
-        return `
-            <div class="performance-chart">
-                <h5>최근 실행 시간</h5>
-                <div class="chart-container">
-                    ${recentData.map((data, index) => `
-                        <div class="chart-bar">
-                            <div class="bar" 
-                                 style="height: ${(data.executionTime / maxTime) * 100}%"
-                                 title="${data.executionTime.toFixed(3)}ms">
-                            </div>
-                            <span class="bar-label">${index + 1}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-    }
-
-    explainPattern() {
-        if (!this.explanationPanel || !this.patternInput?.value) return;
-
-        const pattern = this.patternInput.value;
-        const explanation = this.generatePatternExplanation(pattern);
-        
-        this.explanationPanel.innerHTML = `
-            <div class="pattern-explanation">
-                <h4>패턴 분석</h4>
-                <div class="explanation-content">
-                    ${explanation}
-                </div>
-            </div>
-        `;
-    }
-
-    generatePatternExplanation(pattern) {
-        const explanations = [];
-        let i = 0;
-        
-        while (i < pattern.length) {
-            const char = pattern[i];
-            
-            switch (char) {
-                case '^':
-                    explanations.push('<span class="explain-anchor">^</span> 문자열의 시작');
-                    break;
-                case '$':
-                    explanations.push('<span class="explain-anchor">$</span> 문자열의 끝');
-                    break;
-                case '.':
-                    explanations.push('<span class="explain-wildcard">.</span> 임의의 문자 (줄바꿈 제외)');
-                    break;
-                case '*':
-                    explanations.push('<span class="explain-quantifier">*</span> 0개 이상 반복');
-                    break;
-                case '+':
-                    explanations.push('<span class="explain-quantifier">+</span> 1개 이상 반복');
-                    break;
-                case '?':
-                    explanations.push('<span class="explain-quantifier">?</span> 0개 또는 1개');
-                    break;
-                case '\\':
-                    if (i + 1 < pattern.length) {
-                        const nextChar = pattern[i + 1];
-                        const escaped = this.explainEscapedCharacter(nextChar);
-                        explanations.push(escaped);
-                        i++; // Skip next character
-                    }
-                    break;
-                case '[':
-                    const charClass = this.extractCharacterClass(pattern, i);
-                    explanations.push(this.explainCharacterClass(charClass.content));
-                    i = charClass.endIndex;
-                    break;
-                case '(':
-                    const group = this.extractGroup(pattern, i);
-                    explanations.push(this.explainGroup(group.content));
-                    i = group.endIndex;
-                    break;
-                case '{':
-                    const quantifier = this.extractQuantifier(pattern, i);
-                    explanations.push(this.explainQuantifier(quantifier.content));
-                    i = quantifier.endIndex;
-                    break;
-                default:
-                    explanations.push(`<span class="explain-literal">${this.escapeHtml(char)}</span> 리터럴 문자`);
-            }
-            i++;
-        }
-        
-        return explanations.join('<br>');
-    }
-
-    explainEscapedCharacter(char) {
-        const escapeExplanations = {
-            'd': '<span class="explain-escape">\\d</span> 숫자 (0-9)',
-            'D': '<span class="explain-escape">\\D</span> 숫자가 아닌 문자',
-            'w': '<span class="explain-escape">\\w</span> 단어 문자 (알파벳, 숫자, _)',
-            'W': '<span class="explain-escape">\\W</span> 단어 문자가 아닌 문자',
-            's': '<span class="explain-escape">\\s</span> 공백 문자',
-            'S': '<span class="explain-escape">\\S</span> 공백이 아닌 문자',
-            'b': '<span class="explain-escape">\\b</span> 단어 경계',
-            'B': '<span class="explain-escape">\\B</span> 단어 경계가 아닌 위치',
-            'n': '<span class="explain-escape">\\n</span> 줄바꿈',
-            't': '<span class="explain-escape">\\t</span> 탭',
-            'r': '<span class="explain-escape">\\r</span> 캐리지 리턴'
-        };
-        
-        return escapeExplanations[char] || `<span class="explain-escape">\\${char}</span> 이스케이프된 ${char}`;
-    }
-
-    extractCharacterClass(pattern, startIndex) {
-        let i = startIndex + 1;
-        let depth = 1;
-        
-        while (i < pattern.length && depth > 0) {
-            if (pattern[i] === '[' && pattern[i-1] !== '\\') depth++;
-            if (pattern[i] === ']' && pattern[i-1] !== '\\') depth--;
-            i++;
-        }
-        
-        return {
-            content: pattern.substring(startIndex, i),
-            endIndex: i - 1
-        };
-    }
-
-    extractGroup(pattern, startIndex) {
-        let i = startIndex + 1;
-        let depth = 1;
-        
-        while (i < pattern.length && depth > 0) {
-            if (pattern[i] === '(' && pattern[i-1] !== '\\') depth++;
-            if (pattern[i] === ')' && pattern[i-1] !== '\\') depth--;
-            i++;
-        }
-        
-        return {
-            content: pattern.substring(startIndex, i),
-            endIndex: i - 1
-        };
-    }
-
-    extractQuantifier(pattern, startIndex) {
-        let i = startIndex + 1;
-        
-        while (i < pattern.length && pattern[i] !== '}') {
-            i++;
-        }
-        
-        return {
-            content: pattern.substring(startIndex, i + 1),
-            endIndex: i
-        };
-    }
-
-    explainCharacterClass(content) {
-        const isNegated = content.startsWith('[^');
-        const inner = content.slice(isNegated ? 2 : 1, -1);
-        
-        return `<span class="explain-charclass">${content}</span> ${isNegated ? '제외하고' : '포함하여'} [${inner}] 중 하나`;
-    }
-
-    explainGroup(content) {
-        if (content.startsWith('(?:')) {
-            return `<span class="explain-group">${content}</span> 비캡처 그룹`;
-        } else if (content.startsWith('(?=')) {
-            return `<span class="explain-group">${content}</span> 긍정형 전방탐색`;
-        } else if (content.startsWith('(?!')) {
-            return `<span class="explain-group">${content}</span> 부정형 전방탐색`;
-        } else {
-            return `<span class="explain-group">${content}</span> 캡처 그룹`;
-        }
-    }
-
-    explainQuantifier(content) {
-        return `<span class="explain-quantifier">${content}</span> 반복 횟수 지정`;
-    }
-
-    // Advanced Tools
-    openRegexGenerator() {
-        const modal = this.createRegexGeneratorModal();
-        document.body.appendChild(modal);
-    }
-
-    createRegexGeneratorModal() {
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        modal.innerHTML = `
-            <div class="modal-content regex-generator-modal">
-                <div class="modal-header">
-                    <h3><i class="fas fa-magic"></i> 정규식 생성기</h3>
-                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="generator-options">
-                        <div class="option-group">
-                            <h4>문자 패턴</h4>
-                            <label><input type="checkbox" value="lowercase"> 소문자 (a-z)</label>
-                            <label><input type="checkbox" value="uppercase"> 대문자 (A-Z)</label>
-                            <label><input type="checkbox" value="digits"> 숫자 (0-9)</label>
-                            <label><input type="checkbox" value="symbols"> 특수문자</label>
-                        </div>
-                        
-                        <div class="option-group">
-                            <h4>길이 제한</h4>
-                            <label>최소: <input type="number" id="min-length" value="1" min="0"></label>
-                            <label>최대: <input type="number" id="max-length" value="10" min="1"></label>
-                        </div>
-                        
-                        <div class="option-group">
-                            <h4>패턴 유형</h4>
-                            <select id="pattern-type">
-                                <option value="custom">사용자 정의</option>
-                                <option value="email">이메일</option>
-                                <option value="phone">전화번호</option>
-                                <option value="url">URL</option>
-                                <option value="password">비밀번호</option>
-                            </select>
-                        </div>
-                    </div>
+    bindTabSwitching() {
+        // 탭 버튼 이벤트
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabName = button.getAttribute('data-tab');
+                const tabContainer = button.closest('.example-tabs');
+                
+                if (tabContainer && tabName) {
+                    // 모든 탭 버튼 비활성화
+                    tabContainer.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
                     
-                    <div class="generated-pattern">
-                        <h4>생성된 패턴</h4>
-                        <div class="pattern-output">
-                            <code id="generated-pattern-output"></code>
-                            <button onclick="expertTool.copyGeneratedPattern()" class="btn-sm">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button onclick="expertTool.generateCustomPattern()" class="btn btn-primary">
-                        패턴 생성
-                    </button>
-                    <button onclick="expertTool.useGeneratedPattern()" class="btn btn-secondary">
-                        패턴 사용
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        return modal;
-    }
-
-    generateCustomPattern() {
-        const modal = document.querySelector('.regex-generator-modal');
-        if (!modal) return;
-
-        const options = {
-            lowercase: modal.querySelector('input[value="lowercase"]').checked,
-            uppercase: modal.querySelector('input[value="uppercase"]').checked,
-            digits: modal.querySelector('input[value="digits"]').checked,
-            symbols: modal.querySelector('input[value="symbols"]').checked,
-            minLength: parseInt(modal.querySelector('#min-length').value) || 1,
-            maxLength: parseInt(modal.querySelector('#max-length').value) || 10,
-            type: modal.querySelector('#pattern-type').value
-        };
-
-        let pattern = '';
-
-        if (options.type === 'custom') {
-            let charClass = '';
-            if (options.lowercase) charClass += 'a-z';
-            if (options.uppercase) charClass += 'A-Z';
-            if (options.digits) charClass += '0-9';
-            if (options.symbols) charClass += '!@#$%^&*';
-
-            if (charClass) {
-                pattern = `[${charClass}]`;
-                if (options.minLength === options.maxLength) {
-                    pattern += `{${options.minLength}}`;
-                } else {
-                    pattern += `{${options.minLength},${options.maxLength}}`;
+                    // 모든 탭 컨텐츠 숨기기
+                    tabContainer.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // 선택된 탭 활성화
+                    button.classList.add('active');
+                    const targetContent = tabContainer.querySelector(`#${tabName}`);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
                 }
-            }
-        } else {
-            const presetPatterns = {
-                email: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
-                phone: '^\\d{2,3}-\\d{3,4}-\\d{4}$',
-                url: 'https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b',
-                password: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$'
-            };
-            pattern = presetPatterns[options.type];
-        }
-
-        const output = modal.querySelector('#generated-pattern-output');
-        if (output) {
-            output.textContent = pattern;
-        }
+            });
+        });
     }
 
-    optimizePattern() {
-        const pattern = this.patternInput?.value;
+    copyToClipboard(text, button) {
+        navigator.clipboard.writeText(text).then(() => {
+            // 성공 피드백
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> 복사됨!';
+            button.style.background = 'rgba(16, 185, 129, 0.8)';
+            
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.style.background = '';
+            }, 2000);
+            
+            this.showNotification('클립보드에 복사되었습니다!', 'success');
+        }).catch(err => {
+            console.error('복사 실패:', err);
+            this.showNotification('복사에 실패했습니다.', 'error');
+        });
+    }
+
+    // ==================== 고급 분석기 ====================
+    analyzePattern() {
+        const pattern = this.analyzePatternInput?.value;
+        
         if (!pattern) {
-            this.showNotification('최적화할 패턴을 입력해주세요', 'warning');
+            this.showNotification('패턴을 입력해주세요', 'warning');
             return;
         }
 
-        const suggestions = this.analyzePatternForOptimization(pattern);
-        this.showOptimizationSuggestions(suggestions);
+        try {
+            const startTime = performance.now();
+            
+            // 패턴 파싱 및 분석
+            const analysis = {
+                complexity: this.calculateComplexity(pattern),
+                features: this.extractFeatures(pattern),
+                performance: this.estimatePerformance(pattern),
+                redosRisk: this.checkReDoSRisk(pattern),
+                suggestions: this.generateOptimizations(pattern)
+            };
+            
+            const endTime = performance.now();
+            analysis.analysisTime = endTime - startTime;
+            
+            this.displayAnalysis(analysis);
+            this.updatePerformanceMetrics(pattern, analysis);
+            this.updateSecurityStatus(analysis.redosRisk);
+            
+        } catch (error) {
+            this.showNotification('패턴 분석 중 오류가 발생했습니다: ' + error.message, 'error');
+        }
     }
 
-    analyzePatternForOptimization(pattern) {
+    calculateComplexity(pattern) {
+        let score = 0;
+        
+        // 기본 점수
+        score += pattern.length;
+        
+        // 특수 문자 가중치
+        const specialChars = {
+            '*': 5, '+': 5, '?': 3,
+            '{': 4, '}': 4,
+            '(': 3, ')': 3,
+            '[': 2, ']': 2,
+            '|': 4,
+            '\\': 2,
+            '^': 2, '$': 2,
+            '.': 1
+        };
+        
+        for (const char of pattern) {
+            score += specialChars[char] || 0;
+        }
+        
+        // 중첩 구조 가중치
+        const nestingLevel = this.calculateNestingLevel(pattern);
+        score += nestingLevel * 10;
+        
+        // 복잡도 등급 결정
+        let level, color, description;
+        if (score < 20) {
+            level = '낮음';
+            color = 'success';
+            description = '단순하고 효율적인 패턴입니다.';
+        } else if (score < 50) {
+            level = '보통';
+            color = 'warning';
+            description = '적절한 복잡도의 패턴입니다.';
+        } else if (score < 100) {
+            level = '높음';
+            color = 'danger';
+            description = '복잡한 패턴입니다. 최적화를 고려하세요.';
+        } else {
+            level = '매우 높음';
+            color = 'danger';
+            description = '매우 복잡한 패턴입니다. 리팩토링이 필요합니다.';
+        }
+        
+        return { score, level, color, description };
+    }
+
+    calculateNestingLevel(pattern) {
+        let maxLevel = 0;
+        let currentLevel = 0;
+        
+        for (let i = 0; i < pattern.length; i++) {
+            if (pattern[i] === '(' && pattern[i-1] !== '\\') {
+                currentLevel++;
+                maxLevel = Math.max(maxLevel, currentLevel);
+            } else if (pattern[i] === ')' && pattern[i-1] !== '\\') {
+                currentLevel--;
+            }
+        }
+        
+        return maxLevel;
+    }
+
+    extractFeatures(pattern) {
+        const features = [];
+        
+        // 앵커
+        if (pattern.includes('^')) features.push({ name: '시작 앵커', icon: 'anchor', desc: '문자열의 시작을 매칭합니다.' });
+        if (pattern.includes('$')) features.push({ name: '끝 앵커', icon: 'anchor', desc: '문자열의 끝을 매칭합니다.' });
+        
+        // 수량자
+        if (/[*+?]/.test(pattern)) features.push({ name: '수량자', icon: 'repeat', desc: '문자의 반복 횟수를 지정합니다.' });
+        if (/\{\d+,?\d*\}/.test(pattern)) features.push({ name: '정확한 수량자', icon: 'hashtag', desc: '정확한 반복 횟수를 지정합니다.' });
+        
+        // 그룹
+        if (/\([^?]/.test(pattern)) features.push({ name: '캡처 그룹', icon: 'layer-group', desc: '매칭된 부분을 캡처합니다.' });
+        if (/\(\?:/.test(pattern)) features.push({ name: '비캡처 그룹', icon: 'object-ungroup', desc: '캡처하지 않는 그룹입니다.' });
+        
+        // 전후방탐색
+        if (/\(\?=/.test(pattern)) features.push({ name: '긍정 전방탐색', icon: 'eye', desc: '뒤따르는 패턴을 확인합니다.' });
+        if (/\(\?!/.test(pattern)) features.push({ name: '부정 전방탐색', icon: 'eye-slash', desc: '뒤따르지 않는 패턴을 확인합니다.' });
+        if (/\(\?<=/.test(pattern)) features.push({ name: '긍정 후방탐색', icon: 'eye', desc: '앞선 패턴을 확인합니다.' });
+        if (/\(\?<!/.test(pattern)) features.push({ name: '부정 후방탐색', icon: 'eye-slash', desc: '앞서지 않는 패턴을 확인합니다.' });
+        
+        // 문자 클래스
+        if (/\[.*\]/.test(pattern)) features.push({ name: '문자 클래스', icon: 'brackets-curly', desc: '여러 문자 중 하나를 매칭합니다.' });
+        if (/\[\^.*\]/.test(pattern)) features.push({ name: '부정 문자 클래스', icon: 'ban', desc: '지정된 문자를 제외합니다.' });
+        
+        // 특수 클래스
+        if (/\\d/.test(pattern)) features.push({ name: '숫자 클래스', icon: 'calculator', desc: '숫자를 매칭합니다 (0-9).' });
+        if (/\\w/.test(pattern)) features.push({ name: '단어 클래스', icon: 'font', desc: '단어 문자를 매칭합니다 (a-z, A-Z, 0-9, _).' });
+        if (/\\s/.test(pattern)) features.push({ name: '공백 클래스', icon: 'space-bar', desc: '공백 문자를 매칭합니다.' });
+        
+        // 역참조
+        if (/\\[1-9]/.test(pattern)) features.push({ name: '역참조', icon: 'link', desc: '이전에 캡처한 그룹을 참조합니다.' });
+        
+        // 선택
+        if (/\|/.test(pattern)) features.push({ name: '선택 연산자', icon: 'code-branch', desc: '여러 패턴 중 하나를 선택합니다.' });
+        
+        return features;
+    }
+
+    estimatePerformance(pattern) {
+        const testString = 'a'.repeat(1000);
+        const iterations = 100;
+        let totalTime = 0;
+        
+        try {
+            const regex = new RegExp(pattern, 'g');
+            
+            for (let i = 0; i < iterations; i++) {
+                const start = performance.now();
+                testString.match(regex);
+                totalTime += performance.now() - start;
+            }
+            
+            const avgTime = totalTime / iterations;
+            
+            let rating, color, recommendation;
+            if (avgTime < 0.1) {
+                rating = '우수';
+                color = 'success';
+                recommendation = '매우 빠른 패턴입니다.';
+            } else if (avgTime < 1) {
+                rating = '양호';
+                color = 'info';
+                recommendation = '적절한 성능의 패턴입니다.';
+            } else if (avgTime < 10) {
+                rating = '보통';
+                color = 'warning';
+                recommendation = '최적화를 고려해보세요.';
+            } else {
+                rating = '느림';
+                color = 'danger';
+                recommendation = '성능 개선이 필요합니다.';
+            }
+            
+            return {
+                avgTime: avgTime.toFixed(3),
+                rating,
+                color,
+                recommendation
+            };
+        } catch (error) {
+            return {
+                avgTime: 'N/A',
+                rating: '측정 불가',
+                color: 'secondary',
+                recommendation: '유효하지 않은 패턴입니다.'
+            };
+        }
+    }
+
+    checkReDoSRisk(pattern) {
+        const risks = [];
+        
+        // 중첩된 수량자 검사
+        if (/(\*|\+|\{[^}]+\})\s*(\*|\+|\{[^}]+\})/.test(pattern)) {
+            risks.push({
+                level: 'high',
+                type: '중첩된 수량자',
+                description: '중첩된 수량자는 지수적인 백트래킹을 유발할 수 있습니다.',
+                example: pattern.match(/(\*|\+|\{[^}]+\})\s*(\*|\+|\{[^}]+\})/)?.[0]
+            });
+        }
+        
+        // 교차하는 수량자 검사
+        if (/\([^)]*(\*|\+)[^)]*\)(\*|\+)/.test(pattern)) {
+            risks.push({
+                level: 'high',
+                type: '교차하는 수량자',
+                description: '그룹 내부와 외부의 수량자가 충돌할 수 있습니다.',
+                example: pattern.match(/\([^)]*(\*|\+)[^)]*\)(\*|\+)/)?.[0]
+            });
+        }
+        
+        // 과도한 선택지 검사
+        const alternations = pattern.split('|');
+        if (alternations.length > 10) {
+            risks.push({
+                level: 'medium',
+                type: '과도한 선택지',
+                description: `${alternations.length}개의 선택지가 있어 성능에 영향을 줄 수 있습니다.`,
+                example: pattern.substring(0, 50) + '...'
+            });
+        }
+        
+        // 앵커 없는 긴 패턴 검사
+        if (pattern.length > 50 && !pattern.startsWith('^') && !pattern.endsWith('$')) {
+            risks.push({
+                level: 'low',
+                type: '앵커 누락',
+                description: '앵커(^, $)가 없어 전체 문자열을 탐색할 수 있습니다.',
+                example: '앵커 추가를 고려하세요'
+            });
+        }
+        
+        // 백트래킹이 많은 패턴 검사
+        if (/\.\*.*\.\*/.test(pattern)) {
+            risks.push({
+                level: 'medium',
+                type: '과도한 와일드카드',
+                description: '여러 개의 .*는 많은 백트래킹을 유발할 수 있습니다.',
+                example: pattern.match(/\.\*.*\.\*/)?.[0]
+            });
+        }
+        
+        // 전체 위험도 평가
+        const highRisks = risks.filter(r => r.level === 'high').length;
+        const mediumRisks = risks.filter(r => r.level === 'medium').length;
+        
+        let overallRisk, color, message;
+        if (highRisks > 0) {
+            overallRisk = '높음';
+            color = 'danger';
+            message = 'ReDoS 공격에 취약할 수 있습니다. 즉시 수정이 필요합니다.';
+        } else if (mediumRisks > 1) {
+            overallRisk = '중간';
+            color = 'warning';
+            message = '일부 성능 문제가 있을 수 있습니다. 검토가 필요합니다.';
+        } else if (risks.length > 0) {
+            overallRisk = '낮음';
+            color = 'info';
+            message = '경미한 최적화 여지가 있습니다.';
+        } else {
+            overallRisk = '안전';
+            color = 'success';
+            message = '위험한 패턴이 감지되지 않았습니다.';
+        }
+        
+        return {
+            overallRisk,
+            color,
+            message,
+            risks
+        };
+    }
+
+    generateOptimizations(pattern) {
         const suggestions = [];
         
-        // Check for unnecessary escapes
-        if (pattern.includes('\\.') && !pattern.includes('[')) {
+        // 비탐욕적 수량자 제안
+        if (/\.\*/.test(pattern) && !/\.\*\?/.test(pattern)) {
             suggestions.push({
-                type: 'unnecessary-escape',
-                message: '불필요한 이스케이프가 있을 수 있습니다',
-                original: '\\.',
-                suggested: '.',
-                description: '문자 클래스 밖에서는 점을 이스케이프할 필요가 없습니다'
-            });
-        }
-
-        // Check for greedy quantifiers
-        if (pattern.includes('.*') || pattern.includes('.+')) {
-            suggestions.push({
-                type: 'greedy-quantifier',
-                message: '탐욕적 수량자가 성능에 영향을 줄 수 있습니다',
-                original: '.*',
+                type: '비탐욕적 수량자',
+                message: '탐욕적 수량자를 비탐욕적으로 변경',
+                description: '불필요한 백트래킹을 줄일 수 있습니다.',
+                original: pattern.match(/\.\*/)?.[0],
                 suggested: '.*?',
-                description: '비탐욕적 수량자를 사용하면 성능이 개선될 수 있습니다'
+                priority: 'medium'
             });
         }
-
-        // Check for character class optimization
-        if (pattern.includes('[a-zA-Z]')) {
+        
+        // 문자 클래스 최적화
+        if (/\[a-zA-Z\]/.test(pattern)) {
             suggestions.push({
-                type: 'char-class-optimization',
-                message: '문자 클래스를 단순화할 수 있습니다',
+                type: '문자 클래스 단순화',
+                message: '\\w로 대체 가능',
+                description: '더 간결하고 읽기 쉬운 패턴입니다.',
                 original: '[a-zA-Z]',
-                suggested: '[a-z]',
-                description: 'i 플래그를 사용하면 더 간단해집니다'
+                suggested: '\\w',
+                priority: 'low'
             });
         }
-
+        
+        // 앵커 추가 제안
+        if (!pattern.startsWith('^') && !pattern.includes('|')) {
+            suggestions.push({
+                type: '앵커 추가',
+                message: '시작 앵커 추가',
+                description: '불필요한 탐색을 방지할 수 있습니다.',
+                original: pattern,
+                suggested: '^' + pattern,
+                priority: 'low'
+            });
+        }
+        
+        // 비캡처 그룹 제안
+        const captureGroups = pattern.match(/\([^?][^)]*\)/g);
+        if (captureGroups && captureGroups.length > 0) {
+            suggestions.push({
+                type: '비캡처 그룹',
+                message: '불필요한 캡처 그룹을 비캡처 그룹으로 변경',
+                description: '메모리 사용량을 줄일 수 있습니다.',
+                original: captureGroups[0],
+                suggested: captureGroups[0].replace('(', '(?:'),
+                priority: 'medium'
+            });
+        }
+        
+        // 중첩된 수량자 제거
+        if (/(\*|\+)\1/.test(pattern)) {
+            suggestions.push({
+                type: '중복 수량자 제거',
+                message: '중첩된 수량자 정리',
+                description: 'ReDoS 위험을 줄일 수 있습니다.',
+                original: pattern.match(/(\*|\+)\1/)?.[0],
+                suggested: pattern.match(/(\*|\+)/)?.[0],
+                priority: 'high'
+            });
+        }
+        
         return suggestions;
     }
 
-    showOptimizationSuggestions(suggestions) {
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        modal.innerHTML = `
-            <div class="modal-content optimization-modal">
-                <div class="modal-header">
-                    <h3><i class="fas fa-wrench"></i> 패턴 최적화 제안</h3>
-                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
-                        <i class="fas fa-times"></i>
-                    </button>
+    displayAnalysis(analysis) {
+        if (!this.analysisResult) return;
+        
+        const html = `
+            <div class="analysis-complete">
+                <div class="analysis-header">
+                    <h4><i class="fas fa-chart-line"></i> 분석 결과</h4>
+                    <span class="analysis-time">${analysis.analysisTime.toFixed(2)}ms</span>
                 </div>
-                <div class="modal-body">
-                    ${suggestions.length > 0 ? 
-                        suggestions.map(suggestion => `
-                            <div class="optimization-suggestion">
-                                <div class="suggestion-header">
-                                    <i class="fas fa-lightbulb"></i>
-                                    <strong>${suggestion.message}</strong>
+                
+                <!-- 복잡도 -->
+                <div class="analysis-section">
+                    <h5>복잡도 분석</h5>
+                    <div class="complexity-badge ${analysis.complexity.color}">
+                        <span class="badge-score">${analysis.complexity.score}</span>
+                        <span class="badge-level">${analysis.complexity.level}</span>
+                    </div>
+                    <p class="complexity-desc">${analysis.complexity.description}</p>
+                </div>
+                
+                <!-- 성능 평가 -->
+                <div class="analysis-section">
+                    <h5>성능 평가</h5>
+                    <div class="performance-rating ${analysis.performance.color}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="rating-text">${analysis.performance.rating}</span>
+                        <span class="rating-time">(평균 ${analysis.performance.avgTime}ms)</span>
+                    </div>
+                    <p class="performance-recommendation">${analysis.performance.recommendation}</p>
+                </div>
+                
+                <!-- 기능 분석 -->
+                <div class="analysis-section">
+                    <h5>사용된 기능 (${analysis.features.length}개)</h5>
+                    <div class="features-list">
+                        ${analysis.features.map(feature => `
+                            <div class="feature-item">
+                                <i class="fas fa-${feature.icon}"></i>
+                                <div class="feature-info">
+                                    <strong>${feature.name}</strong>
+                                    <span>${feature.desc}</span>
                                 </div>
-                                <div class="suggestion-details">
-                                    <p>${suggestion.description}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <!-- 최적화 제안 -->
+                ${analysis.suggestions.length > 0 ? `
+                    <div class="analysis-section">
+                        <h5>최적화 제안 (${analysis.suggestions.length}개)</h5>
+                        <div class="suggestions-list">
+                            ${analysis.suggestions.map(suggestion => `
+                                <div class="suggestion-item priority-${suggestion.priority}">
+                                    <div class="suggestion-header">
+                                        <span class="suggestion-type">${suggestion.type}</span>
+                                        <span class="priority-badge">${suggestion.priority}</span>
+                                    </div>
+                                    <p class="suggestion-message">${suggestion.message}</p>
                                     <div class="suggestion-comparison">
-                                        <div class="original">
+                                        <div class="comparison-item">
                                             <label>현재:</label>
-                                            <code>${suggestion.original}</code>
+                                            <code>${this.escapeHtml(suggestion.original)}</code>
                                         </div>
-                                        <div class="suggested">
+                                        <div class="comparison-arrow">→</div>
+                                        <div class="comparison-item">
                                             <label>제안:</label>
-                                            <code>${suggestion.suggested}</code>
+                                            <code>${this.escapeHtml(suggestion.suggested)}</code>
                                         </div>
                                     </div>
                                 </div>
-                                <button onclick="expertTool.applySuggestion('${suggestion.original}', '${suggestion.suggested}')" 
-                                        class="btn-sm btn-primary">적용</button>
-                            </div>
-                        `).join('') : 
-                        '<div class="no-suggestions"><i class="fas fa-check-circle"></i><p>최적화 제안사항이 없습니다. 패턴이 이미 최적화되어 있습니다!</p></div>'
-                    }
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        
+        this.analysisResult.innerHTML = html;
+    }
+
+    // ==================== 성능 모니터 ====================
+    updatePerformanceMetrics(pattern, analysis) {
+        // 실행 시간
+        if (this.execTimeEl) {
+            this.execTimeEl.textContent = `${analysis.performance.avgTime}ms`;
+            this.execTimeEl.className = `metric-value ${analysis.performance.color}`;
+        }
+        
+        // 백트랙 횟수 (추정)
+        if (this.backtrackCountEl) {
+            const backtrackEstimate = this.estimateBacktracking(pattern);
+            this.backtrackCountEl.textContent = backtrackEstimate;
+        }
+        
+        // 복잡도
+        if (this.complexityEl) {
+            this.complexityEl.textContent = analysis.complexity.level;
+            this.complexityEl.className = `metric-value ${analysis.complexity.color}`;
+        }
+        
+        // 성능 차트 업데이트
+        this.performanceData.push({
+            pattern: pattern.substring(0, 20),
+            time: parseFloat(analysis.performance.avgTime),
+            complexity: analysis.complexity.score
+        });
+        
+        if (this.performanceData.length > 10) {
+            this.performanceData.shift();
+        }
+        
+        this.updatePerformanceChart();
+    }
+
+    estimateBacktracking(pattern) {
+        let estimate = 0;
+        
+        // 수량자 검사
+        const quantifiers = pattern.match(/[*+?{]/g);
+        if (quantifiers) estimate += quantifiers.length * 10;
+        
+        // 선택 연산자 검사
+        const alternations = pattern.match(/\|/g);
+        if (alternations) estimate += alternations.length * 5;
+        
+        // 중첩 구조 검사
+        const nestingLevel = this.calculateNestingLevel(pattern);
+        estimate += nestingLevel * 20;
+        
+        if (estimate === 0) return '없음';
+        if (estimate < 50) return '낮음';
+        if (estimate < 100) return '보통';
+        return '높음';
+    }
+
+    updatePerformanceChart() {
+        if (!this.performanceChart) return;
+        
+        const canvas = this.performanceChart;
+        const ctx = canvas.getContext('2d');
+        
+        // 캔버스 초기화
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        if (this.performanceData.length === 0) return;
+        
+        const width = canvas.width;
+        const height = canvas.height;
+        const padding = 30;
+        const chartWidth = width - padding * 2;
+        const chartHeight = height - padding * 2;
+        
+        // 최대값 계산
+        const maxTime = Math.max(...this.performanceData.map(d => d.time), 1);
+        
+        // 배경 그리드
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 1;
+        
+        for (let i = 0; i <= 5; i++) {
+            const y = padding + (chartHeight / 5) * i;
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width - padding, y);
+            ctx.stroke();
+        }
+        
+        // 데이터 포인트 그리기
+        const barWidth = chartWidth / this.performanceData.length;
+        
+        this.performanceData.forEach((data, index) => {
+            const barHeight = (data.time / maxTime) * chartHeight;
+            const x = padding + index * barWidth;
+            const y = height - padding - barHeight;
+            
+            // 막대 그리기
+            const gradient = ctx.createLinearGradient(0, y, 0, height - padding);
+            gradient.addColorStop(0, '#6366f1');
+            gradient.addColorStop(1, '#8b5cf6');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(x + 2, y, barWidth - 4, barHeight);
+            
+            // 값 표시
+            ctx.fillStyle = '#374151';
+            ctx.font = '10px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${data.time.toFixed(1)}`, x + barWidth / 2, y - 5);
+        });
+        
+        // 축 레이블
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '12px Inter';
+        ctx.textAlign = 'left';
+        ctx.fillText('시간 (ms)', padding, padding - 10);
+    }
+
+    // ==================== 패턴 디버거 ====================
+    debugStepForward() {
+        if (!this.analyzePatternInput?.value) {
+            this.showNotification('디버깅할 패턴을 입력해주세요', 'warning');
+            return;
+        }
+        
+        if (this.debugSteps.length === 0) {
+            this.initializeDebugger();
+        }
+        
+        if (this.currentDebugStep < this.debugSteps.length - 1) {
+            this.currentDebugStep++;
+            this.renderDebugStep();
+        }
+    }
+
+    debugStepBackward() {
+        if (this.currentDebugStep > 0) {
+            this.currentDebugStep--;
+            this.renderDebugStep();
+        }
+    }
+
+    resetDebug() {
+        this.debugSteps = [];
+        this.currentDebugStep = 0;
+        if (this.debugViz) {
+            this.debugViz.innerHTML = '<div class="no-debug">패턴을 입력하고 디버깅을 시작하세요</div>';
+        }
+    }
+
+    initializeDebugger() {
+        const pattern = this.analyzePatternInput.value;
+        const testString = 'Hello World 123';
+        
+        this.debugSteps = this.generateDebugSteps(pattern, testString);
+        this.currentDebugStep = 0;
+    }
+
+    generateDebugSteps(pattern, testString) {
+        const steps = [];
+        
+        try {
+            const regex = new RegExp(pattern, 'g');
+            let match;
+            let position = 0;
+            
+            steps.push({
+                step: 0,
+                description: '디버깅 시작',
+                pattern: pattern,
+                position: 0,
+                matched: '',
+                remaining: testString
+            });
+            
+            while ((match = regex.exec(testString)) !== null) {
+                steps.push({
+                    step: steps.length,
+                    description: `위치 ${match.index}에서 매칭 발견`,
+                    pattern: pattern,
+                    position: match.index,
+                    matched: match[0],
+                    remaining: testString.substring(regex.lastIndex)
+                });
+                
+                if (regex.lastIndex === match.index) {
+                    regex.lastIndex++;
+                }
+            }
+            
+            steps.push({
+                step: steps.length,
+                description: '디버깅 완료',
+                pattern: pattern,
+                position: testString.length,
+                matched: '',
+                remaining: ''
+            });
+            
+        } catch (error) {
+            steps.push({
+                step: 0,
+                description: '오류: ' + error.message,
+                pattern: pattern,
+                position: 0,
+                matched: '',
+                remaining: testString
+            });
+        }
+        
+        return steps;
+    }
+
+    renderDebugStep() {
+        if (!this.debugViz || this.debugSteps.length === 0) return;
+        
+        const step = this.debugSteps[this.currentDebugStep];
+        
+        const html = `
+            <div class="debug-step">
+                <div class="debug-header">
+                    <span class="step-number">단계 ${step.step} / ${this.debugSteps.length - 1}</span>
+                    <span class="step-description">${step.description}</span>
+                </div>
+                
+                <div class="debug-pattern">
+                    <label>패턴:</label>
+                    <code>${this.escapeHtml(step.pattern)}</code>
+                </div>
+                
+                <div class="debug-position">
+                    <label>현재 위치:</label>
+                    <span class="position-value">${step.position}</span>
+                </div>
+                
+                ${step.matched ? `
+                    <div class="debug-matched">
+                        <label>매칭된 문자열:</label>
+                        <code class="matched-text">${this.escapeHtml(step.matched)}</code>
+                    </div>
+                ` : ''}
+                
+                ${step.remaining ? `
+                    <div class="debug-remaining">
+                        <label>남은 문자열:</label>
+                        <code>${this.escapeHtml(step.remaining)}</code>
+                    </div>
+                ` : ''}
+                
+                <div class="debug-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${(this.currentDebugStep / (this.debugSteps.length - 1)) * 100}%"></div>
+                    </div>
                 </div>
             </div>
         `;
         
-        document.body.appendChild(modal);
+        this.debugViz.innerHTML = html;
     }
 
-    applySuggestion(original, suggested) {
-        if (!this.patternInput) return;
+    // ==================== ReDoS 탐지기 ====================
+    updateSecurityStatus(redosRisk) {
+        if (!this.securityStatus) return;
         
-        const currentPattern = this.patternInput.value;
-        const optimizedPattern = currentPattern.replace(original, suggested);
+        const statusHtml = `
+            <div class="status-item ${redosRisk.color}">
+                <i class="fas ${redosRisk.overallRisk === '안전' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+                <div class="status-info">
+                    <strong>${redosRisk.overallRisk}</strong>
+                    <span>${redosRisk.message}</span>
+                </div>
+            </div>
+        `;
         
-        this.patternInput.value = optimizedPattern;
-        this.handlePatternChange();
+        this.securityStatus.innerHTML = statusHtml;
         
-        this.showNotification('최적화가 적용되었습니다', 'success');
-    }
-
-    // Utility methods
-    addToHistory(pattern) {
-        if (!pattern || this.history[0] === pattern) return;
-        
-        this.history.unshift(pattern);
-        if (this.history.length > this.maxHistorySize) {
-            this.history = this.history.slice(0, this.maxHistorySize);
-        }
-    }
-
-    loadSampleData() {
-        const sampleTexts = [
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Email: test@example.com, Phone: 010-1234-5678',
-            'Visit our website at https://example.com or call us at 02-123-4567 for more information.',
-            'User accounts: admin@site.org, user123@domain.co.kr, support@help.net',
-            'Dates: 2024-01-15, 2024-12-31. Times: 09:30, 14:45, 23:59',
-            'Colors: #FF0000, #00FF00, #0000FF. IPs: 192.168.1.1, 127.0.0.1, 10.0.0.1'
-        ];
-        
-        const randomSample = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
-        if (this.testInput) {
-            this.testInput.value = randomSample;
-            this.performAdvancedTest();
-        }
-    }
-
-    handleFileUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            if (this.testInput) {
-                this.testInput.value = e.target.result;
-                this.performAdvancedTest();
+        // 취약점 상세 정보
+        if (this.vulnerabilityDetails) {
+            if (redosRisk.risks.length > 0) {
+                const detailsHtml = `
+                    <div class="vulnerabilities-list">
+                        ${redosRisk.risks.map(risk => `
+                            <div class="vulnerability-item ${risk.level}">
+                                <div class="vuln-header">
+                                    <span class="vuln-type">${risk.type}</span>
+                                    <span class="vuln-level">${risk.level}</span>
+                                </div>
+                                <p class="vuln-description">${risk.description}</p>
+                                ${risk.example ? `
+                                    <div class="vuln-example">
+                                        <label>예시:</label>
+                                        <code>${this.escapeHtml(risk.example)}</code>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                this.vulnerabilityDetails.innerHTML = detailsHtml;
+            } else {
+                this.vulnerabilityDetails.innerHTML = `
+                    <div class="no-vulnerabilities">
+                        <i class="fas fa-shield-alt"></i>
+                        <p>위험한 패턴이 감지되지 않았습니다</p>
+                    </div>
+                `;
             }
-        };
-        reader.readAsText(file);
-    }
-
-    exportResults() {
-        const results = {
-            pattern: this.patternInput?.value || '',
-            flags: this.currentFlags,
-            testText: this.testInput?.value || '',
-            matches: this.testResults,
-            performance: this.performanceData,
-            timestamp: new Date().toISOString()
-        };
-        
-        const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `regex-analysis-${Date.now()}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        
-        this.showNotification('결과가 내보내기되었습니다', 'success');
-    }
-
-    handleKeyboardShortcuts(e) {
-        // Ctrl+Enter: Run test
-        if (e.ctrlKey && e.key === 'Enter') {
-            e.preventDefault();
-            this.performAdvancedTest();
-        }
-        
-        // Ctrl+Shift+O: Optimize
-        if (e.ctrlKey && e.shiftKey && e.key === 'O') {
-            e.preventDefault();
-            this.optimizePattern();
-        }
-        
-        // F5: Generate sample
-        if (e.key === 'F5') {
-            e.preventDefault();
-            this.loadSampleData();
         }
     }
 
-    // Helper methods
-    escapeHtml(text) {
-        if (typeof text !== 'string') return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
+    // ==================== 유틸리티 메서드 ====================
     showNotification(message, type = 'info') {
         const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
+        notification.className = `notification ${type}`;
         notification.innerHTML = `
             <i class="fas fa-${this.getNotificationIcon(type)}"></i>
             <span>${message}</span>
-            <button class="notification-close" onclick="this.parentElement.remove()">
-                <i class="fas fa-times"></i>
-            </button>
         `;
-
+        
         const container = document.getElementById('notification-container') || document.body;
         container.appendChild(notification);
-
+        
+        setTimeout(() => notification.classList.add('show'), 10);
+        
         setTimeout(() => {
-            if (notification.parentElement) {
-                notification.remove();
-            }
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
 
@@ -864,43 +903,49 @@ class RegexExpert {
         return icons[type] || 'info-circle';
     }
 
-    showPatternError(message) {
-        // Implementation for showing pattern errors
-        console.error('Pattern Error:', message);
-    }
-
-    showTestError(message) {
-        // Implementation for showing test errors
-        console.error('Test Error:', message);
-    }
-
-    clearResults() {
-        if (this.matchesTable) {
-            this.matchesTable.innerHTML = '<div class="no-matches"><p>결과가 없습니다</p></div>';
-        }
-    }
-
-    updateStatistics(matches) {
-        // Implementation for updating statistics display
-    }
-
-    highlightMatchesInText(matches) {
-        // Implementation for highlighting matches in the text
-    }
-
-    updateDisplay() {
-        // Implementation for updating the overall display
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     loadSettings() {
-        // Implementation for loading user settings
+        try {
+            const saved = localStorage.getItem('expert-settings');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                // 설정 적용
+            }
+        } catch (error) {
+            console.error('Failed to load settings:', error);
+        }
+    }
+
+    saveSettings() {
+        try {
+            const settings = {
+                // 저장할 설정들
+            };
+            localStorage.setItem('expert-settings', JSON.stringify(settings));
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+        }
+    }
+
+    updateDisplay() {
+        // 초기 디스플레이 업데이트
     }
 }
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.expertTool = new RegexExpert();
-    console.log('🔬 NEO Regex Expert initialized!');
+    try {
+        window.expertTool = new RegexExpert();
+        console.log('🔬 NEO Regex Expert initialized successfully!');
+    } catch (error) {
+        console.error('Failed to initialize RegexExpert:', error);
+    }
 });
 
 // Export for use in other modules

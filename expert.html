@@ -253,33 +253,87 @@
                                 <button class="tab-btn" data-tab="lookbehind">후방탐색</button>
                             </div>
                             
+                            <!-- 전방탐색 탭 -->
                             <div class="tab-content active" id="lookahead">
                                 <div class="code-example">
                                     <div class="code-header">
-                                        <span>긍정 전방탐색</span>
+                                        <span>긍정 전방탐색 (Positive Lookahead)</span>
                                         <button class="copy-code-btn">
                                             <i class="fas fa-copy"></i>
                                         </button>
                                     </div>
                                     <code>(?=.*\d)(?=.*[A-Z]).*</code>
                                     <div class="code-desc">
-                                        숫자와 대문자를 모두 포함하는 문자열
+                                        숫자와 대문자를 모두 포함하는 문자열 (비밀번호 검증에 유용)
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <div class="tab-content" id="lookbehind">
-                                <div class="code-example">
+                                
+                                <div class="code-example" style="margin-top: 1rem;">
                                     <div class="code-header">
-                                        <span>긍정 후방탐색</span>
+                                        <span>부정 전방탐색 (Negative Lookahead)</span>
                                         <button class="copy-code-btn">
                                             <i class="fas fa-copy"></i>
                                         </button>
                                     </div>
-                                    <code>(?<=\$)\d+</code>
+                                    <code>\b(?!cat\b)\w+</code>
                                     <div class="code-desc">
-                                        달러 기호 뒤에 오는 숫자들
+                                        'cat'이 아닌 모든 단어 매칭
                                     </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 후방탐색 탭 -->
+                            <div class="tab-content" id="lookbehind">
+                                <div class="code-example">
+                                    <div class="code-header">
+                                        <span>긍정 후방탐색 (Positive Lookbehind)</span>
+                                        <button class="copy-code-btn">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <code>(?&lt;=\$)\d+(\.\d{2})?</code>
+                                    <div class="code-desc">
+                                        달러 기호($) 뒤에 오는 가격 숫자 매칭 (예: $19.99)
+                                    </div>
+                                </div>
+                                
+                                <div class="code-example" style="margin-top: 1rem;">
+                                    <div class="code-header">
+                                        <span>부정 후방탐색 (Negative Lookbehind)</span>
+                                        <button class="copy-code-btn">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <code>(?&lt;!un)\w+able</code>
+                                    <div class="code-desc">
+                                        'un'이 앞에 오지 않는 'able'로 끝나는 단어 (예: comfortable, 제외: unable)
+                                    </div>
+                                </div>
+                                
+                                <div class="code-example" style="margin-top: 1rem;">
+                                    <div class="code-header">
+                                        <span>복합 후방탐색</span>
+                                        <button class="copy-code-btn">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <code>(?&lt;=@)\w+(?=\.com)</code>
+                                    <div class="code-desc">
+                                        이메일에서 @ 뒤부터 .com 앞까지의 도메인명 추출 (예: user@example.com → example)
+                                    </div>
+                                </div>
+                                
+                                <div class="usage-example" style="margin-top: 1.5rem;">
+                                    <h4>실전 활용 예제</h4>
+                                    <pre><code>// 로그 파일에서 타임스탬프 다음의 메시지만 추출
+                const pattern = /(?&lt;=\[\d{2}:\d{2}:\d{2}\]\s).+/g;
+                const log = "[12:34:56] Error occurred";
+                // 결과: "Error occurred"
+
+                // HTML 태그 안의 텍스트만 추출 (태그 제외)
+                const pattern = /(?&lt;=&gt;)[^&lt;]+(?=&lt;)/g;
+                const html = "&lt;div&gt;Hello World&lt;/div&gt;";
+                // 결과: "Hello World"</code></pre>
                                 </div>
                             </div>
                         </div>
@@ -386,101 +440,6 @@ console.log(match.groups.domain);   // 도메인</code></pre>
                                 <div class="unicode-sample">$€¥₩</div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Code Generator -->
-    <section class="code-generator">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">코드 생성기</h2>
-                <p class="section-subtitle">
-                    정규식 패턴을 다양한 프로그래밍 언어 코드로 변환합니다
-                </p>
-            </div>
-            
-            <div class="generator-workspace">
-                <div class="generator-input">
-                    <div class="input-header">
-                        <h3>정규식 패턴</h3>
-                        <div class="input-tools">
-                            <button class="tool-btn" id="validate-pattern">
-                                <i class="fas fa-check"></i>
-                                검증
-                            </button>
-                            <button class="tool-btn" id="optimize-pattern">
-                                <i class="fas fa-magic"></i>
-                                최적화
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="pattern-input-area">
-                        <input 
-                            type="text" 
-                            id="generator-pattern" 
-                            class="pattern-field"
-                            placeholder="정규식 패턴을 입력하세요..."
-                            value="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-                        >
-                        <div class="flags-selector">
-                            <label><input type="checkbox" value="g"> Global</label>
-                            <label><input type="checkbox" value="i"> Ignore case</label>
-                            <label><input type="checkbox" value="m"> Multiline</label>
-                            <label><input type="checkbox" value="s"> Dotall</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="generated-code">
-                    <div class="code-tabs">
-                        <button class="code-tab active" data-lang="javascript">JavaScript</button>
-                        <button class="code-tab" data-lang="python">Python</button>
-                        <button class="code-tab" data-lang="java">Java</button>
-                        <button class="code-tab" data-lang="csharp">C#</button>
-                        <button class="code-tab" data-lang="php">PHP</button>
-                        <button class="code-tab" data-lang="go">Go</button>
-                    </div>
-                    
-                    <div class="code-panels">
-                        <div class="code-panel active" id="javascript-code">
-                            <div class="code-header">
-                                <span>JavaScript</span>
-                                <button class="copy-code-btn" data-lang="javascript">
-                                    <i class="fas fa-copy"></i>
-                                    복사
-                                </button>
-                            </div>
-                            <pre><code id="js-code">// JavaScript 코드가 여기에 생성됩니다
-const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const text = "user@example.com";
-const isValid = pattern.test(text);
-
-console.log(isValid); // true</code></pre>
-                        </div>
-                        
-                        <div class="code-panel" id="python-code">
-                            <div class="code-header">
-                                <span>Python</span>
-                                <button class="copy-code-btn" data-lang="python">
-                                    <i class="fas fa-copy"></i>
-                                    복사
-                                </button>
-                            </div>
-                            <pre><code id="py-code"># Python 코드가 여기에 생성됩니다
-import re
-
-pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-text = "user@example.com"
-is_valid = re.match(pattern, text) is not None
-
-print(is_valid)  # True</code></pre>
-                        </div>
-                        
-                        <!-- Other language panels would be here -->
                     </div>
                 </div>
             </div>
