@@ -1,0 +1,424 @@
+{
+  "patterns": [
+    {
+      "id": "email",
+      "title": "이메일 주소",
+      "description": "일반적인 이메일 주소 형식을 검증합니다",
+      "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+      "category": "basic",
+      "difficulty": "easy",
+      "icon": "fa-envelope",
+      "tags": ["validation", "email", "contact"],
+      "examples": {
+        "valid": ["user@example.com", "test.user@domain.co.kr"],
+        "invalid": ["invalid-email", "@example.com"]
+      }
+    },
+    {
+      "id": "phone-kr",
+      "title": "한국 전화번호",
+      "description": "한국 휴대폰 및 일반 전화번호 형식을 검증합니다",
+      "pattern": "^(01[016789]|02|0[3-9]{1}[0-9]{1})-?([0-9]{3,4})-?([0-9]{4})$",
+      "category": "korean",
+      "difficulty": "easy",
+      "icon": "fa-phone",
+      "tags": ["validation", "phone", "korean"],
+      "examples": {
+        "valid": ["010-1234-5678", "02-123-4567"],
+        "invalid": ["01012345678", "010-12-34"]
+      }
+    },
+    {
+      "id": "url",
+      "title": "URL 주소",
+      "description": "웹 URL 형식을 검증합니다 (http, https)",
+      "pattern": "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)",
+      "category": "basic",
+      "difficulty": "medium",
+      "icon": "fa-link",
+      "tags": ["validation", "url", "web"],
+      "examples": {
+        "valid": ["https://example.com", "http://www.test.co.kr"],
+        "invalid": ["not-a-url", "ftp://example.com"]
+      }
+    },
+    {
+      "id": "ipv4",
+      "title": "IPv4 주소",
+      "description": "IPv4 주소 형식을 검증합니다",
+      "pattern": "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-network-wired",
+      "tags": ["network", "ip", "validation"],
+      "examples": {
+        "valid": ["192.168.0.1", "10.0.0.1"],
+        "invalid": ["256.1.1.1", "192.168.1"]
+      }
+    },
+    {
+      "id": "password",
+      "title": "강력한 비밀번호",
+      "description": "8자 이상, 대소문자, 숫자, 특수문자 포함",
+      "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+      "category": "validation",
+      "difficulty": "hard",
+      "icon": "fa-lock",
+      "tags": ["security", "password", "validation"],
+      "examples": {
+        "valid": ["Pass123!@#", "MyP@ssw0rd"],
+        "invalid": ["password", "12345678"]
+      }
+    },
+    {
+      "id": "korean-name",
+      "title": "한글 이름",
+      "description": "한글 이름 형식을 검증합니다 (2-5자)",
+      "pattern": "^[가-힣]{2,5}$",
+      "category": "korean",
+      "difficulty": "easy",
+      "icon": "fa-user",
+      "tags": ["korean", "name", "validation"],
+      "examples": {
+        "valid": ["홍길동", "김철수"],
+        "invalid": ["김", "John"]
+      }
+    },
+    {
+      "id": "date-iso",
+      "title": "날짜 (YYYY-MM-DD)",
+      "description": "ISO 8601 날짜 형식을 검증합니다",
+      "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "category": "validation",
+      "difficulty": "medium",
+      "icon": "fa-calendar",
+      "tags": ["date", "validation", "iso8601"],
+      "examples": {
+        "valid": ["2024-01-01", "2024-12-31"],
+        "invalid": ["2024-13-01", "2024-01-32"]
+      }
+    },
+    {
+      "id": "hex-color",
+      "title": "HEX 색상 코드",
+      "description": "HEX 색상 코드를 검증합니다 (#RGB, #RRGGBB)",
+      "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+      "category": "developer",
+      "difficulty": "easy",
+      "icon": "fa-palette",
+      "tags": ["color", "hex", "css"],
+      "examples": {
+        "valid": ["#FFF", "#FFFFFF"],
+        "invalid": ["#GGG", "#12345"]
+      }
+    },
+    {
+      "id": "credit-card",
+      "title": "신용카드 번호",
+      "description": "일반적인 신용카드 번호 형식을 검증합니다",
+      "pattern": "^\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}$",
+      "category": "validation",
+      "difficulty": "easy",
+      "icon": "fa-credit-card",
+      "tags": ["payment", "card", "validation"],
+      "examples": {
+        "valid": ["1234-5678-9012-3456", "1234567890123456"],
+        "invalid": ["1234-5678-9012", "1234-5678-9012-345"]
+      }
+    },
+    {
+      "id": "html-tag",
+      "title": "HTML 태그",
+      "description": "HTML 태그를 추출합니다",
+      "pattern": "<([a-z]+)([^<]+)*(?:>(.*)<\\/\\1>|\\s+\\/>)",
+      "category": "developer",
+      "difficulty": "hard",
+      "icon": "fa-code",
+      "tags": ["html", "parsing", "web"],
+      "examples": {
+        "valid": ["<div>content</div>", "<br />"],
+        "invalid": ["<div>", "plain text"]
+      }
+    },
+    {
+      "id": "username",
+      "title": "사용자 이름",
+      "description": "영문, 숫자, 언더스코어만 허용 (3-20자)",
+      "pattern": "^[a-zA-Z0-9_]{3,20}$",
+      "category": "basic",
+      "difficulty": "easy",
+      "icon": "fa-user-circle",
+      "tags": ["validation", "username", "account"],
+      "examples": {
+        "valid": ["user123", "john_doe"],
+        "invalid": ["us", "user@123"]
+      }
+    },
+    {
+      "id": "postal-code-kr",
+      "title": "한국 우편번호",
+      "description": "한국 우편번호 형식을 검증합니다 (5자리)",
+      "pattern": "^\\d{5}$",
+      "category": "korean",
+      "difficulty": "easy",
+      "icon": "fa-map-marker-alt",
+      "tags": ["postal", "zip", "korean"],
+      "examples": {
+        "valid": ["12345", "06234"],
+        "invalid": ["1234", "123456"]
+      }
+    },
+    {
+      "id": "time-24h",
+      "title": "시간 (24시간)",
+      "description": "24시간 형식의 시간을 검증합니다 (HH:MM)",
+      "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
+      "category": "validation",
+      "difficulty": "medium",
+      "icon": "fa-clock",
+      "tags": ["time", "validation", "24hour"],
+      "examples": {
+        "valid": ["09:30", "23:59"],
+        "invalid": ["24:00", "9:30"]
+      }
+    },
+    {
+      "id": "mac-address",
+      "title": "MAC 주소",
+      "description": "MAC 주소 형식을 검증합니다",
+      "pattern": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-ethernet",
+      "tags": ["network", "mac", "hardware"],
+      "examples": {
+        "valid": ["00:1B:44:11:3A:B7", "00-1B-44-11-3A-B7"],
+        "invalid": ["00:1B:44:11:3A", "00:1B:44:11:3A:B7:C8"]
+      }
+    },
+    {
+      "id": "slug",
+      "title": "URL Slug",
+      "description": "URL에 안전한 slug 형식을 검증합니다",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "category": "developer",
+      "difficulty": "easy",
+      "icon": "fa-link",
+      "tags": ["url", "slug", "web"],
+      "examples": {
+        "valid": ["my-blog-post", "hello-world"],
+        "invalid": ["My-Post", "hello_world"]
+      }
+    },
+    {
+      "id": "korean-business-number",
+      "title": "사업자등록번호",
+      "description": "한국 사업자등록번호 형식을 검증합니다",
+      "pattern": "^\\d{3}-\\d{2}-\\d{5}$",
+      "category": "korean",
+      "difficulty": "easy",
+      "icon": "fa-building",
+      "tags": ["business", "korean", "validation"],
+      "examples": {
+        "valid": ["123-45-67890", "987-65-43210"],
+        "invalid": ["1234567890", "123-456-7890"]
+      }
+    },
+    {
+      "id": "youtube-url",
+      "title": "YouTube URL",
+      "description": "YouTube 동영상 URL을 검증합니다",
+      "pattern": "^(https?:\\/\\/)?(www\\.)?(youtube\\.com\\/watch\\?v=|youtu\\.be\\/)([a-zA-Z0-9_-]{11})$",
+      "category": "basic",
+      "difficulty": "hard",
+      "icon": "fa-youtube",
+      "tags": ["youtube", "video", "url"],
+      "examples": {
+        "valid": ["https://www.youtube.com/watch?v=dQw4w9WgXcQ", "https://youtu.be/dQw4w9WgXcQ"],
+        "invalid": ["https://youtube.com/", "https://vimeo.com/123456"]
+      }
+    },
+    {
+      "id": "twitter-username",
+      "title": "트위터 사용자명",
+      "description": "트위터(X) 사용자명 형식을 검증합니다",
+      "pattern": "^@?[A-Za-z0-9_]{1,15}$",
+      "category": "basic",
+      "difficulty": "easy",
+      "icon": "fa-twitter",
+      "tags": ["twitter", "social", "username"],
+      "examples": {
+        "valid": ["@username", "user123"],
+        "invalid": ["@user-name", "@verylongusername123"]
+      }
+    },
+    {
+      "id": "isbn",
+      "title": "ISBN (도서번호)",
+      "description": "ISBN-10 또는 ISBN-13 형식을 검증합니다",
+      "pattern": "^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$",
+      "category": "validation",
+      "difficulty": "hard",
+      "icon": "fa-book",
+      "tags": ["isbn", "book", "validation"],
+      "examples": {
+        "valid": ["978-3-16-148410-0", "0-306-40615-2"],
+        "invalid": ["123-4-56-789012-3", "978-3-16"]
+      }
+    },
+    {
+      "id": "korean-resident-number",
+      "title": "주민등록번호",
+      "description": "한국 주민등록번호 형식을 검증합니다",
+      "pattern": "^\\d{6}-[1-4]\\d{6}$",
+      "category": "korean",
+      "difficulty": "medium",
+      "icon": "fa-id-card",
+      "tags": ["resident", "korean", "validation"],
+      "examples": {
+        "valid": ["900101-1234567", "850315-2123456"],
+        "invalid": ["900101-5234567", "9001011234567"]
+      }
+    },
+    {
+      "id": "file-extension",
+      "title": "파일 확장자",
+      "description": "파일 확장자를 추출합니다",
+      "pattern": "\\.[a-zA-Z0-9]+$",
+      "category": "developer",
+      "difficulty": "easy",
+      "icon": "fa-file",
+      "tags": ["file", "extension", "parsing"],
+      "examples": {
+        "valid": ["document.pdf", "image.jpg"],
+        "invalid": ["noextension", ".hiddenfile"]
+      }
+    },
+    {
+      "id": "github-repo",
+      "title": "GitHub 저장소",
+      "description": "GitHub 저장소 URL을 검증합니다",
+      "pattern": "^https?:\\/\\/(www\\.)?github\\.com\\/[a-zA-Z0-9_-]+\\/[a-zA-Z0-9_-]+$",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-github",
+      "tags": ["github", "repository", "url"],
+      "examples": {
+        "valid": ["https://github.com/user/repo", "http://github.com/org/project"],
+        "invalid": ["https://github.com/user", "https://gitlab.com/user/repo"]
+      }
+    },
+    {
+      "id": "semver",
+      "title": "Semantic Version",
+      "description": "Semantic Versioning 형식을 검증합니다",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "category": "developer",
+      "difficulty": "hard",
+      "icon": "fa-tag",
+      "tags": ["version", "semver", "development"],
+      "examples": {
+        "valid": ["1.0.0", "2.1.3-beta.1"],
+        "invalid": ["1.0", "v1.0.0"]
+      }
+    },
+    {
+      "id": "base64",
+      "title": "Base64 문자열",
+      "description": "Base64 인코딩된 문자열을 검증합니다",
+      "pattern": "^(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\\/]{3}=)?$",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-file-code",
+      "tags": ["base64", "encoding", "data"],
+      "examples": {
+        "valid": ["SGVsbG8gV29ybGQ=", "VGVzdA=="],
+        "invalid": ["Hello World", "Test!@#"]
+      }
+    },
+    {
+      "id": "korean-car-number",
+      "title": "차량번호",
+      "description": "한국 차량번호 형식을 검증합니다",
+      "pattern": "^\\d{2,3}[가-힣]\\d{4}$",
+      "category": "korean",
+      "difficulty": "medium",
+      "icon": "fa-car",
+      "tags": ["car", "vehicle", "korean"],
+      "examples": {
+        "valid": ["12가1234", "123나5678"],
+        "invalid": ["1가1234", "12a1234"]
+      }
+    },
+    {
+      "id": "uuid",
+      "title": "UUID",
+      "description": "UUID(v4) 형식을 검증합니다",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-fingerprint",
+      "tags": ["uuid", "identifier", "unique"],
+      "examples": {
+        "valid": ["550e8400-e29b-41d4-a716-446655440000", "6ba7b810-9dad-11d1-80b4-00c04fd430c8"],
+        "invalid": ["550e8400-e29b-51d4-a716-446655440000", "not-a-uuid"]
+      }
+    },
+    {
+      "id": "json",
+      "title": "JSON 형식",
+      "description": "간단한 JSON 객체 형식을 검증합니다",
+      "pattern": "^\\{.*\\}$|^\\[.*\\]$",
+      "category": "developer",
+      "difficulty": "easy",
+      "icon": "fa-brackets-curly",
+      "tags": ["json", "data", "format"],
+      "examples": {
+        "valid": ["{\"key\": \"value\"}", "[1, 2, 3]"],
+        "invalid": ["not json", "{incomplete"]
+      }
+    },
+    {
+      "id": "currency-krw",
+      "title": "한국 원화",
+      "description": "한국 원화 금액 형식을 검증합니다",
+      "pattern": "^[1-9]\\d{0,2}(,\\d{3})*원?$|^[1-9]\\d*원?$",
+      "category": "korean",
+      "difficulty": "medium",
+      "icon": "fa-won-sign",
+      "tags": ["currency", "money", "korean"],
+      "examples": {
+        "valid": ["1,000원", "50000"],
+        "invalid": ["0원", ",000원"]
+      }
+    },
+    {
+      "id": "markdown-link",
+      "title": "Markdown 링크",
+      "description": "Markdown 링크 형식을 추출합니다",
+      "pattern": "\\[([^\\]]+)\\]\\(([^\\)]+)\\)",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-markdown",
+      "tags": ["markdown", "link", "parsing"],
+      "examples": {
+        "valid": ["[Google](https://google.com)", "[Link](http://example.com)"],
+        "invalid": ["[No URL]", "(https://example.com)"]
+      }
+    },
+    {
+      "id": "hashtag",
+      "title": "해시태그",
+      "description": "소셜 미디어 해시태그를 검증합니다",
+      "pattern": "^#[A-Za-z0-9가-힣_]+$",
+      "category": "basic",
+      "difficulty": "easy",
+      "icon": "fa-hashtag",
+      "tags": ["hashtag", "social", "tag"],
+      "examples": {
+        "valid": ["#programming", "#개발자"],
+        "invalid": ["#hash tag", "hashtag"]
+      }
+    }
+  ]
+}

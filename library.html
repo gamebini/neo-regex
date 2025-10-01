@@ -165,10 +165,6 @@
                         <i class="fas fa-code"></i>
                         개발자
                     </button>
-                    <button class="filter-tab" data-category="favorites">
-                        <i class="fas fa-heart"></i>
-                        즐겨찾기
-                    </button>
                 </div>
             </div>
         </div>
@@ -199,119 +195,13 @@
                 <!-- Pattern cards will be dynamically inserted here -->
             </div>
             
-            <!-- No Results -->
-            <div class="no-results" id="no-results" style="display: none;">
-                <div class="no-results-content">
-                    <i class="fas fa-search"></i>
-                    <h3>검색 결과가 없습니다</h3>
-                    <p>다른 검색어를 시도해보거나 필터를 변경해보세요.</p>
-                    <button class="btn btn-outline" id="reset-filters">
-                        <i class="fas fa-refresh"></i>
-                        필터 초기화
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Loading -->
-            <div class="loading-state" id="loading-state" style="display: none;">
+            <!-- Loading State -->
+            <div class="loading" id="loading">
                 <div class="loading-spinner"></div>
                 <p>패턴을 불러오는 중...</p>
             </div>
         </div>
     </main>
-
-    <!-- Pattern Detail Modal -->
-    <div class="modal-overlay" id="pattern-modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="modal-title">패턴 상세보기</h2>
-                <button class="modal-close" id="modal-close">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="modal-body">
-                <div class="pattern-info">
-                    <div class="pattern-header">
-                        <div class="pattern-category" id="modal-category">기본</div>
-                        <button class="favorite-btn" id="modal-favorite">
-                            <i class="fas fa-heart"></i>
-                        </button>
-                    </div>
-                    
-                    <h3 class="pattern-name" id="modal-name">이메일 주소</h3>
-                    <p class="pattern-description" id="modal-description">
-                        유효한 이메일 주소 형식을 검증하는 정규식 패턴입니다.
-                    </p>
-                </div>
-                
-                <div class="pattern-code">
-                    <div class="code-header">
-                        <h4>정규식 패턴</h4>
-                        <button class="copy-btn" id="copy-pattern-btn">
-                            <i class="fas fa-copy"></i>
-                            복사
-                        </button>
-                    </div>
-                    <div class="code-block">
-                        <code id="modal-pattern">^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$</code>
-                    </div>
-                </div>
-                
-                <div class="pattern-examples">
-                    <div class="examples-header">
-                        <h4>사용 예제</h4>
-                    </div>
-                    
-                    <div class="examples-content">
-                        <div class="example-section">
-                            <h5>✅ 매칭되는 예제</h5>
-                            <div class="example-list" id="valid-examples">
-                                <div class="example-item">user@example.com</div>
-                                <div class="example-item">test.email+tag@domain.org</div>
-                            </div>
-                        </div>
-                        
-                        <div class="example-section">
-                            <h5>❌ 매칭되지 않는 예제</h5>
-                            <div class="example-list" id="invalid-examples">
-                                <div class="example-item">invalid-email</div>
-                                <div class="example-item">user@</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="pattern-actions">
-                    <button class="btn btn-primary" id="test-pattern-btn">
-                        <i class="fas fa-flask"></i>
-                        테스터에서 사용하기
-                    </button>
-                    <button class="btn btn-outline" id="copy-js-btn">
-                        <i class="fas fa-code"></i>
-                        JavaScript 코드 복사
-                    </button>
-                    <button class="btn btn-outline" id="copy-python-btn">
-                        <i class="fab fa-python"></i>
-                        Python 코드 복사
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <button class="quick-btn" id="quick-tester" title="테스터로 이동">
-            <i class="fas fa-flask"></i>
-        </button>
-        <button class="quick-btn" id="quick-favorites" title="즐겨찾기 보기">
-            <i class="fas fa-heart"></i>
-        </button>
-        <button class="quick-btn" id="scroll-top" title="맨 위로">
-            <i class="fas fa-arrow-up"></i>
-        </button>
-    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -350,14 +240,13 @@
                         <h4 class="footer-title">가이드</h4>
                         <a href="./beginner.html" class="footer-link">초보자 가이드</a>
                         <a href="./expert.html" class="footer-link">전문가 도구</a>
-                        <a href="#" class="footer-link">튜토리얼</a>
                     </div>
                     
                     <div class="footer-column">
                         <h4 class="footer-title">지원</h4>
                         <a href="#" class="footer-link">문서</a>
                         <a href="#" class="footer-link">FAQ</a>
-                        <a href="#" class="footer-link">문의하기</a>
+                        <a href="mailto:cstv110301@gmail.com" class="footer-link">문의하기</a>
                     </div>
                 </div>
             </div>
