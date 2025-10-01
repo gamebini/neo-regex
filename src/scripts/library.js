@@ -26,17 +26,7 @@ class RegexLibrary {
         } catch (error) {
             console.error('Error initializing RegexLibrary:', error);
             this.hideLoading();
-            
-            if (this.patternGrid) {
-                this.patternGrid.innerHTML = `
-                    <div class="error-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>초기화 오류</h3>
-                        <p>라이브러리 초기화 중 오류가 발생했습니다.</p>
-                        <button onclick="location.reload()" class="btn btn-primary">새로고침</button>
-                    </div>
-                `;
-            }
+            this.showError('초기화 오류', '라이브러리 초기화 중 오류가 발생했습니다.');
         }
     }
 
@@ -103,196 +93,98 @@ class RegexLibrary {
         }
     }
 
-    loadPatterns() {
-        // Mock patterns data
-        this.patterns = [
-            {
-                id: 'email',
-                title: '이메일 주소',
-                description: '일반적인 이메일 주소 형식을 검증합니다',
-                pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
-                category: 'basic',
-                difficulty: 'easy',
-                icon: 'fa-envelope',
-                tags: ['validation', 'email', 'contact'],
-                examples: {
-                    valid: ['user@example.com', 'test.user@domain.co.kr'],
-                    invalid: ['invalid-email', '@example.com']
-                }
-            },
-            {
-                id: 'phone-kr',
-                title: '한국 전화번호',
-                description: '한국 휴대폰 및 일반 전화번호 형식을 검증합니다',
-                pattern: '^(01[016789]|02|0[3-9]{1}[0-9]{1})-?([0-9]{3,4})-?([0-9]{4})$',
-                category: 'korean',
-                difficulty: 'easy',
-                icon: 'fa-phone',
-                tags: ['validation', 'phone', 'korean'],
-                examples: {
-                    valid: ['010-1234-5678', '02-123-4567'],
-                    invalid: ['01012345678', '010-12-34']
-                }
-            },
-            {
-                id: 'url',
-                title: 'URL 주소',
-                description: '웹 URL 형식을 검증합니다 (http, https)',
-                pattern: 'https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)',
-                category: 'basic',
-                difficulty: 'medium',
-                icon: 'fa-link',
-                tags: ['validation', 'url', 'web'],
-                examples: {
-                    valid: ['https://example.com', 'http://www.test.co.kr'],
-                    invalid: ['not-a-url', 'ftp://example.com']
-                }
-            },
-            {
-                id: 'ipv4',
-                title: 'IPv4 주소',
-                description: 'IPv4 주소 형식을 검증합니다',
-                pattern: '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
-                category: 'developer',
-                difficulty: 'medium',
-                icon: 'fa-network-wired',
-                tags: ['network', 'ip', 'validation'],
-                examples: {
-                    valid: ['192.168.0.1', '10.0.0.1'],
-                    invalid: ['256.1.1.1', '192.168.1']
-                }
-            },
-            {
-                id: 'password',
-                title: '강력한 비밀번호',
-                description: '8자 이상, 대소문자, 숫자, 특수문자 포함',
-                pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$',
-                category: 'validation',
-                difficulty: 'hard',
-                icon: 'fa-lock',
-                tags: ['security', 'password', 'validation'],
-                examples: {
-                    valid: ['Pass123!@#', 'MyP@ssw0rd'],
-                    invalid: ['password', '12345678']
-                }
-            },
-            {
-                id: 'korean-name',
-                title: '한글 이름',
-                description: '한글 이름 형식을 검증합니다 (2-5자)',
-                pattern: '^[가-힣]{2,5}$',
-                category: 'korean',
-                difficulty: 'easy',
-                icon: 'fa-user',
-                tags: ['korean', 'name', 'validation'],
-                examples: {
-                    valid: ['홍길동', '김철수'],
-                    invalid: ['김', 'John']
-                }
-            },
-            {
-                id: 'date',
-                title: '날짜 (YYYY-MM-DD)',
-                description: 'ISO 8601 날짜 형식을 검증합니다',
-                pattern: '^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$',
-                category: 'validation',
-                difficulty: 'medium',
-                icon: 'fa-calendar',
-                tags: ['date', 'validation', 'iso8601'],
-                examples: {
-                    valid: ['2024-01-01', '2024-12-31'],
-                    invalid: ['2024-13-01', '2024-01-32']
-                }
-            },
-            {
-                id: 'hex-color',
-                title: 'HEX 색상 코드',
-                description: 'HEX 색상 코드를 검증합니다 (#RGB, #RRGGBB)',
-                pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
-                category: 'developer',
-                difficulty: 'easy',
-                icon: 'fa-palette',
-                tags: ['color', 'hex', 'css'],
-                examples: {
-                    valid: ['#FFF', '#FFFFFF'],
-                    invalid: ['#GGG', '#12345']
-                }
-            },
-            {
-                id: 'credit-card',
-                title: '신용카드 번호',
-                description: '일반적인 신용카드 번호 형식을 검증합니다',
-                pattern: '^\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}$',
-                category: 'validation',
-                difficulty: 'easy',
-                icon: 'fa-credit-card',
-                tags: ['payment', 'card', 'validation'],
-                examples: {
-                    valid: ['1234-5678-9012-3456', '1234567890123456'],
-                    invalid: ['1234-5678-9012', '1234-5678-9012-345']
-                }
-            },
-            {
-                id: 'html-tag',
-                title: 'HTML 태그',
-                description: 'HTML 태그를 추출합니다',
-                pattern: '<([a-z]+)([^<]+)*(?:>(.*)<\\/\\1>|\\s+\\/>)',
-                category: 'developer',
-                difficulty: 'hard',
-                icon: 'fa-code',
-                tags: ['html', 'parsing', 'web'],
-                examples: {
-                    valid: ['<div>content</div>', '<br />'],
-                    invalid: ['<div>', 'plain text']
-                }
-            }
-        ];
-        
-        this.filteredPatterns = [...this.patterns];
-        console.log('Loaded patterns:', this.patterns.length);
-    }
-
-    renderCategories() {
-        const categories = this.getCategoryStats();
-        this.filterTabs.forEach(tab => {
-            const category = tab.getAttribute('data-category');
-            const countElement = tab.querySelector('.count');
+    async loadPatterns() {
+        try {
+            console.log('Loading patterns from JSON...');
             
-            if (countElement) {
-                const count = category === 'all' ? 
-                             this.patterns.length : 
-                             categories[category] || 0;
-                countElement.textContent = count;
+            // JSON 파일 경로를 명확하게 지정
+            const jsonPath = './src/data/patterns.json';
+            
+            // fetch로 JSON 파일 로드
+            const response = await fetch(jsonPath);
+            
+            // HTTP 응답 상태 확인
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        });
+            
+            // JSON 파싱
+            const data = await response.json();
+            
+            console.log('JSON loaded successfully:', data);
+            
+            // JSON 구조 확인 및 패턴 추출
+            if (data && data.patterns && Array.isArray(data.patterns)) {
+                this.patterns = data.patterns;
+            } else if (Array.isArray(data)) {
+                this.patterns = data;
+            } else {
+                throw new Error('Invalid JSON structure');
+            }
+            
+            console.log(`Loaded ${this.patterns.length} patterns`);
+            
+            // 초기 필터링 및 렌더링
+            this.filteredPatterns = [...this.patterns];
+            this.updateStats();
+            this.hideLoading();
+            this.sortPatterns();
+            this.renderPatterns();
+            
+        } catch (error) {
+            console.error('Failed to load patterns:', error);
+            this.hideLoading();
+            
+            // 오류 타입에 따른 메시지 처리
+            let errorMessage = '패턴 데이터를 불러올 수 없습니다.';
+            let errorDetails = error.message;
+            
+            if (error.message.includes('404')) {
+                errorMessage = 'JSON 파일을 찾을 수 없습니다.';
+                errorDetails = 'src/data/patterns.json 파일이 존재하는지 확인해주세요.';
+            } else if (error.message.includes('JSON')) {
+                errorMessage = 'JSON 파일 파싱 오류';
+                errorDetails = 'JSON 파일의 형식이 올바르지 않습니다.';
+            } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+                errorMessage = '네트워크 오류';
+                errorDetails = '로컬 파일 시스템에서는 Live Server를 사용해야 합니다.';
+            }
+            
+            this.showError(errorMessage, errorDetails);
+        }
     }
 
-    getCategoryStats() {
-        const stats = {};
-        this.patterns.forEach(pattern => {
-            stats[pattern.category] = (stats[pattern.category] || 0) + 1;
-        });
-        return stats;
+    updateStats() {
+        const totalCount = this.patterns.length;
+        const filteredCount = this.filteredPatterns.length;
+        
+        if (this.totalPatternsCount) {
+            this.totalPatternsCount.textContent = totalCount;
+        }
+        
+        if (this.resultsCount) {
+            this.resultsCount.textContent = `${filteredCount}개의 패턴`;
+        }
     }
 
     handleSearch() {
-        this.searchQuery = this.searchInput.value.toLowerCase();
+        this.searchQuery = this.searchInput?.value.toLowerCase() || '';
         this.applyFilters();
-        this.updateClearButton();
+        
+        if (this.clearSearchBtn) {
+            this.clearSearchBtn.style.display = this.searchQuery ? 'flex' : 'none';
+        }
     }
 
     clearSearch() {
-        this.searchQuery = '';
         if (this.searchInput) {
             this.searchInput.value = '';
-        }
-        this.applyFilters();
-        this.updateClearButton();
-    }
-
-    updateClearButton() {
-        if (this.clearSearchBtn) {
-            this.clearSearchBtn.classList.toggle('active', this.searchQuery.length > 0);
+            this.searchQuery = '';
+            this.applyFilters();
+            
+            if (this.clearSearchBtn) {
+                this.clearSearchBtn.style.display = 'none';
+            }
         }
     }
 
@@ -301,50 +193,56 @@ class RegexLibrary {
         tab.classList.add('active');
         
         this.currentCategory = tab.getAttribute('data-category');
-        this.applyFilters();
-        this.updateActiveFilter();
-    }
-
-    updateActiveFilter() {
+        
         if (this.activeFilter) {
             const categoryNames = {
                 'all': '전체',
-                'basic': '기본',
-                'validation': '검증',
-                'korean': '한국어',
-                'developer': '개발자'
+                'basic': '기본 패턴',
+                'validation': '검증 패턴',
+                'korean': '한국어 패턴',
+                'developer': '개발자 패턴'
             };
-            
             this.activeFilter.textContent = categoryNames[this.currentCategory] || '전체';
         }
+        
+        this.applyFilters();
     }
 
     applyFilters() {
-        let filtered = [...this.patterns];
-
-        // Category filter
-        if (this.currentCategory !== 'all') {
-            filtered = filtered.filter(p => p.category === this.currentCategory);
-        }
-
-        // Search filter
-        if (this.searchQuery) {
-            filtered = filtered.filter(p => 
-                p.title.toLowerCase().includes(this.searchQuery) ||
-                p.description.toLowerCase().includes(this.searchQuery) ||
-                p.pattern.toLowerCase().includes(this.searchQuery) ||
-                (p.tags && p.tags.some(tag => tag.toLowerCase().includes(this.searchQuery)))
-            );
-        }
-
-        this.filteredPatterns = filtered;
+        this.filteredPatterns = this.patterns.filter(pattern => {
+            // Category filter
+            const categoryMatch = this.currentCategory === 'all' || 
+                                 pattern.category === this.currentCategory;
+            
+            // Search filter
+            const searchMatch = !this.searchQuery || 
+                              pattern.title.toLowerCase().includes(this.searchQuery) ||
+                              pattern.description.toLowerCase().includes(this.searchQuery) ||
+                              (pattern.tags && pattern.tags.some(tag => 
+                                  tag.toLowerCase().includes(this.searchQuery)));
+            
+            return categoryMatch && searchMatch;
+        });
+        
+        this.updateStats();
         this.sortPatterns();
         this.renderPatterns();
-        this.updatePatternCount();
     }
 
-    handleSort(sortBy) {
-        this.currentSort = sortBy;
+    handleViewChange(btn) {
+        this.viewBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        this.currentView = btn.getAttribute('data-view');
+        
+        if (this.patternGrid) {
+            this.patternGrid.classList.toggle('list-view', this.currentView === 'list');
+            this.patternGrid.classList.toggle('grid-view', this.currentView === 'grid');
+        }
+    }
+
+    handleSort(sortType) {
+        this.currentSort = sortType;
         this.sortPatterns();
         this.renderPatterns();
     }
@@ -414,17 +312,7 @@ class RegexLibrary {
             this.bindPatternCardEvents();
         } catch (error) {
             console.error('Error rendering patterns:', error);
-            this.patternGrid.innerHTML = `
-                <div class="error-state">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <h3>패턴 로딩 오류</h3>
-                    <p>패턴을 불러오는 중 오류가 발생했습니다.</p>
-                    <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; font-size: 12px; overflow: auto;">
-                        ${error.message}
-                    </pre>
-                    <button onclick="location.reload()" class="btn btn-primary">새로고침</button>
-                </div>
-            `;
+            this.showError('패턴 로딩 오류', '패턴을 불러오는 중 오류가 발생했습니다.');
         }
     }
 
@@ -461,7 +349,7 @@ class RegexLibrary {
                         </div>
                     </div>
                     
-                    <button class="pattern-card-open-btn" onclick="regexLibrary.showPatternDetail('${pattern.id}'); event.stopPropagation();" title="상세보기">
+                    <button class="pattern-card-open-btn" title="상세보기">
                         상세보기
                     </button>
                 </div>
@@ -480,21 +368,56 @@ class RegexLibrary {
         }
     }
 
-    darkenColor(color) {
-        if (color.includes('primary')) return 'var(--color-primary-700)';
-        if (color.includes('success')) return 'var(--color-success-700)';
-        if (color.includes('accent')) return 'var(--color-accent-700)';
-        if (color === '#7c3aed') return '#6d28d9';
-        if (color === '#3b82f6') return '#2563eb';
-        if (color === '#10b981') return '#059669';
-        if (color === '#f59e0b') return '#d97706';
-        if (color === '#8b5cf6') return '#7c3aed';
-        return color;
+    renderEmptyState() {
+        const message = this.searchQuery ? 
+            '검색 결과가 없습니다' : 
+            '이 카테고리에 패턴이 없습니다';
+        
+        return `
+            <div class="empty-state">
+                <i class="fas fa-search"></i>
+                <h3>${message}</h3>
+                <p>다른 검색어나 카테고리를 시도해보세요</p>
+            </div>
+        `;
+    }
+
+    showLoading() {
+        if (this.loadingElement) {
+            this.loadingElement.style.display = 'flex';
+        }
+        if (this.patternGrid) {
+            this.patternGrid.style.display = 'none';
+        }
+    }
+
+    hideLoading() {
+        if (this.loadingElement) {
+            this.loadingElement.style.display = 'none';
+        }
+        if (this.patternGrid) {
+            this.patternGrid.style.display = 'grid';
+        }
+    }
+
+    showError(title, message) {
+        if (this.patternGrid) {
+            this.patternGrid.style.display = 'block';
+            this.patternGrid.innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>${title}</h3>
+                    <p>${message}</p>
+                    <button onclick="location.reload()" class="btn btn-primary">새로고침</button>
+                </div>
+            `;
+        }
     }
 
     bindPatternCardEvents() {
         document.querySelectorAll('.pattern-card').forEach(card => {
             card.addEventListener('click', (e) => {
+                // 상세보기 버튼 클릭 시에는 이벤트 중복 방지
                 if (e.target.closest('.pattern-card-open-btn')) {
                     return;
                 }
@@ -509,6 +432,7 @@ class RegexLibrary {
         const pattern = this.patterns.find(p => p.id === id);
         if (!pattern) return;
 
+        // 기존 모달 제거
         const existingModal = document.querySelector('.pattern-detail-modal');
         if (existingModal) {
             existingModal.remove();
@@ -523,8 +447,6 @@ class RegexLibrary {
     }
 
     createPatternModal(pattern) {
-        const categoryColor = this.getCategoryColor(pattern.category);
-
         const modal = document.createElement('div');
         modal.className = 'modal-overlay pattern-detail-modal';
         modal.innerHTML = `
@@ -547,7 +469,7 @@ class RegexLibrary {
                                 <div class="pattern-regex">${this.escapeHtml(pattern.pattern)}</div>
                                 <button class="copy-pattern-btn" onclick="regexLibrary.copyPatternText('${pattern.id}')">
                                     <i class="fas fa-copy"></i>
-                                    클립보드에 복사
+                                    복사하기
                                 </button>
                             </div>
                         </div>
@@ -580,12 +502,14 @@ class RegexLibrary {
             </div>
         `;
 
+        // 배경 클릭 시 모달 닫기
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.remove();
             }
         });
 
+        // ESC 키로 모달 닫기
         const handleEscape = (e) => {
             if (e.key === 'Escape') {
                 modal.remove();
@@ -604,6 +528,7 @@ class RegexLibrary {
         navigator.clipboard.writeText(pattern.pattern).then(() => {
             this.showNotification('패턴이 클립보드에 복사되었습니다!', 'success');
             
+            // 복사 버튼 피드백
             const copyBtns = document.querySelectorAll('.copy-pattern-btn');
             copyBtns.forEach(btn => {
                 if (btn.onclick && btn.onclick.toString().includes(patternId)) {
@@ -621,69 +546,6 @@ class RegexLibrary {
             console.error('복사 실패:', err);
             this.showNotification('복사에 실패했습니다.', 'error');
         });
-    }
-
-    renderEmptyState() {
-        const isSearching = this.searchQuery.length > 0;
-        const isFiltered = this.currentCategory !== 'all';
-        
-        if (isSearching) {
-            return `
-                <div class="empty-state">
-                    <i class="fas fa-search empty-icon"></i>
-                    <h3>검색 결과가 없습니다</h3>
-                    <p>"${this.searchQuery}"에 대한 패턴을 찾을 수 없습니다.</p>
-                    <button class="btn btn-primary" onclick="regexLibrary.clearSearch()">
-                        검색 초기화
-                    </button>
-                </div>
-            `;
-        }
-        
-        if (isFiltered) {
-            return `
-                <div class="empty-state">
-                    <i class="fas fa-filter empty-icon"></i>
-                    <h3>패턴이 없습니다</h3>
-                    <p>이 카테고리에는 패턴이 없습니다.</p>
-                    <button class="btn btn-primary" onclick="regexLibrary.handleCategoryFilter(document.querySelector('[data-category=\\"all\\"]'))">
-                        모든 패턴 보기
-                    </button>
-                </div>
-            `;
-        }
-        
-        return `
-            <div class="empty-state">
-                <i class="fas fa-code empty-icon"></i>
-                <h3>패턴이 없습니다</h3>
-                <p>등록된 패턴이 없습니다.</p>
-            </div>
-        `;
-    }
-
-    updatePatternCount() {
-        if (this.resultsCount) {
-            this.resultsCount.textContent = `${this.filteredPatterns.length}개의 패턴`;
-        }
-    }
-
-    updateStats() {
-        if (this.totalPatternsCount) {
-            this.totalPatternsCount.textContent = this.patterns.length;
-        }
-    }
-
-    handleViewChange(btn) {
-        this.viewBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        const view = btn.getAttribute('data-view');
-        this.currentView = view;
-        
-        if (this.patternGrid) {
-            this.patternGrid.classList.toggle('list-view', view === 'list');
-        }
     }
 
     getCategoryColor(category) {
@@ -706,39 +568,14 @@ class RegexLibrary {
         return names[category] || category;
     }
 
-    getDifficultyName(difficulty) {
-        const names = {
-            'easy': '쉬움',
-            'medium': '보통',
-            'hard': '어려움'
+    darkenColor(color) {
+        const colorMap = {
+            '#3b82f6': '#2563eb',
+            '#10b981': '#059669',
+            '#f59e0b': '#d97706',
+            '#8b5cf6': '#7c3aed'
         };
-        return names[difficulty] || difficulty;
-    }
-
-    showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
-            <span>${message}</span>
-        `;
-        
-        let container = document.getElementById('notification-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'notification-container';
-            container.className = 'notification-container';
-            document.body.appendChild(container);
-        }
-        
-        container.appendChild(notification);
-        
-        setTimeout(() => notification.classList.add('show'), 10);
-        
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
+        return colorMap[color] || color;
     }
 
     escapeHtml(text) {
@@ -746,6 +583,31 @@ class RegexLibrary {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // Pattern actions
+    testPattern(patternId) {
+        const pattern = this.patterns.find(p => p.id === patternId);
+        if (pattern) {
+            // Store pattern in sessionStorage and redirect to tester
+            sessionStorage.setItem('testPattern', JSON.stringify(pattern));
+            window.location.href = './tester.html';
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => notification.classList.add('show'), 10);
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
     }
 }
 
