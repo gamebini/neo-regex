@@ -1,4 +1,4 @@
-// NEO Regex Library - 패턴 라이브러리 관리
+// NEO Regex Library - 패턴 라이브러리 관리 (페이지네이션 포함)
 
 class RegexLibrary {
     constructor() {
@@ -9,6 +9,11 @@ class RegexLibrary {
         this.currentSort = 'title';
         this.currentOrder = 'asc';
         this.currentView = 'grid';
+        
+        // 페이지네이션
+        this.currentPage = 1;
+        this.itemsPerPage = 12;
+        this.totalPages = 1;
         
         this.init();
     }
@@ -45,6 +50,9 @@ class RegexLibrary {
         this.patternGrid = document.getElementById('patterns-grid') || 
                           document.getElementById('pattern-grid');
         
+        // Pagination
+        this.paginationContainer = document.getElementById('pagination');
+        
         // Loading element
         this.loadingElement = document.getElementById('loading');
         
@@ -59,6 +67,7 @@ class RegexLibrary {
             searchInput: !!this.searchInput,
             patternGrid: !!this.patternGrid,
             loadingElement: !!this.loadingElement,
+            pagination: !!this.paginationContainer,
             filterTabs: this.filterTabs.length
         });
     }
@@ -97,23 +106,16 @@ class RegexLibrary {
         try {
             console.log('Loading patterns from JSON...');
             
-            // JSON 파일 경로를 명확하게 지정
-            const jsonPath = './src/data/patterns.json';
-            
-            // fetch로 JSON 파일 로드
+            const jsonPath = '../src/data/patterns.json';
             const response = await fetch(jsonPath);
             
-            // HTTP 응답 상태 확인
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            // JSON 파싱
             const data = await response.json();
-            
             console.log('JSON loaded successfully:', data);
             
-            // JSON 구조 확인 및 패턴 추출
             if (data && data.patterns && Array.isArray(data.patterns)) {
                 this.patterns = data.patterns;
             } else if (Array.isArray(data)) {
@@ -124,18 +126,18 @@ class RegexLibrary {
             
             console.log(`Loaded ${this.patterns.length} patterns`);
             
-            // 초기 필터링 및 렌더링
             this.filteredPatterns = [...this.patterns];
             this.updateStats();
+            this.calculatePagination();
             this.hideLoading();
             this.sortPatterns();
             this.renderPatterns();
+            this.renderPagination();
             
         } catch (error) {
             console.error('Failed to load patterns:', error);
             this.hideLoading();
             
-            // 오류 타입에 따른 메시지 처리
             let errorMessage = '패턴 데이터를 불러올 수 없습니다.';
             let errorDetails = error.message;
             
@@ -169,6 +171,7 @@ class RegexLibrary {
 
     handleSearch() {
         this.searchQuery = this.searchInput?.value.toLowerCase() || '';
+        this.currentPage = 1; // 검색 시 첫 페이지로
         this.applyFilters();
         
         if (this.clearSearchBtn) {
@@ -180,6 +183,7 @@ class RegexLibrary {
         if (this.searchInput) {
             this.searchInput.value = '';
             this.searchQuery = '';
+            this.currentPage = 1;
             this.applyFilters();
             
             if (this.clearSearchBtn) {
@@ -193,6 +197,7 @@ class RegexLibrary {
         tab.classList.add('active');
         
         this.currentCategory = tab.getAttribute('data-category');
+        this.currentPage = 1; // 카테고리 변경 시 첫 페이지로
         
         if (this.activeFilter) {
             const categoryNames = {
@@ -210,11 +215,9 @@ class RegexLibrary {
 
     applyFilters() {
         this.filteredPatterns = this.patterns.filter(pattern => {
-            // Category filter
             const categoryMatch = this.currentCategory === 'all' || 
                                  pattern.category === this.currentCategory;
             
-            // Search filter
             const searchMatch = !this.searchQuery || 
                               pattern.title.toLowerCase().includes(this.searchQuery) ||
                               pattern.description.toLowerCase().includes(this.searchQuery) ||
@@ -225,8 +228,10 @@ class RegexLibrary {
         });
         
         this.updateStats();
+        this.calculatePagination();
         this.sortPatterns();
         this.renderPatterns();
+        this.renderPagination();
     }
 
     handleViewChange(btn) {
@@ -290,21 +295,37 @@ class RegexLibrary {
         });
     }
 
+    // 페이지네이션 계산
+    calculatePagination() {
+        this.totalPages = Math.ceil(this.filteredPatterns.length / this.itemsPerPage);
+        if (this.currentPage > this.totalPages) {
+            this.currentPage = Math.max(1, this.totalPages);
+        }
+    }
+
+    // 현재 페이지의 패턴만 가져오기
+    getCurrentPagePatterns() {
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+        return this.filteredPatterns.slice(startIndex, endIndex);
+    }
+
     renderPatterns() {
         if (!this.patternGrid) {
             console.error('Pattern grid element not found');
             return;
         }
         
-        console.log('Rendering patterns:', this.filteredPatterns.length);
+        const patternsToRender = this.getCurrentPagePatterns();
+        console.log(`Rendering page ${this.currentPage}: ${patternsToRender.length} patterns`);
         
-        if (this.filteredPatterns.length === 0) {
+        if (patternsToRender.length === 0) {
             this.patternGrid.innerHTML = this.renderEmptyState();
             return;
         }
 
         try {
-            const patternsHtml = this.filteredPatterns.map(pattern => 
+            const patternsHtml = patternsToRender.map(pattern => 
                 this.renderPatternCard(pattern)
             ).join('');
             this.patternGrid.innerHTML = patternsHtml;
@@ -313,6 +334,89 @@ class RegexLibrary {
         } catch (error) {
             console.error('Error rendering patterns:', error);
             this.showError('패턴 로딩 오류', '패턴을 불러오는 중 오류가 발생했습니다.');
+        }
+    }
+
+    // 페이지네이션 렌더링
+    renderPagination() {
+        if (!this.paginationContainer) return;
+        
+        if (this.totalPages <= 1) {
+            this.paginationContainer.innerHTML = '';
+            return;
+        }
+
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
+        
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        let paginationHtml = `
+            <button class="page-btn page-prev" ${this.currentPage === 1 ? 'disabled' : ''} 
+                    onclick="regexLibrary.goToPage(${this.currentPage - 1})">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        `;
+
+        // 첫 페이지
+        if (startPage > 1) {
+            paginationHtml += `
+                <button class="page-btn" onclick="regexLibrary.goToPage(1)">1</button>
+            `;
+            if (startPage > 2) {
+                paginationHtml += `<span class="page-ellipsis">...</span>`;
+            }
+        }
+
+        // 페이지 번호들
+        for (let i = startPage; i <= endPage; i++) {
+            paginationHtml += `
+                <button class="page-btn ${i === this.currentPage ? 'active' : ''}" 
+                        onclick="regexLibrary.goToPage(${i})">${i}</button>
+            `;
+        }
+
+        // 마지막 페이지
+        if (endPage < this.totalPages) {
+            if (endPage < this.totalPages - 1) {
+                paginationHtml += `<span class="page-ellipsis">...</span>`;
+            }
+            paginationHtml += `
+                <button class="page-btn" onclick="regexLibrary.goToPage(${this.totalPages})">${this.totalPages}</button>
+            `;
+        }
+
+        paginationHtml += `
+            <button class="page-btn page-next" ${this.currentPage === this.totalPages ? 'disabled' : ''} 
+                    onclick="regexLibrary.goToPage(${this.currentPage + 1})">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+
+        this.paginationContainer.innerHTML = paginationHtml;
+    }
+
+    // 페이지 이동
+    goToPage(page) {
+        if (page < 1 || page > this.totalPages || page === this.currentPage) {
+            return;
+        }
+
+        this.currentPage = page;
+        this.renderPatterns();
+        this.renderPagination();
+        
+        // 스크롤을 패턴 그리드 상단으로 부드럽게 이동
+        const searchSection = document.querySelector('.search-section');
+        if (searchSection) {
+            const offset = searchSection.offsetTop + searchSection.offsetHeight;
+            window.scrollTo({
+                top: offset - 20,
+                behavior: 'smooth'
+            });
         }
     }
 
@@ -417,7 +521,6 @@ class RegexLibrary {
     bindPatternCardEvents() {
         document.querySelectorAll('.pattern-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                // 상세보기 버튼 클릭 시에는 이벤트 중복 방지
                 if (e.target.closest('.pattern-card-open-btn')) {
                     return;
                 }
@@ -432,7 +535,6 @@ class RegexLibrary {
         const pattern = this.patterns.find(p => p.id === id);
         if (!pattern) return;
 
-        // 기존 모달 제거
         const existingModal = document.querySelector('.pattern-detail-modal');
         if (existingModal) {
             existingModal.remove();
@@ -475,76 +577,47 @@ class RegexLibrary {
                         </div>
                         
                         ${pattern.examples ? `
-                        <div class="detail-section">
-                            <h3>사용 예제</h3>
-                            <div class="examples-content">
-                                <div class="example-group valid-examples">
-                                    <h4><i class="fas fa-check-circle"></i> 유효한 예제</h4>
-                                    <ul class="example-list">
-                                        ${pattern.examples.valid.map(example => 
-                                            `<li>${this.escapeHtml(example)}</li>`
+                            <div class="detail-section">
+                                <h3>예제</h3>
+                                <div class="examples-grid">
+                                    <div class="example-group">
+                                        <h4><i class="fas fa-check-circle"></i> 매칭되는 예제</h4>
+                                        ${pattern.examples.valid.map(ex => 
+                                            `<code class="example-valid">${this.escapeHtml(ex)}</code>`
                                         ).join('')}
-                                    </ul>
-                                </div>
-                                <div class="example-group invalid-examples">
-                                    <h4><i class="fas fa-times-circle"></i> 무효한 예제</h4>
-                                    <ul class="example-list">
-                                        ${pattern.examples.invalid.map(example => 
-                                            `<li>${this.escapeHtml(example)}</li>`
+                                    </div>
+                                    <div class="example-group">
+                                        <h4><i class="fas fa-times-circle"></i> 매칭되지 않는 예제</h4>
+                                        ${pattern.examples.invalid.map(ex => 
+                                            `<code class="example-invalid">${this.escapeHtml(ex)}</code>`
                                         ).join('')}
-                                    </ul>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         ` : ''}
                     </div>
                 </div>
             </div>
         `;
-
-        // 배경 클릭 시 모달 닫기
+        
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.remove();
             }
         });
-
-        // ESC 키로 모달 닫기
-        const handleEscape = (e) => {
-            if (e.key === 'Escape') {
-                modal.remove();
-                document.removeEventListener('keydown', handleEscape);
-            }
-        };
-        document.addEventListener('keydown', handleEscape);
-
+        
         return modal;
     }
 
-    copyPatternText(patternId) {
-        const pattern = this.patterns.find(p => p.id === patternId);
+    copyPatternText(id) {
+        const pattern = this.patterns.find(p => p.id === id);
         if (!pattern) return;
 
         navigator.clipboard.writeText(pattern.pattern).then(() => {
-            this.showNotification('패턴이 클립보드에 복사되었습니다!', 'success');
-            
-            // 복사 버튼 피드백
-            const copyBtns = document.querySelectorAll('.copy-pattern-btn');
-            copyBtns.forEach(btn => {
-                if (btn.onclick && btn.onclick.toString().includes(patternId)) {
-                    const originalHTML = btn.innerHTML;
-                    btn.innerHTML = '<i class="fas fa-check"></i> 복사됨!';
-                    btn.style.background = 'rgba(16, 185, 129, 0.8)';
-                    
-                    setTimeout(() => {
-                        btn.innerHTML = originalHTML;
-                        btn.style.background = '';
-                    }, 1500);
-                }
-            });
+            this.showNotification('패턴이 클립보드에 복사되었습니다', 'success');
         }).catch(err => {
-            console.error('복사 실패:', err);
-            this.showNotification('복사에 실패했습니다.', 'error');
+            console.error('Failed to copy:', err);
+            this.showNotification('복사 실패', 'error');
         });
     }
 
@@ -569,36 +642,20 @@ class RegexLibrary {
     }
 
     darkenColor(color) {
-        const colorMap = {
-            '#3b82f6': '#2563eb',
-            '#10b981': '#059669',
-            '#f59e0b': '#d97706',
-            '#8b5cf6': '#7c3aed'
-        };
-        return colorMap[color] || color;
-    }
-
-    escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    // Pattern actions
-    testPattern(patternId) {
-        const pattern = this.patterns.find(p => p.id === patternId);
-        if (pattern) {
-            // Store pattern in sessionStorage and redirect to tester
-            sessionStorage.setItem('testPattern', JSON.stringify(pattern));
-            window.location.href = './tester.html';
-        }
+        const hex = color.replace('#', '');
+        const r = Math.max(0, parseInt(hex.substr(0, 2), 16) - 20);
+        const g = Math.max(0, parseInt(hex.substr(2, 2), 16) - 20);
+        const b = Math.max(0, parseInt(hex.substr(4, 2), 16) - 20);
+        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
     }
 
     showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
-        notification.textContent = message;
+        notification.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+        `;
         
         document.body.appendChild(notification);
         
@@ -608,6 +665,13 @@ class RegexLibrary {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);
         }, 3000);
+    }
+
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 }
 
@@ -630,13 +694,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button onclick="location.reload()" style="padding: 10px 20px; background: #007cba; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">
                         페이지 새로고침
                     </button>
-                    <details style="margin-top: 20px; text-align: left;">
-                        <summary style="cursor: pointer; color: #666;">기술적 세부사항</summary>
-                        <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow: auto; font-size: 12px; margin-top: 10px;">
-${error.message}
-${error.stack}
-                        </pre>
-                    </details>
                 </div>
             `;
             
@@ -648,7 +705,6 @@ ${error.stack}
     }, 200);
 });
 
-// Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { RegexLibrary };
 }

@@ -1136,3 +1136,115 @@
     font-size: 1rem;
   }
 }
+
+/* =========================
+   Pagination Styles
+   ========================= */
+.pagination-wrapper {
+  margin-top: var(--space-12);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-gray-300);
+  background: white;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: var(--color-primary-400);
+  background: var(--color-primary-50);
+  color: var(--color-primary-700);
+  transform: translateY(-1px);
+}
+
+.page-btn.active {
+  border-color: var(--color-primary-500);
+  background: var(--color-primary-500);
+  color: white;
+  font-weight: 600;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--color-gray-100);
+}
+
+.page-prev,
+.page-next {
+  font-weight: 600;
+}
+
+.page-prev i,
+.page-next i {
+  font-size: 0.75rem;
+}
+
+.page-ellipsis {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-2);
+  color: var(--color-gray-400);
+  font-weight: 600;
+  user-select: none;
+}
+
+/* 페이지네이션 반응형 */
+@media (max-width: 640px) {
+  .pagination {
+    gap: var(--space-1);
+  }
+  
+  .page-btn {
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 var(--space-2);
+    font-size: 0.8125rem;
+  }
+  
+  .page-ellipsis {
+    padding: 0 var(--space-1);
+  }
+}
+
+/* 페이지네이션 애니메이션 */
+@keyframes pageChange {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.patterns-grid {
+  animation: pageChange 0.3s ease-out;
+}
+
+/* Empty state for pagination */
+.pagination:empty {
+  display: none;
+}

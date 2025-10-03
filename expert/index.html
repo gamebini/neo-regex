@@ -15,10 +15,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="./src/styles/main.css">
-    <link rel="stylesheet" href="./src/styles/components.css">
-    <link rel="stylesheet" href="./src/styles/expert.css">
-    <link rel="stylesheet" href="./src/styles/utilities.css">
+    <link rel="stylesheet" href="../src/styles/main.css">
+    <link rel="stylesheet" href="../src/styles/components.css">
+    <link rel="stylesheet" href="../src/styles/expert.css">
+    <link rel="stylesheet" href="../src/styles/utilities.css">
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="./favicon.svg">
@@ -28,7 +28,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
-                <a href="./index.html" class="nav-logo">
+                <a href="../index.html" class="nav-logo">
                     <i class="fas fa-code-branch text-primary"></i>
                     <span class="logo-text">NEO Regex</span>
                 </a>
@@ -36,19 +36,16 @@
             </div>
             
             <ul class="nav-menu" id="nav-menu">
-                <li><a href="./index.html" class="nav-link">홈</a></li>
-                <li><a href="./tester.html" class="nav-link">테스터</a></li>
-                <li><a href="./library.html" class="nav-link">라이브러리</a></li>
-                <li><a href="./builder.html" class="nav-link">정규식 메이커</a></li>
-                <li><a href="./expert.html" class="nav-link">전문가 도구</a></li>
-                <li><a href="./beginner.html" class="nav-link">튜토리얼</a></li>
+                <li><a href="../index.html" class="nav-link">홈</a></li>
+                <li><a href="../tester/index.html" class="nav-link">테스터</a></li>
+                <li><a href="../library/index.html" class="nav-link">라이브러리</a></li>
+                <li><a href="../builder/index.html" class="nav-link">정규식 메이커</a></li>
+                <li><a href="../expert/index.html" class="nav-link">전문가 도구</a></li>
+                <li><a href="../beginner/index.html" class="nav-link">튜토리얼</a></li>
             </ul>
             
             <div class="nav-actions">
-                <button class="theme-toggle" id="theme-toggle" title="다크 모드 전환">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <a href="./tester.html" class="btn btn-primary">
+                <a href="../tester/index.html" class="btn btn-primary">
                     <i class="fas fa-flask"></i>
                     테스터
                 </a>
@@ -595,7 +592,7 @@ console.log(match.groups.domain);   // 도메인</code></pre>
     </footer>
 
     <!-- Scripts -->
-    <script src="./src/scripts/expert.js" defer></script>
+    <script src="../src/scripts/expert.js" defer></script>
     
     <!-- Notification Container -->
     <div id="notification-container" class="notification-container"></div>

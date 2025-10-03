@@ -134,100 +134,16 @@
       "category": "developer",
       "difficulty": "hard",
       "icon": "fa-code",
-      "tags": ["html", "parsing", "web"],
+      "tags": ["html", "markup", "parsing"],
       "examples": {
-        "valid": ["<div>content</div>", "<br />"],
-        "invalid": ["<div>", "plain text"]
-      }
-    },
-    {
-      "id": "username",
-      "title": "사용자 이름",
-      "description": "영문, 숫자, 언더스코어만 허용 (3-20자)",
-      "pattern": "^[a-zA-Z0-9_]{3,20}$",
-      "category": "basic",
-      "difficulty": "easy",
-      "icon": "fa-user-circle",
-      "tags": ["validation", "username", "account"],
-      "examples": {
-        "valid": ["user123", "john_doe"],
-        "invalid": ["us", "user@123"]
-      }
-    },
-    {
-      "id": "postal-code-kr",
-      "title": "한국 우편번호",
-      "description": "한국 우편번호 형식을 검증합니다 (5자리)",
-      "pattern": "^\\d{5}$",
-      "category": "korean",
-      "difficulty": "easy",
-      "icon": "fa-map-marker-alt",
-      "tags": ["postal", "zip", "korean"],
-      "examples": {
-        "valid": ["12345", "06234"],
-        "invalid": ["1234", "123456"]
-      }
-    },
-    {
-      "id": "time-24h",
-      "title": "시간 (24시간)",
-      "description": "24시간 형식의 시간을 검증합니다 (HH:MM)",
-      "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$",
-      "category": "validation",
-      "difficulty": "medium",
-      "icon": "fa-clock",
-      "tags": ["time", "validation", "24hour"],
-      "examples": {
-        "valid": ["09:30", "23:59"],
-        "invalid": ["24:00", "9:30"]
-      }
-    },
-    {
-      "id": "mac-address",
-      "title": "MAC 주소",
-      "description": "MAC 주소 형식을 검증합니다",
-      "pattern": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$",
-      "category": "developer",
-      "difficulty": "medium",
-      "icon": "fa-ethernet",
-      "tags": ["network", "mac", "hardware"],
-      "examples": {
-        "valid": ["00:1B:44:11:3A:B7", "00-1B-44-11-3A-B7"],
-        "invalid": ["00:1B:44:11:3A", "00:1B:44:11:3A:B7:C8"]
-      }
-    },
-    {
-      "id": "slug",
-      "title": "URL Slug",
-      "description": "URL에 안전한 slug 형식을 검증합니다",
-      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "category": "developer",
-      "difficulty": "easy",
-      "icon": "fa-link",
-      "tags": ["url", "slug", "web"],
-      "examples": {
-        "valid": ["my-blog-post", "hello-world"],
-        "invalid": ["My-Post", "hello_world"]
-      }
-    },
-    {
-      "id": "korean-business-number",
-      "title": "사업자등록번호",
-      "description": "한국 사업자등록번호 형식을 검증합니다",
-      "pattern": "^\\d{3}-\\d{2}-\\d{5}$",
-      "category": "korean",
-      "difficulty": "easy",
-      "icon": "fa-building",
-      "tags": ["business", "korean", "validation"],
-      "examples": {
-        "valid": ["123-45-67890", "987-65-43210"],
-        "invalid": ["1234567890", "123-456-7890"]
+        "valid": ["<div>text</div>", "<img src=\"image.jpg\" />"],
+        "invalid": ["<div>", "<>"]
       }
     },
     {
       "id": "youtube-url",
-      "title": "YouTube URL",
-      "description": "YouTube 동영상 URL을 검증합니다",
+      "title": "유튜브 URL",
+      "description": "유튜브 동영상 URL을 검증합니다",
       "pattern": "^(https?:\\/\\/)?(www\\.)?(youtube\\.com\\/watch\\?v=|youtu\\.be\\/)([a-zA-Z0-9_-]{11})$",
       "category": "basic",
       "difficulty": "hard",
@@ -418,6 +334,860 @@
       "examples": {
         "valid": ["#programming", "#개발자"],
         "invalid": ["#hash tag", "hashtag"]
+      }
+    },
+    {
+      "id": "korean-postal-code",
+      "title": "우편번호",
+      "description": "한국 우편번호 형식을 검증합니다 (5자리)",
+      "pattern": "^\\d{5}$",
+      "category": "korean",
+      "difficulty": "easy",
+      "icon": "fa-map-marked-alt",
+      "tags": ["postal", "zip", "korean"],
+      "examples": {
+        "valid": ["03187", "12345"],
+        "invalid": ["1234", "123456"]
+      }
+    },
+    {
+      "id": "korean-text",
+      "title": "한글만",
+      "description": "한글과 공백만 허용합니다",
+      "pattern": "^[가-힣\\s]+$",
+      "category": "korean",
+      "difficulty": "easy",
+      "icon": "fa-language",
+      "tags": ["korean", "text", "validation"],
+      "examples": {
+        "valid": ["안녕하세요", "한글 텍스트"],
+        "invalid": ["Hello", "안녕123"]
+      }
+    },
+    {
+      "id": "css-class",
+      "title": "CSS 클래스",
+      "description": "CSS 클래스명을 검증합니다",
+      "pattern": "^\\.[a-zA-Z][a-zA-Z0-9_-]*$",
+      "category": "developer",
+      "difficulty": "easy",
+      "icon": "fa-css3-alt",
+      "tags": ["css", "class", "selector"],
+      "examples": {
+        "valid": [".my-class", ".btn_primary"],
+        "invalid": [".123", ".-class"]
+      }
+    },
+    {
+      "id": "javascript-variable",
+      "title": "JavaScript 변수명",
+      "description": "유효한 JavaScript 변수명을 검증합니다",
+      "pattern": "^[a-zA-Z_$][a-zA-Z0-9_$]*$",
+      "category": "developer",
+      "difficulty": "easy",
+      "icon": "fa-js",
+      "tags": ["javascript", "variable", "naming"],
+      "examples": {
+        "valid": ["myVar", "_private", "$jquery"],
+        "invalid": ["123var", "my-var"]
+      }
+    },
+    {
+      "id": "git-commit",
+      "title": "Git 커밋 해시",
+      "description": "Git 커밋 해시를 검증합니다",
+      "pattern": "^[a-f0-9]{7,40}$",
+      "category": "developer",
+      "difficulty": "easy",
+      "icon": "fa-git-alt",
+      "tags": ["git", "commit", "hash"],
+      "examples": {
+        "valid": ["a1b2c3d", "f4e5d6c7b8a9"],
+        "invalid": ["g1h2i3j", "123456"]
+      }
+    },
+    {
+      "id": "json-string",
+      "title": "JSON 문자열",
+      "description": "JSON 문자열 형식을 검증합니다",
+      "pattern": "\"([^\"\\\\]|\\\\.)*\"",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-quote-right",
+      "tags": ["json", "string", "parsing"],
+      "examples": {
+        "valid": ["\"hello\"", "\"escaped \\\"quote\\\"\""],
+        "invalid": ["'single'", "unclosed"]
+      }
+    },
+    {
+      "id": "integer",
+      "title": "정수",
+      "description": "양수 또는 음수 정수를 검증합니다",
+      "pattern": "^-?\\d+$",
+      "category": "validation",
+      "difficulty": "easy",
+      "icon": "fa-hashtag",
+      "tags": ["number", "integer", "validation"],
+      "examples": {
+        "valid": ["123", "-456", "0"],
+        "invalid": ["12.34", "abc"]
+      }
+    },
+    {
+      "id": "decimal",
+      "title": "소수",
+      "description": "소수점 숫자를 검증합니다",
+      "pattern": "^-?\\d+\\.\\d+$",
+      "category": "validation",
+      "difficulty": "easy",
+      "icon": "fa-percent",
+      "tags": ["number", "decimal", "validation"],
+      "examples": {
+        "valid": ["12.34", "-0.5", "3.14159"],
+        "invalid": ["123", "12."]
+      }
+    },
+    {
+      "id": "percentage",
+      "title": "퍼센트",
+      "description": "퍼센트 값을 검증합니다 (0-100%)",
+      "pattern": "^(100(\\.0{1,2})?|\\d{1,2}(\\.\\d{1,2})?)%$",
+      "category": "validation",
+      "difficulty": "medium",
+      "icon": "fa-percentage",
+      "tags": ["number", "percentage", "validation"],
+      "examples": {
+        "valid": ["50%", "100%", "33.33%"],
+        "invalid": ["101%", "50", "-10%"]
+      }
+    },
+    {
+      "id": "time-24h",
+      "title": "24시간 시간",
+      "description": "24시간 형식의 시간을 검증합니다 (HH:MM)",
+      "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$",
+      "category": "validation",
+      "difficulty": "medium",
+      "icon": "fa-clock",
+      "tags": ["time", "24hour", "validation"],
+      "examples": {
+        "valid": ["09:30", "23:59", "00:00"],
+        "invalid": ["24:00", "9:5", "25:00"]
+      }
+    },
+    {
+      "id": "time-12h",
+      "title": "12시간 시간",
+      "description": "12시간 형식의 시간을 검증합니다 (AM/PM)",
+      "pattern": "^(0?[1-9]|1[0-2]):[0-5][0-9]\\s?(AM|PM|am|pm)$",
+      "category": "validation",
+      "difficulty": "medium",
+      "icon": "fa-clock",
+      "tags": ["time", "12hour", "validation"],
+      "examples": {
+        "valid": ["9:30 AM", "12:00 PM", "11:59 pm"],
+        "invalid": ["13:00 PM", "9:5", "12:60 AM"]
+      }
+    },
+    {
+      "id": "datetime-iso",
+      "title": "날짜시간 (ISO)",
+      "description": "ISO 8601 날짜시간 형식을 검증합니다",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{3})?Z?$",
+      "category": "validation",
+      "difficulty": "hard",
+      "icon": "fa-calendar-alt",
+      "tags": ["datetime", "iso8601", "validation"],
+      "examples": {
+        "valid": ["2024-01-01T12:00:00Z", "2024-12-31T23:59:59.999"],
+        "invalid": ["2024-01-01", "2024-01-01 12:00:00"]
+      }
+    },
+    {
+      "id": "mac-address",
+      "title": "MAC 주소",
+      "description": "MAC 주소 형식을 검증합니다",
+      "pattern": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-ethernet",
+      "tags": ["network", "mac", "validation"],
+      "examples": {
+        "valid": ["00:1B:44:11:3A:B7", "00-1B-44-11-3A-B7"],
+        "invalid": ["00:1B:44:11:3A", "ZZ:1B:44:11:3A:B7"]
+      }
+    },
+    {
+      "id": "port-number",
+      "title": "포트 번호",
+      "description": "네트워크 포트 번호를 검증합니다 (1-65535)",
+      "pattern": "^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$",
+      "category": "developer",
+      "difficulty": "hard",
+      "icon": "fa-network-wired",
+      "tags": ["network", "port", "validation"],
+      "examples": {
+        "valid": ["80", "443", "8080", "65535"],
+        "invalid": ["0", "65536", "abc"]
+      }
+    },
+    {
+      "id": "ipv6",
+      "title": "IPv6 주소",
+      "description": "IPv6 주소 형식을 검증합니다",
+      "pattern": "^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::1|::)$",
+      "category": "developer",
+      "difficulty": "hard",
+      "icon": "fa-network-wired",
+      "tags": ["network", "ipv6", "validation"],
+      "examples": {
+        "valid": ["2001:0db8:85a3:0000:0000:8a2e:0370:7334", "::1"],
+        "invalid": ["192.168.1.1", "gggg::1"]
+      }
+    },
+    {
+      "id": "mime-type",
+      "title": "MIME 타입",
+      "description": "MIME 타입을 검증합니다",
+      "pattern": "^[a-zA-Z]+\\/[a-zA-Z0-9\\+\\-\\.]+$",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-file-alt",
+      "tags": ["mime", "content-type", "validation"],
+      "examples": {
+        "valid": ["text/html", "application/json", "image/png"],
+        "invalid": ["text", "html/text/plain"]
+      }
+    },
+    {
+      "id": "file-path-unix",
+      "title": "Unix 파일 경로",
+      "description": "Unix/Linux 파일 경로를 검증합니다",
+      "pattern": "^(\\/[^\\/ ]*)+\\/?$",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-folder",
+      "tags": ["path", "unix", "filesystem"],
+      "examples": {
+        "valid": ["/home/user/file.txt", "/var/log/"],
+        "invalid": ["C:\\Users", "home/file"]
+      }
+    },
+    {
+      "id": "file-path-windows",
+      "title": "Windows 파일 경로",
+      "description": "Windows 파일 경로를 검증합니다",
+      "pattern": "^[a-zA-Z]:\\\\(?:[^\\\\/:*?\"<>|\\r\\n]+\\\\)*[^\\\\/:*?\"<>|\\r\\n]*$",
+      "category": "developer",
+      "difficulty": "hard",
+      "icon": "fa-folder",
+      "tags": ["path", "windows", "filesystem"],
+      "examples": {
+        "valid": ["C:\\\\Users\\\\file.txt", "D:\\\\Projects\\\\"],
+        "invalid": ["/home/user", "C:/Users"]
+      }
+    },
+    {
+      "id": "instagram-username",
+      "title": "Instagram 사용자명",
+      "description": "Instagram 사용자명을 검증합니다",
+      "pattern": "^@?[A-Za-z0-9_.]{1,30}$",
+      "category": "basic",
+      "difficulty": "easy",
+      "icon": "fa-instagram",
+      "tags": ["instagram", "social", "username"],
+      "examples": {
+        "valid": ["@user_name", "user.name", "username123"],
+        "invalid": ["@user-name", "user name", "@verylongusernamethatexceedsthirtychars"]
+      }
+    },
+    {
+      "id": "facebook-url",
+      "title": "Facebook URL",
+      "description": "Facebook 프로필 URL을 검증합니다",
+      "pattern": "^https?:\\/\\/(www\\.)?facebook\\.com\\/[a-zA-Z0-9(\\.\\-)?]+\\/?$",
+      "category": "basic",
+      "difficulty": "medium",
+      "icon": "fa-facebook",
+      "tags": ["facebook", "social", "url"],
+      "examples": {
+        "valid": ["https://facebook.com/username", "http://www.facebook.com/user.name"],
+        "invalid": ["facebook.com/user", "https://fb.com/user"]
+      }
+    },
+    {
+      "id": "linkedin-url",
+      "title": "LinkedIn URL",
+      "description": "LinkedIn 프로필 URL을 검증합니다",
+      "pattern": "^https?:\\/\\/(www\\.)?linkedin\\.com\\/(in|company)\\/[a-zA-Z0-9\\-]+\\/?$",
+      "category": "basic",
+      "difficulty": "medium",
+      "icon": "fa-linkedin",
+      "tags": ["linkedin", "social", "url"],
+      "examples": {
+        "valid": ["https://linkedin.com/in/username", "https://www.linkedin.com/company/company-name"],
+        "invalid": ["linkedin.com/user", "https://linkedin.com/username"]
+      }
+    },
+    {
+      "id": "korean-business-number",
+      "title": "사업자등록번호",
+      "description": "한국 사업자등록번호를 검증합니다",
+      "pattern": "^\\d{3}-\\d{2}-\\d{5}$",
+      "category": "korean",
+      "difficulty": "medium",
+      "icon": "fa-building",
+      "tags": ["business", "korean", "validation"],
+      "examples": {
+        "valid": ["123-45-67890", "000-00-00000"],
+        "invalid": ["12345678", "123-456-78901"]
+      }
+    },
+    {
+      "id": "korean-corporation-number",
+      "title": "법인등록번호",
+      "description": "한국 법인등록번호를 검증합니다",
+      "pattern": "^\\d{6}-\\d{7}$",
+      "category": "korean",
+      "difficulty": "medium",
+      "icon": "fa-building",
+      "tags": ["corporation", "korean", "validation"],
+      "examples": {
+        "valid": ["123456-1234567", "000000-0000000"],
+        "invalid": ["12345-123456", "123456-12345"]
+      }
+    },
+    {
+      "id": "korean-foreign-number",
+      "title": "외국인등록번호",
+      "description": "한국 외국인등록번호를 검증합니다",
+      "pattern": "^\\d{6}-[5-8]\\d{6}$",
+      "category": "korean",
+      "difficulty": "medium",
+      "icon": "fa-passport",
+      "tags": ["foreigner", "korean", "validation"],
+      "examples": {
+        "valid": ["900101-5234567", "850315-6123456"],
+        "invalid": ["900101-1234567", "850315-9123456"]
+      }
+    },
+    {
+      "id": "alpha-only",
+      "title": "영문만",
+      "description": "영문자만 허용합니다",
+      "pattern": "^[A-Za-z]+$",
+      "category": "validation",
+      "difficulty": "easy",
+      "icon": "fa-font",
+      "tags": ["text", "alpha", "validation"],
+      "examples": {
+        "valid": ["Hello", "ABC", "test"],
+        "invalid": ["Hello123", "한글", "test!"]
+      }
+    },
+    {
+      "id": "alphanumeric",
+      "title": "영문+숫자",
+      "description": "영문자와 숫자만 허용합니다",
+      "pattern": "^[A-Za-z0-9]+$",
+      "category": "validation",
+      "difficulty": "easy",
+      "icon": "fa-keyboard",
+      "tags": ["text", "alphanumeric", "validation"],
+      "examples": {
+        "valid": ["Hello123", "ABC", "test99"],
+        "invalid": ["Hello!", "한글123", "test_"]
+      }
+    },
+    {
+      "id": "no-special-chars",
+      "title": "특수문자 제외",
+      "description": "특수문자를 제외한 문자를 허용합니다",
+      "pattern": "^[A-Za-z0-9\\s가-힣]+$",
+      "category": "validation",
+      "difficulty": "easy",
+      "icon": "fa-ban",
+      "tags": ["text", "validation", "no-special"],
+      "examples": {
+        "valid": ["Hello World", "안녕하세요 123", "Test"],
+        "invalid": ["Hello!", "test@123", "안녕#"]
+      }
+    },
+    {
+      "id": "query-string",
+      "title": "쿼리 스트링",
+      "description": "URL 쿼리 스트링을 추출합니다",
+      "pattern": "\\?([^#]+)",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-question",
+      "tags": ["url", "query", "parsing"],
+      "examples": {
+        "valid": ["?name=value&foo=bar", "?id=123"],
+        "invalid": ["name=value", "?"]
+      }
+    },
+    {
+      "id": "domain-name",
+      "title": "도메인 이름",
+      "description": "도메인 이름을 검증합니다",
+      "pattern": "^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}$",
+      "category": "basic",
+      "difficulty": "medium",
+      "icon": "fa-globe",
+      "tags": ["domain", "dns", "validation"],
+      "examples": {
+        "valid": ["example.com", "sub.domain.co.kr"],
+        "invalid": ["-example.com", "example", "example."]
+      }
+    },
+    {
+      "id": "subdomain",
+      "title": "서브도메인",
+      "description": "서브도메인을 추출합니다",
+      "pattern": "^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?)\\.",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-sitemap",
+      "tags": ["domain", "subdomain", "parsing"],
+      "examples": {
+        "valid": ["www.", "api.", "blog."],
+        "invalid": ["-www.", ".api", "www"]
+      }
+    },
+    {
+      "id": "email-subject",
+      "title": "이메일 제목",
+      "description": "이메일 제목에서 RE:, FW: 등을 추출합니다",
+      "pattern": "^(RE:|FW:|Fwd:)\\s*",
+      "category": "basic",
+      "difficulty": "easy",
+      "icon": "fa-envelope-open",
+      "tags": ["email", "subject", "parsing"],
+      "examples": {
+        "valid": ["RE: Hello", "FW: Meeting", "Fwd: Important"],
+        "invalid": ["Hello", "Re Hello", "RE:"]
+      }
+    },
+    {
+      "id": "slug",
+      "title": "URL 슬러그",
+      "description": "URL 친화적인 슬러그를 검증합니다",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-link",
+      "tags": ["url", "slug", "validation"],
+      "examples": {
+        "valid": ["my-post-title", "hello-world", "post-123"],
+        "invalid": ["My Post", "-hello", "post_title"]
+      }
+    },
+    {
+      "id": "xml-tag",
+      "title": "XML 태그",
+      "description": "XML 태그를 추출합니다",
+      "pattern": "<([a-zA-Z][a-zA-Z0-9]*)\\b[^>]*>(.*?)<\\/\\1>",
+      "category": "developer",
+      "difficulty": "hard",
+      "icon": "fa-code",
+      "tags": ["xml", "markup", "parsing"],
+      "examples": {
+        "valid": ["<tag>content</tag>", "<item id=\"1\">text</item>"],
+        "invalid": ["<tag>", "</>", "<tag>content</other>"]
+      }
+    },
+    {
+      "id": "yaml-key",
+      "title": "YAML 키",
+      "description": "YAML 키-값 쌍을 추출합니다",
+      "pattern": "^([a-zA-Z0-9_-]+):\\s*(.+)$",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-file-code",
+      "tags": ["yaml", "config", "parsing"],
+      "examples": {
+        "valid": ["name: value", "port: 8080", "debug_mode: true"],
+        "invalid": ["name=value", ":value", "name:"]
+      }
+    },
+    {
+      "id": "jwt-token",
+      "title": "JWT 토큰",
+      "description": "JWT 토큰 형식을 검증합니다",
+      "pattern": "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-key",
+      "tags": ["jwt", "token", "security"],
+      "examples": {
+        "valid": ["eyJhbGc.eyJzdWI.SflKxw", "header.payload.signature"],
+        "invalid": ["invalid.token", "header.payload", "notajwt"]
+      }
+    },
+    {
+      "id": "api-key",
+      "title": "API 키",
+      "description": "일반적인 API 키 형식을 검증합니다",
+      "pattern": "^[A-Za-z0-9]{32,}$",
+      "category": "developer",
+      "difficulty": "easy",
+      "icon": "fa-key",
+      "tags": ["api", "key", "security"],
+      "examples": {
+        "valid": ["a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6", "APIKEY123456789ABCDEF"],
+        "invalid": ["short", "key-with-dashes", "key@123"]
+      }
+    },
+    {
+      "id": "latitude",
+      "title": "위도",
+      "description": "위도 좌표를 검증합니다 (-90 ~ 90)",
+      "pattern": "^-?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?)$",
+      "category": "validation",
+      "difficulty": "hard",
+      "icon": "fa-map-marker-alt",
+      "tags": ["geo", "latitude", "coordinate"],
+      "examples": {
+        "valid": ["37.5665", "-90", "0", "89.999"],
+        "invalid": ["91", "-90.1", "abc"]
+      }
+    },
+    {
+      "id": "longitude",
+      "title": "경도",
+      "description": "경도 좌표를 검증합니다 (-180 ~ 180)",
+      "pattern": "^-?(1[0-7]\\d(\\.\\d+)?|180(\\.0+)?|\\d{1,2}(\\.\\d+)?)$",
+      "category": "validation",
+      "difficulty": "hard",
+      "icon": "fa-map-marker-alt",
+      "tags": ["geo", "longitude", "coordinate"],
+      "examples": {
+        "valid": ["126.9780", "-180", "0", "179.999"],
+        "invalid": ["181", "-180.1", "abc"]
+      }
+    },
+    {
+      "id": "rgb-color",
+      "title": "RGB 색상",
+      "description": "RGB 색상 코드를 검증합니다",
+      "pattern": "^rgb\\((\\d{1,3}),\\s*(\\d{1,3}),\\s*(\\d{1,3})\\)$",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-palette",
+      "tags": ["color", "rgb", "css"],
+      "examples": {
+        "valid": ["rgb(255, 0, 0)", "rgb(0, 128, 255)", "rgb(0,0,0)"],
+        "invalid": ["rgb(256,0,0)", "rgb(255,0)", "255,0,0"]
+      }
+    },
+    {
+      "id": "rgba-color",
+      "title": "RGBA 색상",
+      "description": "RGBA 색상 코드를 검증합니다",
+      "pattern": "^rgba\\((\\d{1,3}),\\s*(\\d{1,3}),\\s*(\\d{1,3}),\\s*(0|1|0?\\.\\d+)\\)$",
+      "category": "developer",
+      "difficulty": "hard",
+      "icon": "fa-palette",
+      "tags": ["color", "rgba", "css"],
+      "examples": {
+        "valid": ["rgba(255,0,0,0.5)", "rgba(0,128,255,1)", "rgba(0,0,0,0)"],
+        "invalid": ["rgba(256,0,0,0.5)", "rgba(255,0,0)", "rgba(0,0,0,2)"]
+      }
+    },
+    {
+      "id": "currency-usd",
+      "title": "미국 달러",
+      "description": "미국 달러 금액 형식을 검증합니다",
+      "pattern": "^\\$?[1-9]\\d{0,2}(,\\d{3})*(\\.\\d{2})?$|^\\$?0(\\.\\d{2})?$",
+      "category": "validation",
+      "difficulty": "medium",
+      "icon": "fa-dollar-sign",
+      "tags": ["currency", "money", "usd"],
+      "examples": {
+        "valid": ["$1,000.00", "$50", "1000.00", "$0.99"],
+        "invalid": ["$,000", "$.99", "$1000."]
+      }
+    },
+    {
+      "id": "currency-eur",
+      "title": "유로",
+      "description": "유로 금액 형식을 검증합니다",
+      "pattern": "^€?[1-9]\\d{0,2}(\\.\\d{3})*(,\\d{2})?$|^€?0(,\\d{2})?$",
+      "category": "validation",
+      "difficulty": "medium",
+      "icon": "fa-euro-sign",
+      "tags": ["currency", "money", "eur"],
+      "examples": {
+        "valid": ["€1.000,00", "€50", "1000,00", "€0,99"],
+        "invalid": ["€.000", "€,99", "€1000."]
+      }
+    },
+    {
+      "id": "ssn-us",
+      "title": "미국 사회보장번호",
+      "description": "미국 SSN 형식을 검증합니다",
+      "pattern": "^\\d{3}-\\d{2}-\\d{4}$",
+      "category": "validation",
+      "difficulty": "medium",
+      "icon": "fa-id-card",
+      "tags": ["ssn", "usa", "validation"],
+      "examples": {
+        "valid": ["123-45-6789", "000-00-0000"],
+        "invalid": ["12345678", "123-456-789"]
+      }
+    },
+    {
+      "id": "zip-code-us",
+      "title": "미국 우편번호",
+      "description": "미국 ZIP 코드를 검증합니다",
+      "pattern": "^\\d{5}(-\\d{4})?$",
+      "category": "validation",
+      "difficulty": "easy",
+      "icon": "fa-map-marker-alt",
+      "tags": ["zip", "postal", "usa"],
+      "examples": {
+        "valid": ["12345", "12345-6789"],
+        "invalid": ["1234", "12345-678"]
+      }
+    },
+    {
+      "id": "phone-us",
+      "title": "미국 전화번호",
+      "description": "미국 전화번호 형식을 검증합니다",
+      "pattern": "^(\\+1)?[-.\\s]?\\(?\\d{3}\\)?[-.\\s]?\\d{3}[-.\\s]?\\d{4}$",
+      "category": "validation",
+      "difficulty": "medium",
+      "icon": "fa-phone",
+      "tags": ["phone", "usa", "validation"],
+      "examples": {
+        "valid": ["(123) 456-7890", "+1-123-456-7890", "1234567890"],
+        "invalid": ["12345", "123-45-6789"]
+      }
+    },
+    {
+      "id": "iban",
+      "title": "IBAN",
+      "description": "국제 은행 계좌번호를 검증합니다",
+      "pattern": "^[A-Z]{2}\\d{2}[A-Z0-9]{1,30}$",
+      "category": "validation",
+      "difficulty": "hard",
+      "icon": "fa-university",
+      "tags": ["iban", "bank", "international"],
+      "examples": {
+        "valid": ["GB82WEST12345698765432", "DE89370400440532013000"],
+        "invalid": ["GB82", "1234567890", "GBABCD"]
+      }
+    },
+    {
+      "id": "swift-bic",
+      "title": "SWIFT/BIC 코드",
+      "description": "SWIFT/BIC 코드를 검증합니다",
+      "pattern": "^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$",
+      "category": "validation",
+      "difficulty": "medium",
+      "icon": "fa-university",
+      "tags": ["swift", "bic", "bank"],
+      "examples": {
+        "valid": ["DEUTDEFF", "DEUTDEFF500"],
+        "invalid": ["DEUT", "DEUTDEFF50", "deutdeff"]
+      }
+    },
+    {
+      "id": "html-comment",
+      "title": "HTML 주석",
+      "description": "HTML 주석을 추출합니다",
+      "pattern": "<!--([\\s\\S]*?)-->",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-comment",
+      "tags": ["html", "comment", "parsing"],
+      "examples": {
+        "valid": ["<!-- comment -->", "<!-- multi\nline -->"],
+        "invalid": ["<!-- unclosed", "// comment"]
+      }
+    },
+    {
+      "id": "css-variable",
+      "title": "CSS 변수",
+      "description": "CSS 커스텀 속성(변수)을 추출합니다",
+      "pattern": "--[a-zA-Z][a-zA-Z0-9-]*",
+      "category": "developer",
+      "difficulty": "easy",
+      "icon": "fa-css3",
+      "tags": ["css", "variable", "custom-property"],
+      "examples": {
+        "valid": ["--primary-color", "--font-size-lg", "--my-var"],
+        "invalid": ["--123", "-primary", "primary-color"]
+      }
+    },
+    {
+      "id": "sql-comment",
+      "title": "SQL 주석",
+      "description": "SQL 주석을 추출합니다",
+      "pattern": "--[^\\r\\n]*|/\\*[\\s\\S]*?\\*/",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-database",
+      "tags": ["sql", "comment", "parsing"],
+      "examples": {
+        "valid": ["-- comment", "/* multi line */"],
+        "invalid": ["// comment", "# comment"]
+      }
+    },
+    {
+      "id": "python-comment",
+      "title": "Python 주석",
+      "description": "Python 주석을 추출합니다",
+      "pattern": "#[^\\r\\n]*|'''[\\s\\S]*?'''|\"\"\"[\\s\\S]*?\"\"\"",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-python",
+      "tags": ["python", "comment", "parsing"],
+      "examples": {
+        "valid": ["# comment", "'''docstring'''", "\"\"\"multi line\"\"\""],
+        "invalid": ["// comment", "/* comment */"]
+      }
+    },
+    {
+      "id": "semantic-html5",
+      "title": "HTML5 시맨틱 태그",
+      "description": "HTML5 시맨틱 태그를 검증합니다",
+      "pattern": "<(header|nav|main|article|section|aside|footer)([^>]*)>([\\s\\S]*?)<\\/\\1>",
+      "category": "developer",
+      "difficulty": "hard",
+      "icon": "fa-html5",
+      "tags": ["html5", "semantic", "parsing"],
+      "examples": {
+        "valid": ["<header>content</header>", "<nav class=\"menu\">links</nav>"],
+        "invalid": ["<div>content</div>", "<header>unclosed"]
+      }
+    },
+    {
+      "id": "npm-package",
+      "title": "NPM 패키지명",
+      "description": "NPM 패키지명을 검증합니다",
+      "pattern": "^(@[a-z0-9-~][a-z0-9-._~]*\\/)?[a-z0-9-~][a-z0-9-._~]*$",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-npm",
+      "tags": ["npm", "package", "validation"],
+      "examples": {
+        "valid": ["react", "@types/node", "lodash.debounce"],
+        "invalid": ["React", "@/package", "-invalid"]
+      }
+    },
+    {
+      "id": "docker-image",
+      "title": "Docker 이미지명",
+      "description": "Docker 이미지명을 검증합니다",
+      "pattern": "^([a-z0-9]+([._-][a-z0-9]+)*\\/)*[a-z0-9]+([._-][a-z0-9]+)*(:[a-zA-Z0-9._-]+)?$",
+      "category": "developer",
+      "difficulty": "hard",
+      "icon": "fa-docker",
+      "tags": ["docker", "image", "validation"],
+      "examples": {
+        "valid": ["nginx", "ubuntu:20.04", "myregistry.com/myapp:latest"],
+        "invalid": ["Nginx", "image@latest", "-invalid"]
+      }
+    },
+    {
+      "id": "regex-flags",
+      "title": "정규식 플래그",
+      "description": "정규식 플래그를 추출합니다",
+      "pattern": "\\/[gimsuvy]*$",
+      "category": "developer",
+      "difficulty": "easy",
+      "icon": "fa-flag",
+      "tags": ["regex", "flags", "parsing"],
+      "examples": {
+        "valid": ["/gi", "/g", "/gimsuy"],
+        "invalid": ["/abc", "gi", "/xyz"]
+      }
+    },
+    {
+      "id": "user-agent",
+      "title": "User Agent",
+      "description": "간단한 User Agent를 검증합니다",
+      "pattern": "^Mozilla\\/\\d\\.\\d.+",
+      "category": "developer",
+      "difficulty": "medium",
+      "icon": "fa-browser",
+      "tags": ["user-agent", "browser", "validation"],
+      "examples": {
+        "valid": ["Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Mozilla/4.0 (compatible; MSIE 6.0)"],
+        "invalid": ["Chrome/90.0", "Safari"]
+      }
+    },
+    {
+      "id": "css-id",
+      "title": "CSS ID",
+      "description": "CSS ID 선택자를 검증합니다",
+      "pattern": "^#[a-zA-Z][a-zA-Z0-9_-]*$",
+      "category": "developer",
+      "difficulty": "easy",
+      "icon": "fa-hashtag",
+      "tags": ["css", "id", "selector"],
+      "examples": {
+        "valid": ["#header", "#my-id", "#button_1"],
+        "invalid": ["#123", "#-id", "header"]
+      }
+    },
+    {
+      "id": "environment-variable",
+      "title": "환경 변수명",
+      "description": "환경 변수명을 검증합니다",
+      "pattern": "^[A-Z][A-Z0-9_]*$",
+      "category": "developer",
+      "difficulty": "easy",
+      "icon": "fa-cog",
+      "tags": ["env", "variable", "validation"],
+      "examples": {
+        "valid": ["API_KEY", "DATABASE_URL", "PORT"],
+        "invalid": ["api_key", "123_VAR", "my-var"]
+      }
+    },
+    {
+      "id": "boolean-string",
+      "title": "불린 문자열",
+      "description": "불린 값을 나타내는 문자열을 검증합니다",
+      "pattern": "^(true|false|True|False|TRUE|FALSE|yes|no|Yes|No|YES|NO|1|0)$",
+      "category": "validation",
+      "difficulty": "easy",
+      "icon": "fa-toggle-on",
+      "tags": ["boolean", "validation", "string"],
+      "examples": {
+        "valid": ["true", "False", "YES", "0"],
+        "invalid": ["maybe", "on", "off"]
+      }
+    },
+    {
+      "id": "positive-number",
+      "title": "양수",
+      "description": "양의 정수를 검증합니다",
+      "pattern": "^[1-9]\\d*$",
+      "category": "validation",
+      "difficulty": "easy",
+      "icon": "fa-plus",
+      "tags": ["number", "positive", "validation"],
+      "examples": {
+        "valid": ["1", "100", "999"],
+        "invalid": ["0", "-1", "12.5"]
+      }
+    },
+    {
+      "id": "negative-number",
+      "title": "음수",
+      "description": "음의 정수를 검증합니다",
+      "pattern": "^-[1-9]\\d*$",
+      "category": "validation",
+      "difficulty": "easy",
+      "icon": "fa-minus",
+      "tags": ["number", "negative", "validation"],
+      "examples": {
+        "valid": ["-1", "-100", "-999"],
+        "invalid": ["0", "1", "-0"]
       }
     }
   ]
