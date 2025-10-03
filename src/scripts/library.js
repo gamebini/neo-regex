@@ -579,18 +579,22 @@ class RegexLibrary {
                         ${pattern.examples ? `
                             <div class="detail-section">
                                 <h3>예제</h3>
-                                <div class="examples-grid">
+                                <div class="examples-content">
                                     <div class="example-group">
                                         <h4><i class="fas fa-check-circle"></i> 매칭되는 예제</h4>
-                                        ${pattern.examples.valid.map(ex => 
-                                            `<code class="example-valid">${this.escapeHtml(ex)}</code>`
-                                        ).join('')}
+                                        <ul class="example-list valid-examples">
+                                            ${pattern.examples.valid.map(ex => 
+                                                `<li>${this.escapeHtml(ex)}</li>`
+                                            ).join('')}
+                                        </ul>
                                     </div>
                                     <div class="example-group">
                                         <h4><i class="fas fa-times-circle"></i> 매칭되지 않는 예제</h4>
-                                        ${pattern.examples.invalid.map(ex => 
-                                            `<code class="example-invalid">${this.escapeHtml(ex)}</code>`
-                                        ).join('')}
+                                        <ul class="example-list invalid-examples">
+                                            ${pattern.examples.invalid.map(ex => 
+                                                `<li>${this.escapeHtml(ex)}</li>`
+                                            ).join('')}
+                                        </ul>
                                     </div>
                                 </div>
                             </div>

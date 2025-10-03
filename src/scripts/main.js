@@ -559,11 +559,12 @@ class NeoRegexApp {
         
         // Update document title based on page
         const titles = {
-            'index.html': 'NEO Regex - 정규식 도구',
-            'tester.html': '정규식 테스터 - NEO Regex',
-            'library.html': '패턴 라이브러리 - NEO Regex',
-            'builder.html': '시각적 빌더 - NEO Regex',
-            'expert.html': '전문가 도구 - NEO Regex'
+            'index.html': 'NEO Regex | 차세대 정규식 도구',
+            '.../tester/index.html': '정규식 테스터 | NEO Regex',
+            '.../library/index.html': '패턴 라이브러리 | NEO Regex',
+            '.../builder/index.html': '시각적 빌더 | NEO Regex',
+            '.../expert/index.html': '전문가 도구 | NEO Regex',
+            '.../docs/index.html': '문서 | NEO Regex',
         };
         
         document.title = titles[page] || 'NEO Regex';

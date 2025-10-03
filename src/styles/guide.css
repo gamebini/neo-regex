@@ -1402,40 +1402,6 @@
   }
 }
 
-/* =========================
-   Dark Mode Support (추가)
-   ========================= */
-[data-theme="dark"] .interactive-demo {
-  background: var(--color-gray-800);
-  border-color: var(--color-gray-700);
-}
-
-[data-theme="dark"] .demo-container {
-  background: var(--color-gray-900);
-}
-
-[data-theme="dark"] .practice-field {
-  background: var(--color-gray-800);
-  border-color: var(--color-gray-600);
-  color: var(--color-gray-100);
-}
-
-[data-theme="dark"] .practice-field:focus {
-  background: var(--color-gray-700);
-  border-color: var(--color-primary-400);
-}
-
-[data-theme="dark"] .test-text {
-  background: var(--color-gray-950);
-  border-color: var(--color-gray-600);
-}
-
-[data-theme="dark"] .demo-explanation {
-  background: var(--color-gray-800);
-  border-color: var(--color-gray-600);
-  color: var(--color-gray-300);
-}
-
 /* 버튼 활성화 애니메이션 */
 @keyframes buttonActivate {
     0% {
