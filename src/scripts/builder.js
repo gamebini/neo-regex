@@ -1,5 +1,130 @@
 // NEO Regex Builder - 시각적 정규식 빌더
 
+/**
+ * 개발 중 모달을 표시하고 관리하는 클래스
+ */
+class DevModal {
+    constructor() {
+        this.modal = null;
+        this.isVisible = false;
+        this.init();
+    }
+
+    init() {
+        // DOM이 로드되면 모달 표시
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.show());
+        } else {
+            this.show();
+        }
+    }
+
+    show() {
+        // 모달 요소 찾기
+        this.modal = document.getElementById('dev-modal');
+        
+        if (!this.modal) {
+            console.error('Dev modal element not found');
+            return;
+        }
+
+        // 모달 표시
+        this.modal.style.display = 'flex';
+        this.isVisible = true;
+
+        // 페이지 스크롤 방지
+        document.body.style.overflow = 'hidden';
+
+        // 접근성: 포커스 트랩 설정
+        this.setupFocusTrap();
+
+        // ESC 키 비활성화 (모달을 닫을 수 없게)
+        this.disableEscapeKey();
+
+        // 배경 클릭 비활성화 (모달을 닫을 수 없게)
+        this.disableBackgroundClick();
+
+        console.log('🚧 개발 중 모달 표시됨');
+    }
+
+    /**
+     * 포커스 트랩 설정 (접근성)
+     * 모달 내부의 포커스 가능한 요소들 사이에서만 탭 이동
+     */
+    setupFocusTrap() {
+        if (!this.modal) return;
+
+        const focusableElements = this.modal.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        // 첫 번째 요소에 포커스
+        setTimeout(() => {
+            firstElement.focus();
+        }, 100);
+
+        // 탭 키 이동 제어
+        this.modal.addEventListener('keydown', (e) => {
+            if (e.key !== 'Tab') return;
+
+            if (e.shiftKey) {
+                // Shift + Tab: 역방향
+                if (document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                }
+            } else {
+                // Tab: 정방향
+                if (document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
+        });
+    }
+
+    /**
+     * ESC 키로 모달 닫기 방지
+     */
+    disableEscapeKey() {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.isVisible) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true); // 캡처 단계에서 처리
+    }
+
+    /**
+     * 배경 클릭으로 모달 닫기 방지
+     */
+    disableBackgroundClick() {
+        if (!this.modal) return;
+
+        const overlay = this.modal;
+        overlay.addEventListener('click', (e) => {
+            // 오버레이 자체를 클릭한 경우에만 처리
+            if (e.target === overlay) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    }
+}
+
+// 개발 중 모달 인스턴스 생성
+const devModal = new DevModal();
+
+// 전역 접근을 위한 export (선택사항)
+if (typeof window !== 'undefined') {
+    window.devModal = devModal;
+}
+
 class RegexBuilder {
     constructor() {
         this.canvas = [];

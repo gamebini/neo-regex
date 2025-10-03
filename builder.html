@@ -508,5 +508,50 @@
     
     <!-- Notification Container -->
     <div id="notification-container" class="notification-container"></div>
+
+    <!-- 개발 중 모달 - </body> 태그 바로 위에 추가 -->
+    <div id="dev-modal" class="dev-modal-overlay">
+        <div class="dev-modal">
+            <div class="dev-modal-icon">
+                <i class="fas fa-code"></i>
+            </div>
+            <h2 class="dev-modal-title">시각적 빌더 개발 중</h2>
+            <p class="dev-modal-message">
+                시각적 빌더 기능은 현재 개발 중입니다.<br>
+                곧 더 나은 경험으로 찾아뵙겠습니다.
+            </p>
+            <div class="dev-modal-features">
+                <div class="dev-feature-item">
+                    <i class="fas fa-puzzle-piece"></i>
+                    <span>드래그 앤 드롭 인터페이스</span>
+                </div>
+                <div class="dev-feature-item">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <span>시각적 패턴 구성</span>
+                </div>
+                <div class="dev-feature-item">
+                    <i class="fas fa-code"></i>
+                    <span>실시간 정규식 생성</span>
+                </div>
+            </div>
+            <div class="dev-modal-actions">
+                <button class="dev-back-btn" onclick="history.back()">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>이전 페이지로</span>
+                </button>
+                <a href="./index.html" class="dev-home-btn">
+                    <i class="fas fa-home"></i>
+                    <span>홈으로 가기</span>
+                </a>
+            </div>
+            <div class="dev-modal-footer">
+                <p>정규식을 테스트하고 싶으신가요?</p>
+                <a href="./tester.html" class="dev-tester-link">
+                    정규식 테스터 사용하기
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

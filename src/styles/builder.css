@@ -1140,3 +1140,322 @@
     animation: none;
   }
 }
+
+/* =========================
+   개발 중 모달 스타일
+   builder.css 파일 맨 아래에 추가
+   ========================= */
+
+.dev-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.dev-modal {
+  background: white;
+  border-radius: var(--radius-2xl);
+  max-width: 600px;
+  width: 100%;
+  padding: var(--space-8);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideUp 0.4s ease-out;
+  text-align: center;
+  position: relative;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dev-modal-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-6);
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: white;
+  box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 15px 20px -3px rgba(139, 92, 246, 0.4);
+  }
+}
+
+.dev-modal-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--color-gray-900);
+  margin-bottom: var(--space-3);
+  line-height: 1.2;
+}
+
+.dev-modal-message {
+  font-size: 1.125rem;
+  color: var(--color-gray-600);
+  line-height: 1.6;
+  margin-bottom: var(--space-6);
+}
+
+.dev-modal-features {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+  background: var(--color-gray-50);
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-gray-200);
+}
+
+.dev-feature-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.875rem;
+  color: var(--color-gray-700);
+  font-weight: 500;
+  text-align: left;
+}
+
+.dev-feature-item i {
+  width: 36px;
+  height: 36px;
+  background: white;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-600);
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.dev-modal-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.dev-back-btn,
+.dev-home-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all var(--transition-normal);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.dev-back-btn {
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+  border: 2px solid var(--color-gray-200);
+}
+
+.dev-back-btn:hover {
+  background: var(--color-gray-200);
+  border-color: var(--color-gray-300);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dev-home-btn {
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  color: white;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.4);
+}
+
+.dev-home-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.5);
+}
+
+.dev-modal-footer {
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.dev-modal-footer p {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+  margin-bottom: var(--space-2);
+}
+
+.dev-tester-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-primary-600);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.dev-tester-link:hover {
+  color: var(--color-primary-700);
+  gap: var(--space-3);
+}
+
+.dev-tester-link i {
+  transition: transform var(--transition-fast);
+}
+
+.dev-tester-link:hover i {
+  transform: translateX(4px);
+}
+
+/* 모바일 최적화 */
+@media (max-width: 640px) {
+  .dev-modal {
+    padding: var(--space-6);
+  }
+
+  .dev-modal-icon {
+    width: 64px;
+    height: 64px;
+    font-size: 2rem;
+    margin-bottom: var(--space-4);
+  }
+
+  .dev-modal-title {
+    font-size: 1.5rem;
+  }
+
+  .dev-modal-message {
+    font-size: 1rem;
+  }
+
+  .dev-modal-actions {
+    flex-direction: column;
+  }
+
+  .dev-back-btn,
+  .dev-home-btn {
+    width: 100%;
+  }
+
+  .dev-modal-features {
+    padding: var(--space-4);
+  }
+
+  .dev-feature-item {
+    font-size: 0.8125rem;
+  }
+
+  .dev-feature-item i {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .dark .dev-modal {
+    background: var(--color-gray-800);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  .dark .dev-modal-title {
+    color: white;
+  }
+
+  .dark .dev-modal-message {
+    color: var(--color-gray-300);
+  }
+
+  .dark .dev-modal-features {
+    background: var(--color-gray-900);
+    border-color: var(--color-gray-700);
+  }
+
+  .dark .dev-feature-item {
+    color: var(--color-gray-300);
+  }
+
+  .dark .dev-feature-item i {
+    background: var(--color-gray-800);
+  }
+
+  .dark .dev-back-btn {
+    background: var(--color-gray-700);
+    color: var(--color-gray-200);
+    border-color: var(--color-gray-600);
+  }
+
+  .dark .dev-back-btn:hover {
+    background: var(--color-gray-600);
+    border-color: var(--color-gray-500);
+  }
+
+  .dark .dev-modal-footer {
+    border-top-color: var(--color-gray-700);
+  }
+
+  .dark .dev-modal-footer p {
+    color: var(--color-gray-400);
+  }
+}
+
+/* 접근성 개선 */
+.dev-back-btn:focus,
+.dev-home-btn:focus,
+.dev-tester-link:focus {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+/* 프린트 시 모달 숨김 */
+@media print {
+  .dev-modal-overlay {
+    display: none;
+  }
+}
