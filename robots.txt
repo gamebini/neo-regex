@@ -1,0 +1,9 @@
+# NEO Regex - robots.txt
+
+User-agent: *
+Allow: /
+
+# 사이트맵 위치
+Sitemap: https://neoregex.xyz/sitemap.xml
+
+# 크롤링 제외할 경로 (없음)
